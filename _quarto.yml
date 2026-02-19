@@ -1,0 +1,65 @@
+project: 
+  type: website
+  output-dir: docs
+
+website: 
+  title: "Real-Time Analytics"
+  description: "Lectures for SGH Warsaw School of Economics students"
+  site-url: https://sebkaz-teaching.github.io/RTA_2025EN
+  sidebar:
+    style: "docked"
+    contents:
+      - index.qmd
+      - section: "Lectures"
+        contents:
+        - href: lectures/lecture1.qmd
+        - href: lectures/lecture2.qmd
+        - href: lectures/lecture3.qmd
+        - href: lectures/lecture4.qmd
+        - href: lectures/lecture5.qmd
+      - section: "Labs"
+        contents:
+        - section: "Apache Kafka"
+          contents:
+            - href: kafka_codes/kafka1.md
+            - href: kafka_codes/kafka2.ipynb
+            - href: kafka_codes/kafka3.md
+          
+        - section: "Python codes"
+          contents:
+            - href: labs/lab1.ipynb
+            - href: labs/lab2.ipynb
+            - href: labs/lab3.ipynb
+            - href: labs/lab4.ipynb
+            - href: labs/lab5.ipynb
+        - section: "Apache Spark"
+          contents:
+            - href: labs/lab6.ipynb
+            - href: labs/lab7.ipynb
+            - href: labs/lab8.ipynb
+            - href: labs/lab9.ipynb
+  navbar:
+    left: 
+      - href: index.qmd
+        text: Home
+      - href: sylabus.qmd
+        text: Syllabus
+      - href: info.qmd
+        text: Tools
+      - href: books.qmd
+        text: Books
+    
+  page-footer: "Copyright 2025, Sebastian Zajac"      
+format:
+  html:
+    page-layout: article
+    theme: minty
+    css: style.css
+    toc: true
+    toc-depth: 2
+    toc-title: "Sections"
+    self-contained-math: true
+    code-overflow: wrap
+    highlight-style: github-dark
+    code-block-background: true
+    link-external-newwindow: true

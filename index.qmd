@@ -1,0 +1,61 @@
+---
+title: "Info"
+---
+
+## Real Time Analytics 
+
+Code: 222891-D
+
+Semester: 2024/2025
+University: SGH Warsaw School of Economics
+
+Basic course information can be found in the [sylabus](/sylabus).
+
+Recommended reading is available in the [books](/books) section.
+
+
+## Schedule
+
+### Lectures
+Lectures are conducted in a hybrid format. 
+Attendance is optional, with in-person sessions held in Aula VI, Building G.
+
+1. 18-02-2025 (Tuesday) 11:40-13:20 - Lecture 1
+2. 25-02-2025 (Tuesday) 11:40-13:20 - Lecture 2
+3. 04-03-2025 (Tuesday) 11:40-13:20 - Online Lecture 3
+4. 11-03-2025 (Tuesday) 11:40-13:20 - Lecture 4
+5. 18-03-2025 (Tuesday) 11:40-13:20 - Lecture 5
+
+
+Lecture 5 concludes with a test.
+
+Format: 20 questions | 30 minutes
+Platform: MS Teams
+
+
+### TEST
+
+Lectures conclude with a test during the final class. 
+Achieving a score above 13 points qualifies you to participate in the exercises.
+
+After completing the exercises, homework assignments will be submitted via the MS Teams platform
+
+The project should be carried out in groups of no more than 5 people.
+
+Project requirements:
+
+- The project should address a business problem that can be implemented using publicly available data.
+- Data should be ingested into Apache Kafka and subsequently processed and analyzed.
+- You may choose any programming language for each component of the project.
+- Business Intelligence (BI) tools may be utilized.
+- Data sources may include tables, synthetically generated data, IoT devices, etc.
+
+## Technology
+
+To participate in the classes, you should be familiar with and utilize the following technologies:
+
+1. [GIT](https://sebkaz-teaching.github.io/RTA_2023EN/info/) 
+2. Python, Jupyter notebook, Jupyter lab, Colab
+3. [Docker](https://sebkaz-teaching.github.io/RTA_2023EN/info/)
+4. **Apache Spark**, Apache Flink, **Apache Kafka**, Apache Beam
+5. Databricks Community edition [Web page](https://community.cloud.databricks.com/login.html).

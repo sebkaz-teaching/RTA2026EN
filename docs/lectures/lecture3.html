@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Lecture 3 – Real-Time Analytics</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-46f4cc9626f044588a66931b604fc9c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-72416d375d549273b92be57236b143cc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Real-Time Analytics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../sylabus.html"> 
+<span class="menu-text">Syllabus</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../info.html"> 
+<span class="menu-text">Tools</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../books.html"> 
+<span class="menu-text">Books</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture3.html">Lecture 3</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Info</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Lectures</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/lecture1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/lecture2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/lecture3.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture 3</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/lecture5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 5</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Labs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Apache Kafka</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../kafka_codes/kafka1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../kafka_codes/kafka2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kafka Producer</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../kafka_codes/kafka3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kafka Consumer</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">Python codes</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">REST API with Flask</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">API with Flask Excercises</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Structured data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Unstructured data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Structured data</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Apache Spark</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Intorduction to Apache Spark</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab7.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Zarzadzanie zrodlami danych strumieniowych i segmentacja klientow</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Apache Spark on RDD data</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/lab9.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Apache Spark EDA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sections</h2>
+   
+  <ul class="collapse">
+  <li><a href="#data-streams-understanding-the-flow-of-real-time-information" id="toc-data-streams-understanding-the-flow-of-real-time-information" class="nav-link active" data-scroll-target="#data-streams-understanding-the-flow-of-real-time-information">Data Streams: Understanding the Flow of Real-Time Information</a>
+  <ul class="collapse">
+  <li><a href="#definitions" id="toc-definitions" class="nav-link" data-scroll-target="#definitions">Definitions</a></li>
+  <li><a href="#time-in-real-time-data-analysis" id="toc-time-in-real-time-data-analysis" class="nav-link" data-scroll-target="#time-in-real-time-data-analysis">Time in Real-Time Data Analysis</a></li>
+  <li><a href="#time-windows-in-stream-analytics" id="toc-time-windows-in-stream-analytics" class="nav-link" data-scroll-target="#time-windows-in-stream-analytics"><strong>Time Windows in Stream Analytics</strong></a></li>
+  <li><a href="#example-analyzing-user-sessions-on-a-website-the-session-lasts-as-long-as-the-user-is-active-but-ends-after-15-minutes-of-inactivity." id="toc-example-analyzing-user-sessions-on-a-website-the-session-lasts-as-long-as-the-user-is-active-but-ends-after-15-minutes-of-inactivity." class="nav-link" data-scroll-target="#example-analyzing-user-sessions-on-a-website-the-session-lasts-as-long-as-the-user-is-active-but-ends-after-15-minutes-of-inactivity.">📌 <strong>Example:</strong> Analyzing user sessions on a website – the session lasts as long as the user is active, but ends after 15 minutes of inactivity.</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture3.html">Lecture 3</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Lecture 3</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>⏳ Duration: 1.5h</p>
+<p><em>🎯 Lecture Goal</em></p>
+<p>Introducing students to the fundamentals of real-time analytics.</p>
+<section id="data-streams-understanding-the-flow-of-real-time-information" class="level1">
+<h1>Data Streams: Understanding the Flow of Real-Time Information</h1>
+<p>You might associate <code>streaming</code> with platforms that deliver video content online, such as Netflix or YT. When you’re watching your favorite TV show, for example, the streaming service continuously sends you <code>chunks</code> of video, allowing you to watch without waiting for the entire video to download.</p>
+<p>This concept of continuous, real-time delivery applies to streaming data. However, the “chunks” of data don’t have to be video. Instead, they could represent a wide range of information, such as continuous measurements from sensors in factories, power plants, or even monitoring systems in healthcare.</p>
+<p>The key idea here is that streaming data is generated continuously and needs to be processed in real time. Unlike traditional batch processing (where large datasets are collected and analyzed later), stream processing works with live data, making it possible to detect issues, identify patterns, and make decisions in the moment.</p>
+<p>For instance, you can’t afford to wait for a production line to stop in order to analyze its data. If a sensor detects an anomaly or failure, it needs to be logged immediately so that corrective action can be taken without delay. This is the essence of stream processing—the continuous analysis of data as it flows.</p>
+<p><strong>Stream processing</strong> refers to the continuous processing and analysis of large sets of data in motion.</p>
+<p>This can be compared to other aspects of Big Data. <strong>Batch processing</strong> is the opposite of stream processing – you first collect large amounts of data, and only then analyze them. Of course, you could download the entire video before watching it, but would that really make sense?</p>
+<p>There are situations where a batch approach is sufficient, but you can already see that stream processing can offer additional business value that is difficult to achieve with traditional batch processing.</p>
+<p><a href="https://aws.amazon.com/streaming-data/">Interesting Information</a></p>
+<section id="real-time-data-analytics-vs.-event-stream-processing" class="level3">
+<h3 class="anchored" data-anchor-id="real-time-data-analytics-vs.-event-stream-processing">Real-Time Data Analytics vs.&nbsp;Event Stream Processing</h3>
+<p>While both real-time data analytics and event stream processing involve the analysis of data with minimal delay, they are not the same thing.</p>
+<p>It’s easy to confuse real-time analytics with stream analytics (or event stream processing). While stream analytics technologies enable real-time analysis, they are not the same thing!</p>
+<p><strong>Stream Analytics</strong> (or event stream processing) involves analyzing a continuous stream of data, usually tied to a dedicated architecture. It focuses on events that occur over time—things like sensor readings, clicks on a website, or changes in stock prices.</p>
+<p>Typically, real-time analytics systems are divided into hard and soft real-time systems: - <strong>Hard real-time systems</strong> (e.g., flight control systems) require strict adherence to deadlines – any delay could have catastrophic consequences. - <strong>Soft real-time systems</strong> (e.g., weather stations) can tolerate some delays, although in extreme cases, it could lead to data loss.</p>
+<p>Moreover, while stream analytics assumes the presence of a dedicated streaming architecture, real-time analytics is not tied to any specific architecture.</p>
+<p>The key point is that real-time analytics means processing data within the time period that a business defines as “real-time” – this can range from a few milliseconds to a few seconds, depending on business needs.</p>
+</section>
+<section id="data-sources-for-streaming" class="level3">
+<h3 class="anchored" data-anchor-id="data-sources-for-streaming">Data Sources for Streaming:</h3>
+<p>The variety of data sources that can feed into streaming systems is vast and spans several industries. Examples include:</p>
+<ul>
+<li>IoT devices, equipment sensors,<br>
+</li>
+<li>clickstreams,<br>
+</li>
+<li>geolocation tracking,<br>
+</li>
+<li>user interactions (e.g., user actions on your website),<br>
+</li>
+<li>social media channels,<br>
+</li>
+<li>stock market data,<br>
+</li>
+<li>app activity.</li>
+</ul>
+<p>This real-time data is used by businesses to detect patterns, create visualizations, trigger alerts, and take immediate action.</p>
+</section>
+<section id="business-justification-the-need-for-streaming-data" class="level3">
+<h3 class="anchored" data-anchor-id="business-justification-the-need-for-streaming-data">Business Justification: The Need for Streaming Data</h3>
+<p>The sheer volume and speed of modern data are unprecedented. In 2025, IoT devices are expected to generate a staggering 79.4 zettabytes (ZB) of data. Similarly, Twitter processes over 500 million tweets every day.</p>
+<p>The speed at which this data is generated means traditional batch processing is no longer enough. Stream analytics is necessary for businesses to unlock insights from this massive flow of real-time information.</p>
+<p>For example, IoT sensors can detect anomalies in equipment performance, allowing maintenance teams to take proactive action. In stock trading, real-time regression models can help traders make split-second decisions about buying and selling based on the latest market data.</p>
+</section>
+<section id="example-business-applications" class="level3">
+<h3 class="anchored" data-anchor-id="example-business-applications">Example Business Applications</h3>
+<ol type="1">
+<li>IoT Sensor Data and Anomaly Detection - Sensors in factories or on machinery can generate continuous data streams. Stream analytics can detect anomalies in real-time, allowing immediate maintenance or corrective actions to prevent costly downtime or equipment failure.</li>
+<li>Stock Trading, Real-time regression models analyze price movements and help traders identify trends. Timely processing of streaming data can trigger trades in response to market changes—potentially within milliseconds.<br>
+</li>
+<li>Clickstream Analytics for Websites. Real-time analytics of website visitors’ actions can personalize the user experience, adjust content dynamically, or trigger targeted ads based on live user behavior.</li>
+</ol>
+<p><a href="https://www.linkedin.com/pulse/8-best-examples-real-time-data-analytics-bernard-marr/">8 Best Examples of Real-Time Data Analytics</a><br>
+<a href="https://www.forbes.com/sites/forbestechcouncil/2021/10/26/how-to-build-a-strong-business-case-for-streaming-analytics/?sh=eee8eaa465d0">Business Applications</a></p>
+</section>
+<section id="definitions" class="level2">
+<h2 class="anchored" data-anchor-id="definitions">Definitions</h2>
+<section id="learn-more-about-streaming-data" class="level3">
+<h3 class="anchored" data-anchor-id="learn-more-about-streaming-data">Learn more about <a href="https://medium.com/cuelogic-technologies/analyzing-data-streaming-using-spark-vs-kafka-bcfdc33ac828">streaming data</a></h3>
+<blockquote class="blockquote">
+<p><strong>Definition 1</strong> – <strong>Event</strong>: Any observable occurrence at a specific point in time. In data streams, events are immutable records that represent a specific action.</p>
+<p><strong>Definition 2</strong> – In the context of data, an <em>event</em> is encoded as JSON, XML, CSV, or in a binary format.</p>
+<p><strong>Definition 3</strong> – <strong>Continuous Event Stream</strong>: An ongoing sequence of events that happen over time, such as logs from servers, sensor readings, or user activity.</p>
+<p><strong>Definition 4</strong> – <strong>Data Stream</strong>: A continuous flow of data from dynamic sources like sensor readings or log entries. These streams can be generated in real-time or derived from static sources like databases or files.</p>
+<p><strong>A business is an organization that generates and responds to a continuous stream of events.</strong></p>
+</blockquote>
+</section>
+<section id="stream-analytics" class="level3">
+<h3 class="anchored" data-anchor-id="stream-analytics"><strong>Stream Analytics</strong></h3>
+<p><strong>Stream Analytics</strong> (also called <strong>Event Stream Processing</strong>) refers to processing large amounts of data as they are generated, in real-time.</p>
+<p>Regardless of the technology used, all data exists as a <strong>continuous stream of events</strong>, including: - User actions on websites,<br>
+- System logs,<br>
+- Sensor measurements.</p>
+</section>
+</section>
+<section id="time-in-real-time-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="time-in-real-time-data-analysis">Time in Real-Time Data Analysis</h2>
+<p>In batch processing, we analyze historical data, and the timing of the process is unrelated to when the events actually occurred.</p>
+<p>In stream processing, there are two key concepts of time: 1. <strong>Event Time</strong> – the actual moment the event occurred. 2. <strong>Processing Time</strong> – the moment the system processes the event.</p>
+<section id="ideal-data-processing" class="level3">
+<h3 class="anchored" data-anchor-id="ideal-data-processing">Ideal Data Processing</h3>
+<p>In an ideal scenario, processing happens immediately after the event occurs:</p>
+<p><img alt="Ideal Processing" src="img/rys2_1.png" class="center"></p>
+</section>
+<section id="real-data-processing" class="level3">
+<h3 class="anchored" data-anchor-id="real-data-processing">Real Data Processing</h3>
+<p>In reality, data processing always involves some delay, visible as points below the ideal processing line (below the diagonal in the chart):</p>
+<p><img alt="Real Processing" src="img/rys2_2.png" class="center"></p>
+<p>In stream processing applications, the difference between event time and processing time is crucial. Common causes of delays include:</p>
+<ul>
+<li>Data transmission over the network,</li>
+<li>Lack of communication between the device and the network.</li>
+</ul>
+<p>An example of this is tracking the location of a car via a GPS application – passing through a tunnel might cause temporary data loss.</p>
+</section>
+<section id="handling-delays-in-stream-processing" class="level3">
+<h3 class="anchored" data-anchor-id="handling-delays-in-stream-processing">Handling Delays in Stream Processing</h3>
+<p>Delays in event processing can be managed in two main ways: 1. <strong>Monitoring the number of missed events</strong> and triggering an alarm if the number of rejected events exceeds a threshold. 2. <strong>Applying correction using watermarking</strong>, which is an additional mechanism that accounts for delayed events.</p>
+<p>The process of real-time event processing can be represented as a step function:</p>
+<p><img alt="Event Processing" src="img/rys2_3.png" class="center"></p>
+<p>Not all events contribute to the analysis – some may be discarded due to excessive delays.</p>
+<p>By using <strong>watermarking</strong>, additional time is allowed for the appearance of delayed events. This process includes all events above the dashed line. However, there might still be cases where some points are skipped.</p>
+<p><img alt="Watermarking Event Processing" src="img/rys2_4.png" class="center"></p>
+<p>The situations illustrated in the charts explicitly indicate why the concept of time is a critical factor and needs to be clearly defined at the business requirements level. Assigning timestamps to data (events) is a complex task.</p>
+</section>
+</section>
+<section id="time-windows-in-stream-analytics" class="level2">
+<h2 class="anchored" data-anchor-id="time-windows-in-stream-analytics"><strong>Time Windows in Stream Analytics</strong></h2>
+<p>In stream processing, <strong>time windows</strong> allow grouping data into time-limited segments, enabling event analysis within specific time intervals. Depending on the use case, various types of windows are applied, tailored to the characteristics of the data and analytical requirements.</p>
+<hr>
+<section id="tumbling-window" class="level3">
+<h3 class="anchored" data-anchor-id="tumbling-window"><strong>1. Tumbling Window</strong></h3>
+<p>A tumbling window is a fixed-length window that <strong>does not overlap</strong> – each event belongs to only one window.</p>
+<p>✅ <strong>Characteristics:</strong><br>
+- Fixed window length<br>
+- No overlap between windows<br>
+- Ideal for dividing data into equal time segments</p>
+<p>📌 <strong>Example:</strong> Analyzing the number of orders in an online store every 5 minutes.</p>
+<p><img alt="Tumbling Window" src="img/rys2_5.png" class="center"></p>
+<hr>
+</section>
+<section id="sliding-window" class="level3">
+<h3 class="anchored" data-anchor-id="sliding-window"><strong>2. Sliding Window</strong></h3>
+<p>A sliding window includes all events occurring within a specific time interval, where the window <strong>slides continuously</strong>.</p>
+<p>✅ <strong>Characteristics:</strong><br>
+- Each event can belong to multiple windows<br>
+- The window shifts by a specified interval<br>
+- Useful for detecting trends and anomalies</p>
+<p>📌 <strong>Example:</strong> Tracking the average temperature over the last 10 minutes, updated every 2 minutes.</p>
+<p><img alt="Sliding Window" src="img/rys2_6.png" class="center"></p>
+<hr>
+</section>
+<section id="hopping-window" class="level3">
+<h3 class="anchored" data-anchor-id="hopping-window"><strong>3. Hopping Window</strong></h3>
+<p>A hopping window is similar to a tumbling window, but it allows <strong>overlapping windows</strong>, meaning one event can belong to multiple windows. It is used to smooth data.</p>
+<p>✅ <strong>Characteristics:</strong><br>
+- Fixed window length<br>
+- Overlapping windows<br>
+- Useful for noise reduction in data</p>
+<p>📌 <strong>Example:</strong> Analyzing the number of website visitors every 10 minutes, but updated every 5 minutes to better capture trends.</p>
+<p><img alt="Hopping Window" src="img/rys2_7.png" class="center"></p>
+<hr>
+</section>
+<section id="session-window" class="level3">
+<h3 class="anchored" data-anchor-id="session-window"><strong>4. Session Window</strong></h3>
+<p>A session window groups events based on <strong>activity periods</strong> and closes after a specified period of inactivity.</p>
+<p>✅ <strong>Characteristics:</strong><br>
+- Dynamic window length<br>
+- Defined by user activity<br>
+- Used in user session analysis</p>
+</section>
+</section>
+<section id="example-analyzing-user-sessions-on-a-website-the-session-lasts-as-long-as-the-user-is-active-but-ends-after-15-minutes-of-inactivity." class="level2">
+<h2 class="anchored" data-anchor-id="example-analyzing-user-sessions-on-a-website-the-session-lasts-as-long-as-the-user-is-active-but-ends-after-15-minutes-of-inactivity.">📌 <strong>Example:</strong> Analyzing user sessions on a website – the session lasts as long as the user is active, but ends after 15 minutes of inactivity.</h2>
+<section id="summary" class="level3">
+<h3 class="anchored" data-anchor-id="summary"><strong>Summary</strong></h3>
+<p>Different types of time windows are applied depending on the data’s characteristics and the analysis objectives. Choosing the right window impacts the accuracy of results and the efficiency of the analytical system.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 41%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Window Type</th>
+<th>Characteristics</th>
+<th>Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Tumbling</strong></td>
+<td>Fixed length, no overlap</td>
+<td>Periodic reports</td>
+</tr>
+<tr class="even">
+<td><strong>Sliding</strong></td>
+<td>Fixed length, overlapping windows</td>
+<td>Trend detection, anomaly detection</td>
+</tr>
+<tr class="odd">
+<td><strong>Hopping</strong></td>
+<td>Fixed length, partial overlap</td>
+<td>Data smoothing</td>
+</tr>
+<tr class="even">
+<td><strong>Session</strong></td>
+<td>Dynamic length, activity-dependent</td>
+<td>User session analysis</td>
+</tr>
+</tbody>
+</table>
+<p>Each window type has its unique use cases and helps with better interpretation of streaming data. The choice of method depends on business needs and the nature of the analyzed data.</p>
+<p>In stream data analysis, interpreting time is a complex issue due to: 1. Different systems having different clocks, leading to inconsistencies, 2. Data arriving with delays, requiring watermarking and time window techniques, 3. Different approaches to event time vs.&nbsp;processing time impacting result accuracy.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/sebkaz-teaching\.github\.io\/RTA_2025EN");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Copyright 2024, Sebastian Zajac</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
