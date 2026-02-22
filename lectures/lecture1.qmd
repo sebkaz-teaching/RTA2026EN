@@ -151,7 +151,7 @@ Near Real-Time Analytics refers to data analysis that occurs with minimal delay 
 
 Example of a data producer sending transactions to an Apache Kafka system.  
 
-``` python
+```python
 from kafka import KafkaProducer
 import json
 import random
@@ -191,7 +191,7 @@ producer.close()
 
 Consument example
 
-``` python
+```python
 from kafka import KafkaConsumer
 import json  
 
@@ -211,7 +211,7 @@ for message in consumer:
 
 Example of the DataSet
 
-``` python
+```python
 {
     "transaction_id": "TX1234",
     "amount": 523.47,

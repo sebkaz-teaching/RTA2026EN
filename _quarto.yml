@@ -5,7 +5,7 @@ project:
 website: 
   title: "Real-Time Analytics"
   description: "Lectures for SGH Warsaw School of Economics students"
-  site-url: https://sebkaz-teaching.github.io/RTA_2025EN
+  site-url: https://sebkaz-teaching.github.io/RTA2026EN
   sidebar:
     style: "docked"
     contents:
@@ -13,31 +13,31 @@ website:
       - section: "Lectures"
         contents:
         - href: lectures/lecture1.qmd
-        - href: lectures/lecture2.qmd
-        - href: lectures/lecture3.qmd
-        - href: lectures/lecture4.qmd
-        - href: lectures/lecture5.qmd
-      - section: "Labs"
-        contents:
-        - section: "Apache Kafka"
-          contents:
-            - href: kafka_codes/kafka1.md
-            - href: kafka_codes/kafka2.ipynb
-            - href: kafka_codes/kafka3.md
+        # - href: lectures/lecture2.qmd
+        # - href: lectures/lecture3.qmd
+        # - href: lectures/lecture4.qmd
+        # - href: lectures/lecture5.qmd
+      # - section: "Labs"
+      #   contents:
+      #   - section: "Apache Kafka"
+      #     contents:
+      #       - href: kafka_codes/kafka1.md
+      #       - href: kafka_codes/kafka2.ipynb
+      #       - href: kafka_codes/kafka3.md
           
-        - section: "Python codes"
-          contents:
-            - href: labs/lab1.ipynb
-            - href: labs/lab2.ipynb
-            - href: labs/lab3.ipynb
-            - href: labs/lab4.ipynb
-            - href: labs/lab5.ipynb
-        - section: "Apache Spark"
-          contents:
-            - href: labs/lab6.ipynb
-            - href: labs/lab7.ipynb
-            - href: labs/lab8.ipynb
-            - href: labs/lab9.ipynb
+      #   - section: "Python codes"
+      #     contents:
+      #       - href: labs/lab1.ipynb
+      #       - href: labs/lab2.ipynb
+      #       - href: labs/lab3.ipynb
+      #       - href: labs/lab4.ipynb
+      #       - href: labs/lab5.ipynb
+      #   - section: "Apache Spark"
+      #     contents:
+      #       - href: labs/lab6.ipynb
+      #       - href: labs/lab7.ipynb
+      #       - href: labs/lab8.ipynb
+      #       - href: labs/lab9.ipynb
   navbar:
     left: 
       - href: index.qmd
@@ -49,7 +49,7 @@ website:
       - href: books.qmd
         text: Books
     
-  page-footer: "Copyright 2025, Sebastian Zajac"      
+  page-footer: "Copyright 2026, Sebastian Zajac"      
 format:
   html:
     page-layout: article

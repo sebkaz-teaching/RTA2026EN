@@ -81,7 +81,7 @@ Achieving high explainability is particularly challenging for machine learning (
 
 One method for improving algorithm explainability is LIME (Local Interpretable Model-Agnostic Explanations), published in 2016. This method introduces small changes to input data and analyzes their impact on the output, allowing the identification of local decision-making rules within the model.
 
-```{python}
+```python
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -214,7 +214,7 @@ Example: Salary Analysis in a Company
 
 We detect whether there are individuals in the company whose salaries significantly deviate from the average.
 
-```{python}
+```python
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -254,7 +254,7 @@ Its advantages include low computational requirements and effectiveness in analy
 
 A bank analyzes credit card transactions and detects those that may be unauthorized.
 
-```{python}
+```python
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
