@@ -191,7 +191,7 @@
     "href": "index.html#schedule",
     "title": "Info",
     "section": "Schedule",
-    "text": "Schedule\n\nLectures\nLectures are conducted in a hybrid format. Attendance is optional, with in-person sessions held in Aula VI, Building G.\n\n18-02-2025 (Tuesday) 11:40-13:20 - Lecture 1\n25-02-2025 (Tuesday) 11:40-13:20 - Lecture 2\n04-03-2025 (Tuesday) 11:40-13:20 - Online Lecture 3\n11-03-2025 (Tuesday) 11:40-13:20 - Lecture 4\n18-03-2025 (Tuesday) 11:40-13:20 - Lecture 5\n\nLecture 5 concludes with a test.\nFormat: 20 questions | 30 minutes Platform: MS Teams\n\n\nTEST\nLectures conclude with a test during the final class. Achieving a score above 13 points qualifies you to participate in the exercises.\nAfter completing the exercises, homework assignments will be submitted via the MS Teams platform\nThe project should be carried out in groups of no more than 5 people.\nProject requirements:\n\nThe project should address a business problem that can be implemented using publicly available data.\nData should be ingested into Apache Kafka and subsequently processed and analyzed.\nYou may choose any programming language for each component of the project.\nBusiness Intelligence (BI) tools may be utilized.\nData sources may include tables, synthetically generated data, IoT devices, etc.",
+    "text": "Schedule\n\nLectures\nLectures are conducted in a hybrid format. Attendance is optional, with in-person sessions held in Aula VI, Building G.\n\n\n23.03.2026 Lecture 1 - 11:40-13:20\n\n02.03.2026 Lecture 2 - 11:40-13:20\n09.03.2026 Lecture 3 - 11:40-13:20\n16.03.2026 Lecture 4 - 11:40-13:20\n23.03.2026 Lecture 5 - 11:40-13:20\n\nLecture 5 concludes with a test.\nFormat: 20 questions | 30 minutes Platform: MS Teams\n\n\nTEST\nLectures conclude with a test during the final class. Achieving a score above 13 points qualifies you to participate in the exercises.\nAfter completing the exercises, homework assignments will be submitted via the MS Teams platform\nThe project should be carried out in groups of no more than 5 people.\nProject requirements:\n\nThe project should address a business problem that can be implemented using publicly available data.\nData should be ingested into Apache Kafka and subsequently processed and analyzed.\nYou may choose any programming language for each component of the project.\nBusiness Intelligence (BI) tools may be utilized.\nData sources may include tables, synthetically generated data, IoT devices, etc.",
     "crumbs": [
       "Home",
       "Info"
@@ -202,7 +202,7 @@
     "href": "index.html#technology",
     "title": "Info",
     "section": "Technology",
-    "text": "Technology\nTo participate in the classes, you should be familiar with and utilize the following technologies:\n\nGIT\nPython, Jupyter notebook, Jupyter lab, Colab\nDocker\nApache Spark, Apache Flink, Apache Kafka, Apache Beam\nDatabricks Community edition Web page.",
+    "text": "Technology\nTo participate in the classes, you should be familiar with and utilize the following technologies:\n\nGIT\nPython, Jupyter notebook, Jupyter lab, Colab\nDocker\nApache Spark, Apache Flink, Apache Kafka, Apache Beam",
     "crumbs": [
       "Home",
       "Info"
@@ -228,13 +228,6 @@
     "title": "Syllabus",
     "section": "List of Topics",
     "text": "List of Topics\n\nModelling, learning and prediction in batch mode (offline learning) and incremental (online learning) modes. Problems of incremental machine learning.\nData processing models in Big Data. From flat files to Data Lake. Real-time data myth and facts\nNRT systems (near real-time systems), data acquisition, streaming and analytics.\nAlgorithms for estimating model parameters in incremental mode. Stochastic Gradient Descent.\nLambda and Kappa architecture. Designing IT architecture for real-time data processing.\nPreparation of the micro-service with the ML model for prediction use.\nStructured and unstructured data. Relational databases and NoSQL databases.\nAggregations and reporting in NoSQL databases (on the example of the MongoDB or Cassandra)\nBasic of object-oriented programming in Python in linear and logistic regression, neural network analysis using the sklearn, TensorFlow and Keras.\nIT architecture of Big Data processing. Preparation of a virtual env for Apache Spark."
-  },
-  {
-    "objectID": "sylabus.html#conditions-for-passing",
-    "href": "sylabus.html#conditions-for-passing",
-    "title": "Syllabus",
-    "section": "Conditions for passing",
-    "text": "Conditions for passing\n\ntest 30%\npractical test 30% (IF)\ngroup project 40% (70%)"
   },
   {
     "objectID": "sylabus.html#books",

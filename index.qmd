@@ -20,11 +20,11 @@ Recommended reading is available in the [books](/books) section.
 Lectures are conducted in a hybrid format. 
 Attendance is optional, with in-person sessions held in Aula VI, Building G.
 
-1. 18-02-2025 (Tuesday) 11:40-13:20 - Lecture 1
-2. 25-02-2025 (Tuesday) 11:40-13:20 - Lecture 2
-3. 04-03-2025 (Tuesday) 11:40-13:20 - Online Lecture 3
-4. 11-03-2025 (Tuesday) 11:40-13:20 - Lecture 4
-5. 18-03-2025 (Tuesday) 11:40-13:20 - Lecture 5
+1. <del>23.03.2026 Lecture 1 - 11:40-13:20</del>
+2. 02.03.2026 Lecture 2 - 11:40-13:20
+3. 09.03.2026 Lecture 3 - 11:40-13:20
+4. 16.03.2026 Lecture 4 - 11:40-13:20
+5. 23.03.2026 Lecture 5 - 11:40-13:20
 
 
 Lecture 5 concludes with a test.
@@ -54,8 +54,7 @@ Project requirements:
 
 To participate in the classes, you should be familiar with and utilize the following technologies:
 
-1. [GIT](https://sebkaz-teaching.github.io/RTA_2023EN/info/) 
+1. [GIT](https://sebkaz-teaching.github.io/RTA2026EN/info/) 
 2. Python, Jupyter notebook, Jupyter lab, Colab
-3. [Docker](https://sebkaz-teaching.github.io/RTA_2023EN/info/)
+3. [Docker](https://sebkaz-teaching.github.io/RTA2026EN/info/)
 4. **Apache Spark**, Apache Flink, **Apache Kafka**, Apache Beam
-5. Databricks Community edition [Web page](https://community.cloud.databricks.com/login.html).
