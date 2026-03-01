@@ -19,13 +19,15 @@ We will start with classical tabular structures, move through more advanced grap
 # **Evolution of Data**
 
 ## **1. Tabular Data (SQL Tables)**  
+
 Initially, data was stored in tables, where each table contained organized information in columns and rows (e.g., SQL databases).  
 Such models were perfect for **structured** data.
 
-### 📌 **Features:**  
-✅ Data divided into columns with a fixed structure.  
-✅ CRUD operations (Create, Read, Update, Delete) can be applied.  
-✅ Strict consistency and normalization rules.
+### 📌 **Features:**
+
+- ✅ Data divided into columns with a fixed structure.  
+- ✅ CRUD operations (Create, Read, Update, Delete) can be applied.  
+- ✅ Strict consistency and normalization rules.
 
 ### 📌 **Examples:**  
 ➡️ Banking systems, e-commerce, ERP, CRM systems.
@@ -49,9 +51,9 @@ As business needs grew, graph data emerged, where relationships between objects 
 
 ### 📌 **Features:** 
 
-✅ Data describing relationships and connections.
-✅ Flexible structure (graphs instead of tables).
-✅ Allows analysis of connections (e.g., PageRank algorithms, centrality).
+- ✅ Data describing relationships and connections.
+- ✅ Flexible structure (graphs instead of tables).
+- ✅ Allows analysis of connections (e.g., PageRank algorithms, centrality).
 
 ### 📌 **Examples:** 
 
@@ -70,9 +72,9 @@ These data are not fully structured like in SQL databases, but they have some sc
 
 ### 📌 **Features:** 
 
-✅ Hierarchical structure (e.g., key-value pairs, nested objects).
-✅ No strict schema (possibility to add new fields).
-✅ Popular in NoSQL systems and APIs.
+- ✅ Hierarchical structure (e.g., key-value pairs, nested objects).
+- ✅ No strict schema (possibility to add new fields).
+- ✅ Popular in NoSQL systems and APIs.
 
 ### 📌 **Examples:** 
 
@@ -88,14 +90,13 @@ print(json.loads(json_str))
 
 ## **4. Text Data (NLP)**
 
-
 Text has become a key source of information, especially in sentiment analysis, chatbots, and search engines.
 
 ### 📌 **Features:** 
 
-✅ Unstructured data requiring transformation.
-✅ Use of embeddings (e.g., Word2Vec, BERT, GPT).
-✅ Widely used in sentiment analysis and chatbots.
+- ✅ Unstructured data requiring transformation.
+- ✅ Use of embeddings (e.g., Word2Vec, BERT, GPT).
+- ✅ Widely used in sentiment analysis and chatbots.
 
 ### 📌 **Examples:** 
 
@@ -119,8 +120,8 @@ Modern data analysis systems also use images and sound.
 
 ### 📌 **Features:** 
 
-✅ Require significant computational power (AI, deep learning).
-✅ Processed by CNN models (images) and RNN/Transformers (sound).
+- ✅ Require significant computational power (AI, deep learning).
+- ✅ Processed by CNN models (images) and RNN/Transformers (sound).
 
 ### 📌 **Examples:** 
 
@@ -140,8 +141,8 @@ Currently, streaming data analysis is rapidly evolving, where data is analyzed a
 
 ### 📌 **Features:** 
 
-✅ Real-time processing.
-✅ Technologies such as Apache Kafka, Flink, Spark Streaming.
+- ✅ Real-time processing.
+- ✅ Technologies such as Apache Kafka, Flink, Spark Streaming.
 
 ### 📌 **Examples:** 
 
@@ -161,8 +162,8 @@ Data from sensors and IoT devices is the next step in evolution.
 
 ### 📌 **Features:** 
 
-✅ Often comes from billions of devices (big data).
-✅ Requires edge computing analysis.
+- ✅ Often comes from billions of devices (big data).
+- ✅ Requires edge computing analysis.
 
 ### 📌 **Examples:** 
 
@@ -231,9 +232,9 @@ Traditional **SQL databases** and **single-threaded algorithms** fail when data 
 This is where **MapReduce** comes in—a revolutionary computational model developed by Google.  
 
 ### **🛠️ Google’s Solutions for Big Data:**  
-✅ **Google File System (GFS)** – a distributed file system.  
-✅ **Bigtable** – a system for storing massive amounts of structured data.  
-✅ **MapReduce** – an algorithm for distributing workloads across multiple machines. 
+- ✅ **Google File System (GFS)** – a distributed file system.  
+- ✅ **Bigtable** – a system for storing massive amounts of structured data.  
+- ✅ **MapReduce** – an algorithm for distributing workloads across multiple machines. 
 
 ## **🖼️ Graphical Representation of MapReduce**  
 
@@ -288,9 +289,9 @@ if __name__ == '__main__':
 ```
 ### **🔹  What’s Happening Here?**  
 
-✅ Each text fragment is processed independently (map).
-✅ The results are collected and summed (reduce).
-✅ Outcome: We can process terabytes of text in parallel!
+- ✅ Each text fragment is processed independently (map).
+- ✅ The results are collected and summed (reduce).
+- ✅ Outcome: We can process terabytes of text in parallel!
 
 <img alt="Batch Processing" src="img/batch3.png" class="center" />
 
@@ -318,12 +319,14 @@ Big Data systems can serve as a source for data warehouses (e.g., Data Lake, Ent
 
 However, Data Warehouses are **not** Big Data systems!  
 
-### **1. Data Warehouses**  
+### **1. Data Warehouses** 
+
 - Store highly structured data  
 - Focused on analytics and reporting processes  
 - **100% accuracy**  
 
-### **2. Big Data**  
+### **2. Big Data** 
+
 - Can handle data of any structure  
 - Used for various data-driven purposes (analytics, data science, etc.)  
 - **Less than 100% accuracy**  

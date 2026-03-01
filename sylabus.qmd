@@ -46,11 +46,6 @@ During laboratory classes student will benefit from fully understand the latest 
 10. IT architecture of Big Data processing. Preparation of a virtual env for Apache Spark.
 
 
-## Conditions for passing
-
-- test 30%
-- practical test 30% (IF)
-- group project 40% (70%)
 
 ## Books
 

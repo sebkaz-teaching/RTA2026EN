@@ -773,7 +773,7 @@
     "href": "lectures/lecture2.html#tabular-data-sql-tables",
     "title": "Lecture 2",
     "section": "1. Tabular Data (SQL Tables)",
-    "text": "1. Tabular Data (SQL Tables)\nInitially, data was stored in tables, where each table contained organized information in columns and rows (e.g., SQL databases).\nSuch models were perfect for structured data.\n\n📌 Features:\n✅ Data divided into columns with a fixed structure.\n✅ CRUD operations (Create, Read, Update, Delete) can be applied.\n✅ Strict consistency and normalization rules.\n\n\n📌 Examples:\n➡️ Banking systems, e-commerce, ERP, CRM systems.\n\n\n🖥️ Example Python Code (SQLite):\nimport sqlite3\nconn = sqlite3.connect(':memory:')\ncursor = conn.cursor()\ncursor.execute(\"CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)\")\ncursor.execute(\"INSERT INTO users (name, age) VALUES ('Alice', 30)\")\ncursor.execute(\"SELECT * FROM users\")\nprint(cursor.fetchall())\nconn.close()",
+    "text": "1. Tabular Data (SQL Tables)\nInitially, data was stored in tables, where each table contained organized information in columns and rows (e.g., SQL databases).\nSuch models were perfect for structured data.\n\n📌 Features:\n\n✅ Data divided into columns with a fixed structure.\n\n✅ CRUD operations (Create, Read, Update, Delete) can be applied.\n\n✅ Strict consistency and normalization rules.\n\n\n\n📌 Examples:\n➡️ Banking systems, e-commerce, ERP, CRM systems.\n\n\n🖥️ Example Python Code (SQLite):\nimport sqlite3\nconn = sqlite3.connect(':memory:')\ncursor = conn.cursor()\ncursor.execute(\"CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)\")\ncursor.execute(\"INSERT INTO users (name, age) VALUES ('Alice', 30)\")\ncursor.execute(\"SELECT * FROM users\")\nprint(cursor.fetchall())\nconn.close()",
     "crumbs": [
       "Home",
       "Lectures",
@@ -785,7 +785,7 @@
     "href": "lectures/lecture2.html#graph-data",
     "title": "Lecture 2",
     "section": "2. Graph Data",
-    "text": "2. Graph Data\nAs business needs grew, graph data emerged, where relationships between objects are represented as nodes and edges.\n\n📌 Features:\n✅ Data describing relationships and connections. ✅ Flexible structure (graphs instead of tables). ✅ Allows analysis of connections (e.g., PageRank algorithms, centrality).\n\n\n📌 Examples:\n➡️ Social networks (Facebook, LinkedIn), search engines (Google), recommendation systems (Netflix, Amazon).\n\n\n🖥️ Example Python Code (Karate Graph - NetworkX) :\n\n\nCode\nimport networkx as nx\nG = nx.karate_club_graph()\nnx.draw(G, with_labels=True)",
+    "text": "2. Graph Data\nAs business needs grew, graph data emerged, where relationships between objects are represented as nodes and edges.\n\n📌 Features:\n\n✅ Data describing relationships and connections.\n✅ Flexible structure (graphs instead of tables).\n✅ Allows analysis of connections (e.g., PageRank algorithms, centrality).\n\n\n\n📌 Examples:\n➡️ Social networks (Facebook, LinkedIn), search engines (Google), recommendation systems (Netflix, Amazon).\n\n\n🖥️ Example Python Code (Karate Graph - NetworkX) :\n\n\nCode\nimport networkx as nx\nG = nx.karate_club_graph()\nnx.draw(G, with_labels=True)",
     "crumbs": [
       "Home",
       "Lectures",
@@ -797,7 +797,7 @@
     "href": "lectures/lecture2.html#semi-structured-data-json-xml-yaml",
     "title": "Lecture 2",
     "section": "3. Semi-structured Data (JSON, XML, YAML)",
-    "text": "3. Semi-structured Data (JSON, XML, YAML)\nThese data are not fully structured like in SQL databases, but they have some schema.\n\n📌 Features:\n✅ Hierarchical structure (e.g., key-value pairs, nested objects). ✅ No strict schema (possibility to add new fields). ✅ Popular in NoSQL systems and APIs.\n\n\n📌 Examples:\n➡️ Documents in MongoDB, configuration files, REST APIs, log files.\n\n\n🖥️ Example Python Code (JSON):\n\n\nCode\nimport json\ndata = {'name': 'Alice', 'age': 30, 'city': 'New York'}\njson_str = json.dumps(data)\nprint(json.loads(json_str))\n\n\n{'name': 'Alice', 'age': 30, 'city': 'New York'}",
+    "text": "3. Semi-structured Data (JSON, XML, YAML)\nThese data are not fully structured like in SQL databases, but they have some schema.\n\n📌 Features:\n\n✅ Hierarchical structure (e.g., key-value pairs, nested objects).\n✅ No strict schema (possibility to add new fields).\n✅ Popular in NoSQL systems and APIs.\n\n\n\n📌 Examples:\n➡️ Documents in MongoDB, configuration files, REST APIs, log files.\n\n\n🖥️ Example Python Code (JSON):\n\n\nCode\nimport json\ndata = {'name': 'Alice', 'age': 30, 'city': 'New York'}\njson_str = json.dumps(data)\nprint(json.loads(json_str))\n\n\n{'name': 'Alice', 'age': 30, 'city': 'New York'}",
     "crumbs": [
       "Home",
       "Lectures",
@@ -809,7 +809,7 @@
     "href": "lectures/lecture2.html#text-data-nlp",
     "title": "Lecture 2",
     "section": "4. Text Data (NLP)",
-    "text": "4. Text Data (NLP)\nText has become a key source of information, especially in sentiment analysis, chatbots, and search engines.\n\n📌 Features:\n✅ Unstructured data requiring transformation. ✅ Use of embeddings (e.g., Word2Vec, BERT, GPT). ✅ Widely used in sentiment analysis and chatbots.\n\n\n📌 Examples:\n➡️ Social media, emails, chatbots, machine translation.\n\n\n🖥️ Example Python Code :\n\n\nCode\nimport ollama\n\n# Przykładowe zdanie\nsentence = \"Artificial intelligence is changing the world.\"\nresponse = ollama.embeddings(model='llama3.2', prompt=sentence)\nembedding = response['embedding']\nprint(embedding[:4])\n\n\n[-2.0218722820281982, 1.5602720975875854, -0.5360009074211121, -1.3183083534240723]",
+    "text": "4. Text Data (NLP)\nText has become a key source of information, especially in sentiment analysis, chatbots, and search engines.\n\n📌 Features:\n\n✅ Unstructured data requiring transformation.\n✅ Use of embeddings (e.g., Word2Vec, BERT, GPT).\n✅ Widely used in sentiment analysis and chatbots.\n\n\n\n📌 Examples:\n➡️ Social media, emails, chatbots, machine translation.\n\n\n🖥️ Example Python Code :\n\n\nCode\nimport ollama\n\n# Przykładowe zdanie\nsentence = \"Artificial intelligence is changing the world.\"\nresponse = ollama.embeddings(model='llama3.2', prompt=sentence)\nembedding = response['embedding']\nprint(embedding[:4])\n\n\n[-2.0218722820281982, 1.5602720975875854, -0.5360009074211121, -1.3183083534240723]",
     "crumbs": [
       "Home",
       "Lectures",
@@ -821,7 +821,7 @@
     "href": "lectures/lecture2.html#multimedia-data-images-sound-video",
     "title": "Lecture 2",
     "section": "5. Multimedia Data (Images, Sound, Video)",
-    "text": "5. Multimedia Data (Images, Sound, Video)\nModern data analysis systems also use images and sound.\n\n📌 Features:\n✅ Require significant computational power (AI, deep learning). ✅ Processed by CNN models (images) and RNN/Transformers (sound).\n\n\n📌 Examples:\n➡️ Face recognition, speech analysis, biometrics, video content analysis.\n\n\n🖥️ Example Python Code (Image - OpenCV) :\nimport cv2\nimage = cv2.imread('cloud.jpeg')\ncv2.waitKey(0)\ncv2.destroyAllWindows()",
+    "text": "5. Multimedia Data (Images, Sound, Video)\nModern data analysis systems also use images and sound.\n\n📌 Features:\n\n✅ Require significant computational power (AI, deep learning).\n✅ Processed by CNN models (images) and RNN/Transformers (sound).\n\n\n\n📌 Examples:\n➡️ Face recognition, speech analysis, biometrics, video content analysis.\n\n\n🖥️ Example Python Code (Image - OpenCV) :\nimport cv2\nimage = cv2.imread('cloud.jpeg')\ncv2.waitKey(0)\ncv2.destroyAllWindows()",
     "crumbs": [
       "Home",
       "Lectures",
@@ -845,7 +845,7 @@
     "href": "lectures/lecture2.html#why-are-sql-and-traditional-algorithms-insufficient",
     "title": "Lecture 2",
     "section": "🔍 Why Are SQL and Traditional Algorithms Insufficient?",
-    "text": "🔍 Why Are SQL and Traditional Algorithms Insufficient?\nTraditional SQL databases and single-threaded algorithms fail when data scales beyond a single computer.\nThis is where MapReduce comes in—a revolutionary computational model developed by Google.\n\n🛠️ Google’s Solutions for Big Data:\n✅ Google File System (GFS) – a distributed file system.\n✅ Bigtable – a system for storing massive amounts of structured data.\n✅ MapReduce – an algorithm for distributing workloads across multiple machines.",
+    "text": "🔍 Why Are SQL and Traditional Algorithms Insufficient?\nTraditional SQL databases and single-threaded algorithms fail when data scales beyond a single computer.\nThis is where MapReduce comes in—a revolutionary computational model developed by Google.\n\n🛠️ Google’s Solutions for Big Data:\n\n✅ Google File System (GFS) – a distributed file system.\n\n✅ Bigtable – a system for storing massive amounts of structured data.\n\n✅ MapReduce – an algorithm for distributing workloads across multiple machines.",
     "crumbs": [
       "Home",
       "Lectures",
@@ -869,7 +869,7 @@
     "href": "lectures/lecture2.html#classic-example-counting-words-in-a-text",
     "title": "Lecture 2",
     "section": "💡 Classic Example: Counting Words in a Text",
-    "text": "💡 Classic Example: Counting Words in a Text\nLet’s assume we have millions of books and we want to count how many times each word appears.\n\n🖥️ MapReduce Code in Python (Using Multiprocessing)\nfrom multiprocessing import Pool\nfrom collections import Counter\n\n# Map function (splitting text into words)\ndef map_function(text):\n    words = text.split()\n    return Counter(words)\n\n# Reduce function (summing up results)\ndef reduce_function(counters):\n    total_count = Counter()\n    for counter in counters:\n        total_count.update(counter)\n    return total_count\n\ntexts = [\n        \"big data is amazing\",\n        \"data science and big data\",\n        \"big data is everywhere\"\n    ]\nif __name__ == '__main__':    \n    with Pool() as pool:\n        mapped_results = pool.map(map_function, texts)\n    \n    final_result = reduce_function(mapped_results)\n    print(final_result)\n\n# Counter({'data': 4, 'big': 3, 'is': 2, 'amazing': 1, 'science': 1, 'and': 1, 'everywhere': 1})\n\n\n🔹 What’s Happening Here?\n✅ Each text fragment is processed independently (map). ✅ The results are collected and summed (reduce). ✅ Outcome: We can process terabytes of text in parallel!",
+    "text": "💡 Classic Example: Counting Words in a Text\nLet’s assume we have millions of books and we want to count how many times each word appears.\n\n🖥️ MapReduce Code in Python (Using Multiprocessing)\nfrom multiprocessing import Pool\nfrom collections import Counter\n\n# Map function (splitting text into words)\ndef map_function(text):\n    words = text.split()\n    return Counter(words)\n\n# Reduce function (summing up results)\ndef reduce_function(counters):\n    total_count = Counter()\n    for counter in counters:\n        total_count.update(counter)\n    return total_count\n\ntexts = [\n        \"big data is amazing\",\n        \"data science and big data\",\n        \"big data is everywhere\"\n    ]\nif __name__ == '__main__':    \n    with Pool() as pool:\n        mapped_results = pool.map(map_function, texts)\n    \n    final_result = reduce_function(mapped_results)\n    print(final_result)\n\n# Counter({'data': 4, 'big': 3, 'is': 2, 'amazing': 1, 'science': 1, 'and': 1, 'everywhere': 1})\n\n\n🔹 What’s Happening Here?\n\n✅ Each text fragment is processed independently (map).\n✅ The results are collected and summed (reduce).\n✅ Outcome: We can process terabytes of text in parallel!",
     "crumbs": [
       "Home",
       "Lectures",
