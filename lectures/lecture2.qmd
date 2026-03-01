@@ -212,7 +212,7 @@ Streaming events are grouped into so-called **topics**.
 
 When should you make a business decision?  
 
-<img alt="Batch Processing" src="img/batch0.png" class="center" />  
+<img alt="Batch Processing" src="../img/batch0.png" class="center" />  
 
 ## **Hadoop Map-Reduce – Scaling Computation on Big Data**  
 
@@ -249,7 +249,7 @@ All partial results are combined into one final answer.
 
 🔄 **All students report their findings, and one student collects and summarizes the response.**  
 
-<img alt="MapReduce in action – distributing and aggregating data" src="img/mapreduce_flow.png" class="center" />  
+<img alt="MapReduce in action – distributing and aggregating data" src="../img/mapreduce_flow.png" class="center" />  
 ---
 
 ## **💡 Classic Example: Counting Words in a Text**  
@@ -293,7 +293,7 @@ if __name__ == '__main__':
 - ✅ The results are collected and summed (reduce).
 - ✅ Outcome: We can process terabytes of text in parallel!
 
-<img alt="Batch Processing" src="img/batch3.png" class="center" />
+<img alt="Batch Processing" src="../img/batch3.png" class="center" />
 
 ---  
 
@@ -302,7 +302,7 @@ if __name__ == '__main__':
 📊 **Old Approach** – A single computer processes everything sequentially.  
 📊 **New Approach (MapReduce)** – Each machine processes a fragment, and the results are aggregated.  
 
-<img alt="MapReduce Processing" src="img/mapreduce_vs_classic.png" class="center" />  
+<img alt="MapReduce Processing" src="../img/mapreduce_vs_classic.png" class="center" />  
 
 ---  
 
@@ -376,7 +376,7 @@ The **traditional model** refers to **online transaction processing (OLTP)**,
 which excels at handling real-time tasks such as customer service, order management, and sales processing.  
 It is commonly used in **Enterprise Resource Planning (ERP) systems, Customer Relationship Management (CRM) software, and web-based applications**.  
 
-![](img/baza1.png){.center}  
+![](../img/baza1.png){.center}  
 
 This model provides efficient solutions for:  
 
@@ -424,4 +424,4 @@ In a **Data Warehouse**, two types of queries are most commonly executed (both i
 1. Periodic queries that generate business statistics, such as reporting queries.
 2. Ad-hoc queries that support critical business decisions.
 
-![](img/baza2.png){.center}
+![](../img/baza2.png){.center}
