@@ -13,8 +13,8 @@ website:
       - section: "Lectures"
         contents:
         - href: lectures/lecture1.qmd
-        # - href: lectures/lecture2.qmd
-        # - href: lectures/lecture3.qmd
+        - href: lectures/lecture2.qmd
+        - href: lectures/lecture3.qmd
         # - href: lectures/lecture4.qmd
         # - href: lectures/lecture5.qmd
       # - section: "Labs"

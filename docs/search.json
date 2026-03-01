@@ -109,35 +109,60 @@
     "href": "lectures/lecture3.html",
     "title": "Lecture 3",
     "section": "",
-    "text": "⏳ Duration: 1.5h\n🎯 Lecture Goal\nIntroducing students to the fundamentals of real-time analytics."
+    "text": "⏳ Duration: 1.5h\n🎯 Lecture Goal\nIntroducing students to the fundamentals of real-time analytics.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3"
+    ]
   },
   {
     "objectID": "lectures/lecture3.html#definitions",
     "href": "lectures/lecture3.html#definitions",
     "title": "Lecture 3",
     "section": "Definitions",
-    "text": "Definitions\n\nLearn more about streaming data\n\nDefinition 1 – Event: Any observable occurrence at a specific point in time. In data streams, events are immutable records that represent a specific action.\nDefinition 2 – In the context of data, an event is encoded as JSON, XML, CSV, or in a binary format.\nDefinition 3 – Continuous Event Stream: An ongoing sequence of events that happen over time, such as logs from servers, sensor readings, or user activity.\nDefinition 4 – Data Stream: A continuous flow of data from dynamic sources like sensor readings or log entries. These streams can be generated in real-time or derived from static sources like databases or files.\nA business is an organization that generates and responds to a continuous stream of events.\n\n\n\nStream Analytics\nStream Analytics (also called Event Stream Processing) refers to processing large amounts of data as they are generated, in real-time.\nRegardless of the technology used, all data exists as a continuous stream of events, including: - User actions on websites,\n- System logs,\n- Sensor measurements."
+    "text": "Definitions\n\nLearn more about streaming data\n\nDefinition 1 – Event: Any observable occurrence at a specific point in time. In data streams, events are immutable records that represent a specific action.\nDefinition 2 – In the context of data, an event is encoded as JSON, XML, CSV, or in a binary format.\nDefinition 3 – Continuous Event Stream: An ongoing sequence of events that happen over time, such as logs from servers, sensor readings, or user activity.\nDefinition 4 – Data Stream: A continuous flow of data from dynamic sources like sensor readings or log entries. These streams can be generated in real-time or derived from static sources like databases or files.\nA business is an organization that generates and responds to a continuous stream of events.\n\n\n\nStream Analytics\nStream Analytics (also called Event Stream Processing) refers to processing large amounts of data as they are generated, in real-time.\nRegardless of the technology used, all data exists as a continuous stream of events, including: - User actions on websites,\n- System logs,\n- Sensor measurements.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3"
+    ]
   },
   {
     "objectID": "lectures/lecture3.html#time-in-real-time-data-analysis",
     "href": "lectures/lecture3.html#time-in-real-time-data-analysis",
     "title": "Lecture 3",
     "section": "Time in Real-Time Data Analysis",
-    "text": "Time in Real-Time Data Analysis\nIn batch processing, we analyze historical data, and the timing of the process is unrelated to when the events actually occurred.\nIn stream processing, there are two key concepts of time: 1. Event Time – the actual moment the event occurred. 2. Processing Time – the moment the system processes the event.\n\nIdeal Data Processing\nIn an ideal scenario, processing happens immediately after the event occurs:\n\n\n\nReal Data Processing\nIn reality, data processing always involves some delay, visible as points below the ideal processing line (below the diagonal in the chart):\n\nIn stream processing applications, the difference between event time and processing time is crucial. Common causes of delays include:\n\nData transmission over the network,\nLack of communication between the device and the network.\n\nAn example of this is tracking the location of a car via a GPS application – passing through a tunnel might cause temporary data loss.\n\n\nHandling Delays in Stream Processing\nDelays in event processing can be managed in two main ways: 1. Monitoring the number of missed events and triggering an alarm if the number of rejected events exceeds a threshold. 2. Applying correction using watermarking, which is an additional mechanism that accounts for delayed events.\nThe process of real-time event processing can be represented as a step function:\n\nNot all events contribute to the analysis – some may be discarded due to excessive delays.\nBy using watermarking, additional time is allowed for the appearance of delayed events. This process includes all events above the dashed line. However, there might still be cases where some points are skipped.\n\nThe situations illustrated in the charts explicitly indicate why the concept of time is a critical factor and needs to be clearly defined at the business requirements level. Assigning timestamps to data (events) is a complex task."
+    "text": "Time in Real-Time Data Analysis\nIn batch processing, we analyze historical data, and the timing of the process is unrelated to when the events actually occurred.\nIn stream processing, there are two key concepts of time: 1. Event Time – the actual moment the event occurred. 2. Processing Time – the moment the system processes the event.\n\nIdeal Data Processing\nIn an ideal scenario, processing happens immediately after the event occurs:\n\n\n\nReal Data Processing\nIn reality, data processing always involves some delay, visible as points below the ideal processing line (below the diagonal in the chart):\n\nIn stream processing applications, the difference between event time and processing time is crucial. Common causes of delays include:\n\nData transmission over the network,\nLack of communication between the device and the network.\n\nAn example of this is tracking the location of a car via a GPS application – passing through a tunnel might cause temporary data loss.\n\n\nHandling Delays in Stream Processing\nDelays in event processing can be managed in two main ways: 1. Monitoring the number of missed events and triggering an alarm if the number of rejected events exceeds a threshold. 2. Applying correction using watermarking, which is an additional mechanism that accounts for delayed events.\nThe process of real-time event processing can be represented as a step function:\n\nNot all events contribute to the analysis – some may be discarded due to excessive delays.\nBy using watermarking, additional time is allowed for the appearance of delayed events. This process includes all events above the dashed line. However, there might still be cases where some points are skipped.\n\nThe situations illustrated in the charts explicitly indicate why the concept of time is a critical factor and needs to be clearly defined at the business requirements level. Assigning timestamps to data (events) is a complex task.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3"
+    ]
   },
   {
     "objectID": "lectures/lecture3.html#time-windows-in-stream-analytics",
     "href": "lectures/lecture3.html#time-windows-in-stream-analytics",
     "title": "Lecture 3",
     "section": "Time Windows in Stream Analytics",
-    "text": "Time Windows in Stream Analytics\nIn stream processing, time windows allow grouping data into time-limited segments, enabling event analysis within specific time intervals. Depending on the use case, various types of windows are applied, tailored to the characteristics of the data and analytical requirements.\n\n\n1. Tumbling Window\nA tumbling window is a fixed-length window that does not overlap – each event belongs to only one window.\n✅ Characteristics:\n- Fixed window length\n- No overlap between windows\n- Ideal for dividing data into equal time segments\n📌 Example: Analyzing the number of orders in an online store every 5 minutes.\n\n\n\n\n2. Sliding Window\nA sliding window includes all events occurring within a specific time interval, where the window slides continuously.\n✅ Characteristics:\n- Each event can belong to multiple windows\n- The window shifts by a specified interval\n- Useful for detecting trends and anomalies\n📌 Example: Tracking the average temperature over the last 10 minutes, updated every 2 minutes.\n\n\n\n\n3. Hopping Window\nA hopping window is similar to a tumbling window, but it allows overlapping windows, meaning one event can belong to multiple windows. It is used to smooth data.\n✅ Characteristics:\n- Fixed window length\n- Overlapping windows\n- Useful for noise reduction in data\n📌 Example: Analyzing the number of website visitors every 10 minutes, but updated every 5 minutes to better capture trends.\n\n\n\n\n4. Session Window\nA session window groups events based on activity periods and closes after a specified period of inactivity.\n✅ Characteristics:\n- Dynamic window length\n- Defined by user activity\n- Used in user session analysis"
+    "text": "Time Windows in Stream Analytics\nIn stream processing, time windows allow grouping data into time-limited segments, enabling event analysis within specific time intervals. Depending on the use case, various types of windows are applied, tailored to the characteristics of the data and analytical requirements.\n\n\n1. Tumbling Window\nA tumbling window is a fixed-length window that does not overlap – each event belongs to only one window.\n✅ Characteristics:\n- Fixed window length\n- No overlap between windows\n- Ideal for dividing data into equal time segments\n📌 Example: Analyzing the number of orders in an online store every 5 minutes.\n\n\n\n\n2. Sliding Window\nA sliding window includes all events occurring within a specific time interval, where the window slides continuously.\n✅ Characteristics:\n- Each event can belong to multiple windows\n- The window shifts by a specified interval\n- Useful for detecting trends and anomalies\n📌 Example: Tracking the average temperature over the last 10 minutes, updated every 2 minutes.\n\n\n\n\n3. Hopping Window\nA hopping window is similar to a tumbling window, but it allows overlapping windows, meaning one event can belong to multiple windows. It is used to smooth data.\n✅ Characteristics:\n- Fixed window length\n- Overlapping windows\n- Useful for noise reduction in data\n📌 Example: Analyzing the number of website visitors every 10 minutes, but updated every 5 minutes to better capture trends.\n\n\n\n\n4. Session Window\nA session window groups events based on activity periods and closes after a specified period of inactivity.\n✅ Characteristics:\n- Dynamic window length\n- Defined by user activity\n- Used in user session analysis",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3"
+    ]
   },
   {
     "objectID": "lectures/lecture3.html#example-analyzing-user-sessions-on-a-website-the-session-lasts-as-long-as-the-user-is-active-but-ends-after-15-minutes-of-inactivity.",
     "href": "lectures/lecture3.html#example-analyzing-user-sessions-on-a-website-the-session-lasts-as-long-as-the-user-is-active-but-ends-after-15-minutes-of-inactivity.",
     "title": "Lecture 3",
     "section": "📌 Example: Analyzing user sessions on a website – the session lasts as long as the user is active, but ends after 15 minutes of inactivity.",
-    "text": "📌 Example: Analyzing user sessions on a website – the session lasts as long as the user is active, but ends after 15 minutes of inactivity.\n\nSummary\nDifferent types of time windows are applied depending on the data’s characteristics and the analysis objectives. Choosing the right window impacts the accuracy of results and the efficiency of the analytical system.\n\n\n\n\n\n\n\n\nWindow Type\nCharacteristics\nUse Cases\n\n\n\n\nTumbling\nFixed length, no overlap\nPeriodic reports\n\n\nSliding\nFixed length, overlapping windows\nTrend detection, anomaly detection\n\n\nHopping\nFixed length, partial overlap\nData smoothing\n\n\nSession\nDynamic length, activity-dependent\nUser session analysis\n\n\n\nEach window type has its unique use cases and helps with better interpretation of streaming data. The choice of method depends on business needs and the nature of the analyzed data.\nIn stream data analysis, interpreting time is a complex issue due to: 1. Different systems having different clocks, leading to inconsistencies, 2. Data arriving with delays, requiring watermarking and time window techniques, 3. Different approaches to event time vs. processing time impacting result accuracy."
+    "text": "📌 Example: Analyzing user sessions on a website – the session lasts as long as the user is active, but ends after 15 minutes of inactivity.\n\nSummary\nDifferent types of time windows are applied depending on the data’s characteristics and the analysis objectives. Choosing the right window impacts the accuracy of results and the efficiency of the analytical system.\n\n\n\n\n\n\n\n\nWindow Type\nCharacteristics\nUse Cases\n\n\n\n\nTumbling\nFixed length, no overlap\nPeriodic reports\n\n\nSliding\nFixed length, overlapping windows\nTrend detection, anomaly detection\n\n\nHopping\nFixed length, partial overlap\nData smoothing\n\n\nSession\nDynamic length, activity-dependent\nUser session analysis\n\n\n\nEach window type has its unique use cases and helps with better interpretation of streaming data. The choice of method depends on business needs and the nature of the analyzed data.\nIn stream data analysis, interpreting time is a complex issue due to: 1. Different systems having different clocks, leading to inconsistencies, 2. Data arriving with delays, requiring watermarking and time window techniques, 3. Different approaches to event time vs. processing time impacting result accuracy.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3"
+    ]
   },
   {
     "objectID": "index.html",
@@ -736,98 +761,168 @@
     "href": "lectures/lecture2.html",
     "title": "Lecture 2",
     "section": "",
-    "text": "⏳ Duration: 1.5h\n🎯 Lecture Objective\nUnderstanding how data has evolved in different industries and the tools used for its analysis today.\nIn this lecture, we will present the evolution of data analysis, showing how technologies and approaches to data processing have changed over the years.\nWe will start with classical tabular structures, move through more advanced graph and text models, and finish with modern approaches to stream processing."
+    "text": "⏳ Duration: 1.5h\n🎯 Lecture Objective\nUnderstanding how data has evolved in different industries and the tools used for its analysis today.\nIn this lecture, we will present the evolution of data analysis, showing how technologies and approaches to data processing have changed over the years.\nWe will start with classical tabular structures, move through more advanced graph and text models, and finish with modern approaches to stream processing.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#tabular-data-sql-tables",
     "href": "lectures/lecture2.html#tabular-data-sql-tables",
     "title": "Lecture 2",
     "section": "1. Tabular Data (SQL Tables)",
-    "text": "1. Tabular Data (SQL Tables)\nInitially, data was stored in tables, where each table contained organized information in columns and rows (e.g., SQL databases).\nSuch models were perfect for structured data.\n\n📌 Features:\n✅ Data divided into columns with a fixed structure.\n✅ CRUD operations (Create, Read, Update, Delete) can be applied.\n✅ Strict consistency and normalization rules.\n\n\n📌 Examples:\n➡️ Banking systems, e-commerce, ERP, CRM systems.\n\n\n🖥️ Example Python Code (SQLite):\nimport sqlite3\nconn = sqlite3.connect(':memory:')\ncursor = conn.cursor()\ncursor.execute(\"CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)\")\ncursor.execute(\"INSERT INTO users (name, age) VALUES ('Alice', 30)\")\ncursor.execute(\"SELECT * FROM users\")\nprint(cursor.fetchall())\nconn.close()"
+    "text": "1. Tabular Data (SQL Tables)\nInitially, data was stored in tables, where each table contained organized information in columns and rows (e.g., SQL databases).\nSuch models were perfect for structured data.\n\n📌 Features:\n✅ Data divided into columns with a fixed structure.\n✅ CRUD operations (Create, Read, Update, Delete) can be applied.\n✅ Strict consistency and normalization rules.\n\n\n📌 Examples:\n➡️ Banking systems, e-commerce, ERP, CRM systems.\n\n\n🖥️ Example Python Code (SQLite):\nimport sqlite3\nconn = sqlite3.connect(':memory:')\ncursor = conn.cursor()\ncursor.execute(\"CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)\")\ncursor.execute(\"INSERT INTO users (name, age) VALUES ('Alice', 30)\")\ncursor.execute(\"SELECT * FROM users\")\nprint(cursor.fetchall())\nconn.close()",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#graph-data",
     "href": "lectures/lecture2.html#graph-data",
     "title": "Lecture 2",
     "section": "2. Graph Data",
-    "text": "2. Graph Data\nAs business needs grew, graph data emerged, where relationships between objects are represented as nodes and edges.\n\n📌 Features:\n✅ Data describing relationships and connections. ✅ Flexible structure (graphs instead of tables). ✅ Allows analysis of connections (e.g., PageRank algorithms, centrality).\n\n\n📌 Examples:\n➡️ Social networks (Facebook, LinkedIn), search engines (Google), recommendation systems (Netflix, Amazon).\n\n\n🖥️ Example Python Code (Karate Graph - NetworkX) :\n\n\nCode\nimport networkx as nx\nG = nx.karate_club_graph()\nnx.draw(G, with_labels=True)"
+    "text": "2. Graph Data\nAs business needs grew, graph data emerged, where relationships between objects are represented as nodes and edges.\n\n📌 Features:\n✅ Data describing relationships and connections. ✅ Flexible structure (graphs instead of tables). ✅ Allows analysis of connections (e.g., PageRank algorithms, centrality).\n\n\n📌 Examples:\n➡️ Social networks (Facebook, LinkedIn), search engines (Google), recommendation systems (Netflix, Amazon).\n\n\n🖥️ Example Python Code (Karate Graph - NetworkX) :\n\n\nCode\nimport networkx as nx\nG = nx.karate_club_graph()\nnx.draw(G, with_labels=True)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#semi-structured-data-json-xml-yaml",
     "href": "lectures/lecture2.html#semi-structured-data-json-xml-yaml",
     "title": "Lecture 2",
     "section": "3. Semi-structured Data (JSON, XML, YAML)",
-    "text": "3. Semi-structured Data (JSON, XML, YAML)\nThese data are not fully structured like in SQL databases, but they have some schema.\n\n📌 Features:\n✅ Hierarchical structure (e.g., key-value pairs, nested objects). ✅ No strict schema (possibility to add new fields). ✅ Popular in NoSQL systems and APIs.\n\n\n📌 Examples:\n➡️ Documents in MongoDB, configuration files, REST APIs, log files.\n\n\n🖥️ Example Python Code (JSON):\n\n\nCode\nimport json\ndata = {'name': 'Alice', 'age': 30, 'city': 'New York'}\njson_str = json.dumps(data)\nprint(json.loads(json_str))\n\n\n{'name': 'Alice', 'age': 30, 'city': 'New York'}"
+    "text": "3. Semi-structured Data (JSON, XML, YAML)\nThese data are not fully structured like in SQL databases, but they have some schema.\n\n📌 Features:\n✅ Hierarchical structure (e.g., key-value pairs, nested objects). ✅ No strict schema (possibility to add new fields). ✅ Popular in NoSQL systems and APIs.\n\n\n📌 Examples:\n➡️ Documents in MongoDB, configuration files, REST APIs, log files.\n\n\n🖥️ Example Python Code (JSON):\n\n\nCode\nimport json\ndata = {'name': 'Alice', 'age': 30, 'city': 'New York'}\njson_str = json.dumps(data)\nprint(json.loads(json_str))\n\n\n{'name': 'Alice', 'age': 30, 'city': 'New York'}",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#text-data-nlp",
     "href": "lectures/lecture2.html#text-data-nlp",
     "title": "Lecture 2",
     "section": "4. Text Data (NLP)",
-    "text": "4. Text Data (NLP)\nText has become a key source of information, especially in sentiment analysis, chatbots, and search engines.\n\n📌 Features:\n✅ Unstructured data requiring transformation. ✅ Use of embeddings (e.g., Word2Vec, BERT, GPT). ✅ Widely used in sentiment analysis and chatbots.\n\n\n📌 Examples:\n➡️ Social media, emails, chatbots, machine translation.\n\n\n🖥️ Example Python Code :\n\n\nCode\nimport ollama\n\n# Przykładowe zdanie\nsentence = \"Artificial intelligence is changing the world.\"\nresponse = ollama.embeddings(model='llama3.2', prompt=sentence)\nembedding = response['embedding']\nprint(embedding[:4])\n\n\n[-2.0218722820281982, 1.5602720975875854, -0.5360009074211121, -1.3183083534240723]"
+    "text": "4. Text Data (NLP)\nText has become a key source of information, especially in sentiment analysis, chatbots, and search engines.\n\n📌 Features:\n✅ Unstructured data requiring transformation. ✅ Use of embeddings (e.g., Word2Vec, BERT, GPT). ✅ Widely used in sentiment analysis and chatbots.\n\n\n📌 Examples:\n➡️ Social media, emails, chatbots, machine translation.\n\n\n🖥️ Example Python Code :\n\n\nCode\nimport ollama\n\n# Przykładowe zdanie\nsentence = \"Artificial intelligence is changing the world.\"\nresponse = ollama.embeddings(model='llama3.2', prompt=sentence)\nembedding = response['embedding']\nprint(embedding[:4])\n\n\n[-2.0218722820281982, 1.5602720975875854, -0.5360009074211121, -1.3183083534240723]",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#multimedia-data-images-sound-video",
     "href": "lectures/lecture2.html#multimedia-data-images-sound-video",
     "title": "Lecture 2",
     "section": "5. Multimedia Data (Images, Sound, Video)",
-    "text": "5. Multimedia Data (Images, Sound, Video)\nModern data analysis systems also use images and sound.\n\n📌 Features:\n✅ Require significant computational power (AI, deep learning). ✅ Processed by CNN models (images) and RNN/Transformers (sound).\n\n\n📌 Examples:\n➡️ Face recognition, speech analysis, biometrics, video content analysis.\n\n\n🖥️ Example Python Code (Image - OpenCV) :\nimport cv2\nimage = cv2.imread('cloud.jpeg')\ncv2.waitKey(0)\ncv2.destroyAllWindows()"
+    "text": "5. Multimedia Data (Images, Sound, Video)\nModern data analysis systems also use images and sound.\n\n📌 Features:\n✅ Require significant computational power (AI, deep learning). ✅ Processed by CNN models (images) and RNN/Transformers (sound).\n\n\n📌 Examples:\n➡️ Face recognition, speech analysis, biometrics, video content analysis.\n\n\n🖥️ Example Python Code (Image - OpenCV) :\nimport cv2\nimage = cv2.imread('cloud.jpeg')\ncv2.waitKey(0)\ncv2.destroyAllWindows()",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#hadoop-map-reduce-scaling-computation-on-big-data",
     "href": "lectures/lecture2.html#hadoop-map-reduce-scaling-computation-on-big-data",
     "title": "Lecture 2",
     "section": "Hadoop Map-Reduce – Scaling Computation on Big Data",
-    "text": "Hadoop Map-Reduce – Scaling Computation on Big Data\nWhen we talk about scalable data processing, the first association might be Google.\nBut what actually enables us to search for information in a fraction of a second while processing petabytes of data?\n👉 Did you know that the name “Google” comes from the word “Googol,” which represents the number 10¹⁰⁰?\nThat’s more than the number of atoms in the known universe! 🌌\n\n🔥 Challenge: Can you write out the number Googol by the end of this lecture?"
+    "text": "Hadoop Map-Reduce – Scaling Computation on Big Data\nWhen we talk about scalable data processing, the first association might be Google.\nBut what actually enables us to search for information in a fraction of a second while processing petabytes of data?\n👉 Did you know that the name “Google” comes from the word “Googol,” which represents the number 10¹⁰⁰?\nThat’s more than the number of atoms in the known universe! 🌌\n\n🔥 Challenge: Can you write out the number Googol by the end of this lecture?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#why-are-sql-and-traditional-algorithms-insufficient",
     "href": "lectures/lecture2.html#why-are-sql-and-traditional-algorithms-insufficient",
     "title": "Lecture 2",
     "section": "🔍 Why Are SQL and Traditional Algorithms Insufficient?",
-    "text": "🔍 Why Are SQL and Traditional Algorithms Insufficient?\nTraditional SQL databases and single-threaded algorithms fail when data scales beyond a single computer.\nThis is where MapReduce comes in—a revolutionary computational model developed by Google.\n\n🛠️ Google’s Solutions for Big Data:\n✅ Google File System (GFS) – a distributed file system.\n✅ Bigtable – a system for storing massive amounts of structured data.\n✅ MapReduce – an algorithm for distributing workloads across multiple machines."
+    "text": "🔍 Why Are SQL and Traditional Algorithms Insufficient?\nTraditional SQL databases and single-threaded algorithms fail when data scales beyond a single computer.\nThis is where MapReduce comes in—a revolutionary computational model developed by Google.\n\n🛠️ Google’s Solutions for Big Data:\n✅ Google File System (GFS) – a distributed file system.\n✅ Bigtable – a system for storing massive amounts of structured data.\n✅ MapReduce – an algorithm for distributing workloads across multiple machines.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#graphical-representation-of-mapreduce",
     "href": "lectures/lecture2.html#graphical-representation-of-mapreduce",
     "title": "Lecture 2",
     "section": "🖼️ Graphical Representation of MapReduce",
-    "text": "🖼️ Graphical Representation of MapReduce\n\n1. Mapping Splits Tasks (Map)\nEach input is divided into smaller parts and processed in parallel.\n🌍 Imagine you have a phone book and want to find all people with the last name “Nowak”.\n➡️ Divide the book into sections and give each person one section to analyze.\n\n\n2. Reducing Gathers the Results (Reduce)\nAll partial results are combined into one final answer.\n🔄 All students report their findings, and one student collects and summarizes the response."
+    "text": "🖼️ Graphical Representation of MapReduce\n\n1. Mapping Splits Tasks (Map)\nEach input is divided into smaller parts and processed in parallel.\n🌍 Imagine you have a phone book and want to find all people with the last name “Nowak”.\n➡️ Divide the book into sections and give each person one section to analyze.\n\n\n2. Reducing Gathers the Results (Reduce)\nAll partial results are combined into one final answer.\n🔄 All students report their findings, and one student collects and summarizes the response.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#classic-example-counting-words-in-a-text",
     "href": "lectures/lecture2.html#classic-example-counting-words-in-a-text",
     "title": "Lecture 2",
     "section": "💡 Classic Example: Counting Words in a Text",
-    "text": "💡 Classic Example: Counting Words in a Text\nLet’s assume we have millions of books and we want to count how many times each word appears.\n\n🖥️ MapReduce Code in Python (Using Multiprocessing)\nfrom multiprocessing import Pool\nfrom collections import Counter\n\n# Map function (splitting text into words)\ndef map_function(text):\n    words = text.split()\n    return Counter(words)\n\n# Reduce function (summing up results)\ndef reduce_function(counters):\n    total_count = Counter()\n    for counter in counters:\n        total_count.update(counter)\n    return total_count\n\ntexts = [\n        \"big data is amazing\",\n        \"data science and big data\",\n        \"big data is everywhere\"\n    ]\nif __name__ == '__main__':    \n    with Pool() as pool:\n        mapped_results = pool.map(map_function, texts)\n    \n    final_result = reduce_function(mapped_results)\n    print(final_result)\n\n# Counter({'data': 4, 'big': 3, 'is': 2, 'amazing': 1, 'science': 1, 'and': 1, 'everywhere': 1})\n\n\n🔹 What’s Happening Here?\n✅ Each text fragment is processed independently (map). ✅ The results are collected and summed (reduce). ✅ Outcome: We can process terabytes of text in parallel!"
+    "text": "💡 Classic Example: Counting Words in a Text\nLet’s assume we have millions of books and we want to count how many times each word appears.\n\n🖥️ MapReduce Code in Python (Using Multiprocessing)\nfrom multiprocessing import Pool\nfrom collections import Counter\n\n# Map function (splitting text into words)\ndef map_function(text):\n    words = text.split()\n    return Counter(words)\n\n# Reduce function (summing up results)\ndef reduce_function(counters):\n    total_count = Counter()\n    for counter in counters:\n        total_count.update(counter)\n    return total_count\n\ntexts = [\n        \"big data is amazing\",\n        \"data science and big data\",\n        \"big data is everywhere\"\n    ]\nif __name__ == '__main__':    \n    with Pool() as pool:\n        mapped_results = pool.map(map_function, texts)\n    \n    final_result = reduce_function(mapped_results)\n    print(final_result)\n\n# Counter({'data': 4, 'big': 3, 'is': 2, 'amazing': 1, 'science': 1, 'and': 1, 'everywhere': 1})\n\n\n🔹 What’s Happening Here?\n✅ Each text fragment is processed independently (map). ✅ The results are collected and summed (reduce). ✅ Outcome: We can process terabytes of text in parallel!",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#visualization-comparison-of-the-classic-approach-and-mapreduce",
     "href": "lectures/lecture2.html#visualization-comparison-of-the-classic-approach-and-mapreduce",
     "title": "Lecture 2",
     "section": "🎨 Visualization – Comparison of the Classic Approach and MapReduce",
-    "text": "🎨 Visualization – Comparison of the Classic Approach and MapReduce\n📊 Old Approach – A single computer processes everything sequentially.\n📊 New Approach (MapReduce) – Each machine processes a fragment, and the results are aggregated."
+    "text": "🎨 Visualization – Comparison of the Classic Approach and MapReduce\n📊 Old Approach – A single computer processes everything sequentially.\n📊 New Approach (MapReduce) – Each machine processes a fragment, and the results are aggregated.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#challenge-for-you",
     "href": "lectures/lecture2.html#challenge-for-you",
     "title": "Lecture 2",
     "section": "🚀 Challenge for You!",
-    "text": "🚀 Challenge for You!\n🔹 Find and run your own MapReduce algorithm in any programming language!\n🔹 Can you implement your own MapReduce for a different task? (e.g., log analysis, counting website clicks)"
+    "text": "🚀 Challenge for You!\n🔹 Find and run your own MapReduce algorithm in any programming language!\n🔹 Can you implement your own MapReduce for a different task? (e.g., log analysis, counting website clicks)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#big-data-1",
     "href": "lectures/lecture2.html#big-data-1",
     "title": "Lecture 2",
     "section": "Big Data",
-    "text": "Big Data\nBig Data systems can serve as a source for data warehouses (e.g., Data Lake, Enterprise Data Hub).\nHowever, Data Warehouses are not Big Data systems!\n\n1. Data Warehouses\n\nStore highly structured data\n\nFocused on analytics and reporting processes\n\n100% accuracy\n\n\n\n2. Big Data\n\nCan handle data of any structure\n\nUsed for various data-driven purposes (analytics, data science, etc.)\n\nLess than 100% accuracy\n\n\n“Big Data is like teenage sex: everyone talks about it, nobody really knows how to do it, everyone thinks everyone else is doing it, so everyone claims they are doing it.”\n— Dan Ariely, Professor of Psychology and Behavioral Economics, Duke University\n\n\n\nOne, Two, … Four V\n\nVolume – The size of data produced worldwide is growing at an exponential rate.\n\nVelocity – The speed at which data is generated, transmitted, and processed.\n\nVariety – Traditional data is alphanumeric, consisting of letters and numbers. Today, we also deal with images, audio, video files, and IoT data streams.\n\nVeracity – Are the data complete and accurate? Do they objectively reflect reality? Are they a reliable basis for decision-making?\n\nValue – The actual worth of the data. Ultimately, it’s about cost and benefits.\n\n\n“The purpose of computing is insight, not numbers.” – R.W. Hamming, 1962."
+    "text": "Big Data\nBig Data systems can serve as a source for data warehouses (e.g., Data Lake, Enterprise Data Hub).\nHowever, Data Warehouses are not Big Data systems!\n\n1. Data Warehouses\n\nStore highly structured data\n\nFocused on analytics and reporting processes\n\n100% accuracy\n\n\n\n2. Big Data\n\nCan handle data of any structure\n\nUsed for various data-driven purposes (analytics, data science, etc.)\n\nLess than 100% accuracy\n\n\n“Big Data is like teenage sex: everyone talks about it, nobody really knows how to do it, everyone thinks everyone else is doing it, so everyone claims they are doing it.”\n— Dan Ariely, Professor of Psychology and Behavioral Economics, Duke University\n\n\n\nOne, Two, … Four V\n\nVolume – The size of data produced worldwide is growing at an exponential rate.\n\nVelocity – The speed at which data is generated, transmitted, and processed.\n\nVariety – Traditional data is alphanumeric, consisting of letters and numbers. Today, we also deal with images, audio, video files, and IoT data streams.\n\nVeracity – Are the data complete and accurate? Do they objectively reflect reality? Are they a reliable basis for decision-making?\n\nValue – The actual worth of the data. Ultimately, it’s about cost and benefits.\n\n\n“The purpose of computing is insight, not numbers.” – R.W. Hamming, 1962.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture2.html#data-processing-models",
     "href": "lectures/lecture2.html#data-processing-models",
     "title": "Lecture 2",
     "section": "Data Processing Models",
-    "text": "Data Processing Models\nData has always been processed in business.\nOver the past decades, the amount of processed data has been steadily increasing, affecting the way data is prepared and handled.\n\nA Bit of History\n\n1960s: Data collections, databases\n\n1970s: Relational data models and their implementation in OLTP systems\n\n1975: First personal computers\n\n1980s: Advanced data models (extended-relational, object-oriented, application-oriented, etc.)\n\n1983: The beginning of the Internet\n\n1990s: Data mining, data warehouses, OLAP systems\n\nLater: NoSQL, Hadoop, SPARK, data lakes\n\n2002: AWS, 2005: Hadoop, Cloud computing\n\n\nMost data is stored in databases or data warehouses.\nTypically, data access is performed through applications by executing queries.\nThe method of utilizing and accessing a database is called the data processing model.\nThe two most commonly used implementations are:\n\n\nTraditional Model\nThe traditional model refers to online transaction processing (OLTP),\nwhich excels at handling real-time tasks such as customer service, order management, and sales processing.\nIt is commonly used in Enterprise Resource Planning (ERP) systems, Customer Relationship Management (CRM) software, and web-based applications.\n\nThis model provides efficient solutions for:\n\nSecure and efficient data storage\n\nTransactional data recovery after failures\n\nOptimized data access\n\nConcurrency management\n\nEvent processing → read → write\n\nHowever, what happens when we need to deal with:\n\nAggregation of data from multiple systems (e.g., multiple stores)\n\nReporting and data summarization\n\nOptimization of complex queries\n\nBusiness decision support\n\nResearch on these topics led to the formulation of a new data processing model and a new type of database – Data Warehouses.\n\n\nOLAP Model\nOnline Analytical Processing (OLAP)\nOLAP supports data analysis and provides tools for multidimensional analysis\nbased on dimensions such as time, location, and product.\nThe process of extracting data from various systems into a single database is known as Extract-Transform-Load (ETL),\nwhich involves normalization, encoding, and schema transformation.\nAnalyzing data in a data warehouse mainly involves calculating aggregates (summaries) across different dimensions.\nThis process is entirely user-driven.\n\n\nExample\nImagine we have access to a data warehouse storing sales information from a supermarket.\nHow can we analyze queries such as:\n\nWhat is the total sales of products in the subsequent quarters, months, and weeks?\nWhat is the sales breakdown by product categories?\nWhat is the sales breakdown by supermarket branches?\n\nAnswers to these questions help identify bottlenecks in product sales, plan inventory levels, and compare sales across different product groups and supermarket branches.\nIn a Data Warehouse, two types of queries are most commonly executed (both in batch mode):\n\nPeriodic queries that generate business statistics, such as reporting queries.\nAd-hoc queries that support critical business decisions."
+    "text": "Data Processing Models\nData has always been processed in business.\nOver the past decades, the amount of processed data has been steadily increasing, affecting the way data is prepared and handled.\n\nA Bit of History\n\n1960s: Data collections, databases\n\n1970s: Relational data models and their implementation in OLTP systems\n\n1975: First personal computers\n\n1980s: Advanced data models (extended-relational, object-oriented, application-oriented, etc.)\n\n1983: The beginning of the Internet\n\n1990s: Data mining, data warehouses, OLAP systems\n\nLater: NoSQL, Hadoop, SPARK, data lakes\n\n2002: AWS, 2005: Hadoop, Cloud computing\n\n\nMost data is stored in databases or data warehouses.\nTypically, data access is performed through applications by executing queries.\nThe method of utilizing and accessing a database is called the data processing model.\nThe two most commonly used implementations are:\n\n\nTraditional Model\nThe traditional model refers to online transaction processing (OLTP),\nwhich excels at handling real-time tasks such as customer service, order management, and sales processing.\nIt is commonly used in Enterprise Resource Planning (ERP) systems, Customer Relationship Management (CRM) software, and web-based applications.\n\nThis model provides efficient solutions for:\n\nSecure and efficient data storage\n\nTransactional data recovery after failures\n\nOptimized data access\n\nConcurrency management\n\nEvent processing → read → write\n\nHowever, what happens when we need to deal with:\n\nAggregation of data from multiple systems (e.g., multiple stores)\n\nReporting and data summarization\n\nOptimization of complex queries\n\nBusiness decision support\n\nResearch on these topics led to the formulation of a new data processing model and a new type of database – Data Warehouses.\n\n\nOLAP Model\nOnline Analytical Processing (OLAP)\nOLAP supports data analysis and provides tools for multidimensional analysis\nbased on dimensions such as time, location, and product.\nThe process of extracting data from various systems into a single database is known as Extract-Transform-Load (ETL),\nwhich involves normalization, encoding, and schema transformation.\nAnalyzing data in a data warehouse mainly involves calculating aggregates (summaries) across different dimensions.\nThis process is entirely user-driven.\n\n\nExample\nImagine we have access to a data warehouse storing sales information from a supermarket.\nHow can we analyze queries such as:\n\nWhat is the total sales of products in the subsequent quarters, months, and weeks?\nWhat is the sales breakdown by product categories?\nWhat is the sales breakdown by supermarket branches?\n\nAnswers to these questions help identify bottlenecks in product sales, plan inventory levels, and compare sales across different product groups and supermarket branches.\nIn a Data Warehouse, two types of queries are most commonly executed (both in batch mode):\n\nPeriodic queries that generate business statistics, such as reporting queries.\nAd-hoc queries that support critical business decisions.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2"
+    ]
   },
   {
     "objectID": "lectures/lecture4.html",
