@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lecture 5 – Real-Time Analytics</title>
+<title>Lecture 5: Machine Learning in Real Time – Real-Time Analytics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -72,10 +72,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-f1aadacce99040138bbb613f9330654f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-47ced4e51990f65db33ba556d4d102bb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8843a38191b55497cd032d3fc2c3d839.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -181,7 +181,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Lecture 5</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture5.html">Lecture 5: Machine Learning in Real Time</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -211,25 +211,37 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 1</span></a>
+ <span class="menu-text">Lecture 1: Introduction to Real-Time Data Analytics</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 2</span></a>
+ <span class="menu-text">Lecture 2: Evolution of Data and Processing Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 3</span></a>
+ <span class="menu-text">Lecture 3: Stream Processing — Time and Windows</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 4</span></a>
+ <span class="menu-text">Lecture 4: Apache Kafka and Microservices</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../lectures/lecture5.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture 5: Machine Learning in Real Time</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/en_lab0_prework.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Pre-Lab Exercises: Environment Setup</span></a>
   </div>
 </li>
       </ul>
@@ -244,17 +256,20 @@ window.Quarto = {
     <h2 id="toc-title">Sections</h2>
    
   <ul class="collapse">
-  <li><a href="#algorithms" id="toc-algorithms" class="nav-link active" data-scroll-target="#algorithms">Algorithms</a></li>
-  <li><a href="#anomaly-detection" id="toc-anomaly-detection" class="nav-link" data-scroll-target="#anomaly-detection">Anomaly detection</a></li>
+  <li><a href="#offline-learning-vs-online-learning" id="toc-offline-learning-vs-online-learning" class="nav-link active" data-scroll-target="#offline-learning-vs-online-learning">Offline Learning vs Online Learning</a></li>
+  <li><a href="#anomaly-detection" id="toc-anomaly-detection" class="nav-link" data-scroll-target="#anomaly-detection">Anomaly Detection</a></li>
+  <li><a href="#algorithm-explainability" id="toc-algorithm-explainability" class="nav-link" data-scroll-target="#algorithm-explainability">Algorithm Explainability</a></li>
+  <li><a href="#course-summary-whats-next" id="toc-course-summary-whats-next" class="nav-link" data-scroll-target="#course-summary-whats-next">Course Summary — What’s Next?</a></li>
+  <li><a href="#business-impact" id="toc-business-impact" class="nav-link" data-scroll-target="#business-impact">Business Impact</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture5.html">Lecture 5: Machine Learning in Real Time</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Lecture 5</h1>
+<h1 class="title">Lecture 5: Machine Learning in Real Time</h1>
 </div>
 
 
@@ -271,247 +286,350 @@ window.Quarto = {
 </header>
 
 
-<section id="algorithms" class="level2">
-<h2 class="anchored" data-anchor-id="algorithms">Algorithms</h2>
-<p>Before designing a solution to a business problem, it is essential to consider the complexity of the issue.</p>
-<section id="algorithm-classification" class="level3">
-<h3 class="anchored" data-anchor-id="algorithm-classification">Algorithm Classification</h3>
-<ol type="1">
-<li><strong>Algorithms Processing Large Amounts of Data</strong></li>
-</ol>
-<p>Processing vast datasets requires an appropriate approach to organizing and analyzing them. When the amount of data exceeds the available memory of a computing unit, iterative processing methods are often used.</p>
-<p>🔹 Example: Recommendation Systems in E-commerce (e.g., Amazon, Netflix)</p>
-<ul>
-<li>Analyzes large datasets about users, their purchase history, and viewed content.</li>
-<li>Processes data iteratively (e.g., stream processing in Apache Spark).</li>
-<li>Uses collaborative filtering or graph-based algorithms to predict user preferences.</li>
-</ul>
-<p>🔹 Other Applications:</p>
-<ul>
-<li>Real-time server log analysis (e.g., DDoS attack detection).</li>
-<li>IoT network monitoring (e.g., sensor data analysis in smart cities).</li>
-</ul>
-<ol start="2" type="1">
-<li><strong>Algorithms Performing Intensive Computations</strong></li>
-</ol>
-<p>These require significant computing power but typically do not operate on large datasets. An example is an algorithm searching for large prime numbers. Parallel computation techniques are often used to optimize performance.</p>
-<p>🔹 Example: Cryptography and Finding Large Prime Numbers (e.g., RSA)</p>
-<ul>
-<li>Generates large prime numbers essential for RSA encryption.</li>
-<li>Requires intensive computations but does not operate on vast datasets.</li>
-<li>Often employs parallel methods, such as the Miller-Rabin probabilistic algorithm for primality testing.</li>
-</ul>
-<p>🔹 Other Applications:</p>
-<ul>
-<li>Physical simulations (e.g., weather forecasting, climate models).</li>
-<li>Optimization algorithms (e.g., solving the traveling salesman problem).</li>
-</ul>
-<ol start="3" type="1">
-<li><strong>Algorithms Processing Large Data and Performing Intensive Computations</strong></li>
-</ol>
-<p>These combine the requirements of the previous types, demanding both high computational power and handling of large datasets. An example is sentiment analysis in live video streams.</p>
-<p>🔹 Example: Sentiment Analysis in Live Video Streams (e.g., YouTube, Twitch)</p>
-<ul>
-<li>Analyzes both text (chat) and video/audio in real time.</li>
-<li>Requires both significant computational resources (NLP and CV processing) and large-scale data handling.</li>
-<li>Uses Transformer models (e.g., BERT) for text analysis and CNN/RNN for image and audio processing.</li>
-</ul>
-<p>🔹 Other Applications:</p>
-<ul>
-<li>Autonomous vehicles (real-time image analysis and decision-making).</li>
-<li>Anomaly detection in massive financial datasets (e.g., fraud detection in banking).</li>
-</ul>
+<p><em>Duration: 1.5h</em></p>
+<p><strong>Goal:</strong> Understand the differences between offline and online learning, anomaly detection in real time, and algorithm explainability — from a business perspective.</p>
+<hr>
+<section id="offline-learning-vs-online-learning" class="level2">
+<h2 class="anchored" data-anchor-id="offline-learning-vs-online-learning">Offline Learning vs Online Learning</h2>
+<p>In previous lectures we learned the difference between batch and stream processing. The same dichotomy applies to machine learning.</p>
+<section id="offline-learning-batch-learning" class="level3">
+<h3 class="anchored" data-anchor-id="offline-learning-batch-learning">Offline Learning (Batch Learning)</h3>
+<p>The classical approach: collect historical data, train a model, deploy it — and the model doesn’t change until you retrain it on new data.</p>
+<div id="3247a4ba" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Historical data — area (sqm) vs price (thousands PLN)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> np.array([[<span class="dv">30</span>], [<span class="dv">45</span>], [<span class="dv">55</span>], [<span class="dv">70</span>], [<span class="dv">85</span>], [<span class="dv">100</span>], [<span class="dv">120</span>]])</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.array([<span class="dv">250</span>, <span class="dv">370</span>, <span class="dv">430</span>, <span class="dv">560</span>, <span class="dv">680</span>, <span class="dv">790</span>, <span class="dv">950</span>])</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression()</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>model.fit(X, y)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Model is "frozen" — it doesn't learn from new data</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>new <span class="op">=</span> np.array([[<span class="dv">65</span>], [<span class="dv">90</span>]])</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Predictions:"</span>, model.predict(new).<span class="bu">round</span>(<span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Predictions: [520. 715.]</code></pre>
+</div>
+</div>
+<p>Problem: the world changes. Property prices rise, customer preferences evolve, new fraud patterns emerge. A model trained on last year’s data may be outdated.</p>
+<p>Brute-force solution: retrain the model periodically (e.g., weekly) on new data. This works, but it’s expensive and delayed.</p>
 </section>
-<section id="data-dimension" class="level3">
-<h3 class="anchored" data-anchor-id="data-dimension">Data Dimension</h3>
-<p>To determine the dimensionality of a problem’s data, it is not enough to consider just the amount of storage required. Three main aspects are crucial:</p>
-<ol type="1">
-<li><strong>Input Size</strong> – Expected volume of data to be processed.</li>
-<li><strong>Growth Rate</strong> – The rate at which new data is generated during algorithm execution.</li>
-<li><strong>Structural Diversity</strong> – The types of data that the algorithm must handle.</li>
-</ol>
+<section id="online-learning-incremental-learning" class="level3">
+<h3 class="anchored" data-anchor-id="online-learning-incremental-learning">Online Learning (Incremental Learning)</h3>
+<p>An alternative approach: the model learns <strong>continuously</strong>, updating its parameters with each new observation (or small batch).</p>
+<p>Key algorithm: <strong>Stochastic Gradient Descent (SGD)</strong> — instead of computing the gradient on the entire dataset, we update weights after each observation.</p>
+<div id="8823c17c" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> SGDRegressor</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Data arrives as a stream — one observation at a time</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> SGDRegressor(max_iter<span class="op">=</span><span class="dv">1</span>, warm_start<span class="op">=</span><span class="va">True</span>, learning_rate<span class="op">=</span><span class="st">'constant'</span>, eta0<span class="op">=</span><span class="fl">0.0001</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data stream</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Online learning — model learns with each new observation:"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">50</span>):</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    X_new <span class="op">=</span> np.array([[<span class="dv">30</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">2</span>]])</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    y_new <span class="op">=</span> np.array([<span class="dv">250</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">15</span> <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="dv">20</span>)])</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    model.partial_fit(X_new, y_new)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        pred <span class="op">=</span> model.predict(np.array([[<span class="dv">75</span>]]))[<span class="dv">0</span>]</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  After </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss"> observations -&gt; prediction for 75sqm: </span><span class="sc">{</span>pred<span class="sc">:.0f}</span><span class="ss">k PLN"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Online learning — model learns with each new observation:
+  After 1 observations -&gt; prediction for 75sqm: 59k PLN
+  After 11 observations -&gt; prediction for 75sqm: 509k PLN
+  After 21 observations -&gt; prediction for 75sqm: 592k PLN
+  After 31 observations -&gt; prediction for 75sqm: 590k PLN
+  After 41 observations -&gt; prediction for 75sqm: 593k PLN</code></pre>
+</div>
+</div>
+<p>The <code>partial_fit()</code> method is the heart of online learning — the model updates its parameters without needing to store the entire dataset.</p>
 </section>
-<section id="computational-dimension" class="level3">
-<h3 class="anchored" data-anchor-id="computational-dimension">Computational Dimension</h3>
-<p>This concerns processing resources and computational power. For example, deep learning (DL) algorithms require significant computational power, making it necessary to provide a parallelized architecture using GPUs or TPUs, significantly speeding up computations.</p>
-</section>
-<section id="algorithm-explainability" class="level3">
-<h3 class="anchored" data-anchor-id="algorithm-explainability">Algorithm Explainability</h3>
-<p>In many cases, modeling is used in critical situations, such as in software for administering medications. In such cases, explaining the reasons behind each algorithmic decision is crucial to ensure that the outcomes are error-free and unbiased.</p>
-<p>The ability of an algorithm to indicate the mechanisms generating its results is called explainability. Ethical analysis is a standard part of the algorithm validation process.</p>
-<p>Achieving high explainability is particularly challenging for machine learning (ML) and deep learning (DL) algorithms. For instance, banks using algorithms for credit decision-making must ensure transparency and justify their decisions.</p>
-<p>One method for improving algorithm explainability is LIME (Local Interpretable Model-Agnostic Explanations), published in 2016. This method introduces small changes to input data and analyzes their impact on the output, allowing the identification of local decision-making rules within the model.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lime.lime_tabular <span class="im">import</span> LimeTabularExplainer</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Wczytanie danych Iris</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_iris</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>iris <span class="op">=</span> load_iris()</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> iris.data</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> iris.target</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Podział na zbiór treningowy i testowy</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Trenowanie modelu</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> RandomForestClassifier(n_estimators<span class="op">=</span><span class="dv">100</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>model.fit(X_train, y_train)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Tworzenie obiektu LIME do interpretacji modelu</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>explainer <span class="op">=</span> LimeTabularExplainer(X_train, feature_names<span class="op">=</span>iris.feature_names, class_names<span class="op">=</span>iris.target_names, discretize_continuous<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Interpretacja losowego przykładu ze zbioru testowego</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> np.random.randint(<span class="dv">0</span>, <span class="bu">len</span>(X_test))  <span class="co"># Wybór losowego przykładu</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>exp <span class="op">=</span> explainer.explain_instance(X_test[i], model.predict_proba)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Wyświetlenie interpretacji</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>exp.show_in_notebook()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>How Does This Code Work?</p>
-<ol type="1">
-<li>Loading Data and Training the Model</li>
-</ol>
-<ul>
-<li>Uses the Iris dataset, containing 150 examples of flowers from three species:</li>
-<li>Setosa</li>
-<li>Versicolor</li>
-<li>Virginica</li>
-<li>The RandomForestClassifier model is trained on this data.</li>
-</ul>
-<ol start="2" type="1">
-<li>Creating an Interpretable Model Using LIME</li>
-</ol>
-<ul>
-<li>LIME generates local explanations, interpreting the model for individual predictions.</li>
-<li>A random test example is selected.</li>
-</ul>
-<ol start="3" type="1">
-<li>Exploring the Outcome for a Single Example</li>
-</ol>
-<ul>
-<li>LIME slightly modifies input values and observes how the prediction changes.</li>
-<li>It creates a “local” linear model that shows which features had the most influence on the decision.</li>
-</ul>
-<p>Let’s assume our model selects a sample flower and classifies it as Virginica.</p>
-<p>Interpretation of Results:</p>
-<ol type="1">
-<li>Key Features Affecting Model Decision:</li>
-</ol>
-<ul>
-<li>Petal length: The most significant factor (e.g., a longer petal suggests Virginica).</li>
-<li>Petal width: Also a crucial factor (e.g., above a certain threshold indicates Virginica).</li>
-<li>Sepal length: A less significant but still relevant factor.</li>
-<li>Sepal width: Usually the least important feature.</li>
-</ul>
-<ol start="2" type="1">
-<li>Visualization of Results:</li>
-</ol>
-<ul>
-<li>LIME generates a bar chart showing the impact of each feature on classification.</li>
-<li>The chart highlights which features increased or decreased the probability of a specific classification.</li>
-</ul>
-<ol start="3" type="1">
-<li>What Does This Mean?</li>
-</ol>
-<ul>
-<li>If the model predicts Virginica with high probability, key features (e.g., long petals) strongly indicate this species.</li>
-<li>If the features had mixed influences, it suggests the model had difficulty classifying the instance (e.g., petal width was ambiguous).</li>
-</ul>
+<section id="when-to-use-which" class="level3">
+<h3 class="anchored" data-anchor-id="when-to-use-which">When to Use Which?</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Offline learning</th>
+<th>Online learning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Data</strong></td>
+<td>Historical, collected</td>
+<td>Streaming, incremental</td>
+</tr>
+<tr class="even">
+<td><strong>Model update</strong></td>
+<td>Periodic (retrain)</td>
+<td>Continuous (partial_fit)</td>
+</tr>
+<tr class="odd">
+<td><strong>Compute cost</strong></td>
+<td>High one-time</td>
+<td>Low per observation</td>
+</tr>
+<tr class="even">
+<td><strong>Reaction to change</strong></td>
+<td>Delayed</td>
+<td>Immediate</td>
+</tr>
+<tr class="odd">
+<td><strong>Risk</strong></td>
+<td>Stale model</td>
+<td>Instability, concept drift</td>
+</tr>
+<tr class="even">
+<td><strong>Use case</strong></td>
+<td>Reports, predictive models</td>
+<td>Fraud detection, live recommendations</td>
+</tr>
+</tbody>
+</table>
+<p>In practice, a <strong>hybrid</strong> approach is often used: a base model trained offline, updated online with current data.</p>
 </section>
 </section>
 <section id="anomaly-detection" class="level2">
-<h2 class="anchored" data-anchor-id="anomaly-detection">Anomaly detection</h2>
-<p><strong>An outlier</strong> is an observation (a row in a dataset) that is significantly different from the other elements in the sample. This means that the relationship between independent and dependent variables for this observation may differ from other cases.</p>
-<p>For single variables, outliers can be identified using a box plot, which is based on quartiles:</p>
+<h2 class="anchored" data-anchor-id="anomaly-detection">Anomaly Detection</h2>
+<p>Anomaly detection is one of the most important applications of real-time analytics. An anomaly (outlier) is an observation that significantly deviates from the rest — a suspicious transaction, unusual sensor reading, unexpected traffic spike.</p>
+<section id="statistical-method-iqr" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-method-iqr">Statistical Method — IQR</h3>
+<p>The simplest method: an observation is an anomaly if it lies far from the median. Formally, a value is an outlier when:</p>
+<p><span class="math display">\[x_{out} &lt; Q_1 - 1.5 \times IQR \quad \text{or} \quad x_{out} &gt; Q_3 + 1.5 \times IQR\]</span></p>
+<p>where <span class="math inline">\(IQR = Q_3 - Q_1\)</span> (interquartile range).</p>
+<div id="ec68b98f" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Credit card transactions (amounts in PLN)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>transactions <span class="op">=</span> [<span class="dv">85</span>, <span class="dv">92</span>, <span class="dv">78</span>, <span class="dv">110</span>, <span class="dv">95</span>, <span class="dv">88</span>, <span class="dv">102</span>, <span class="dv">91</span>, <span class="dv">87</span>, <span class="dv">99</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                <span class="dv">105</span>, <span class="dv">82</span>, <span class="dv">97</span>, <span class="dv">4500</span>, <span class="dv">89</span>, <span class="dv">94</span>, <span class="dv">101</span>, <span class="dv">86</span>, <span class="dv">93</span>, <span class="dv">8200</span>]</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>Q1 <span class="op">=</span> np.percentile(transactions, <span class="dv">25</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Q3 <span class="op">=</span> np.percentile(transactions, <span class="dv">75</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>IQR <span class="op">=</span> Q3 <span class="op">-</span> Q1</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>lower_bound <span class="op">=</span> Q1 <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> IQR</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>upper_bound <span class="op">=</span> Q3 <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> IQR</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>anomalies <span class="op">=</span> [x <span class="cf">for</span> x <span class="kw">in</span> transactions <span class="cf">if</span> x <span class="op">&lt;</span> lower_bound <span class="kw">or</span> x <span class="op">&gt;</span> upper_bound]</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Q1=</span><span class="sc">{</span>Q1<span class="sc">}</span><span class="ss">, Q3=</span><span class="sc">{</span>Q3<span class="sc">}</span><span class="ss">, IQR=</span><span class="sc">{</span>IQR<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Bounds: [</span><span class="sc">{</span>lower_bound<span class="sc">:.0f}</span><span class="ss">, </span><span class="sc">{</span>upper_bound<span class="sc">:.0f}</span><span class="ss">]"</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Anomalies: </span><span class="sc">{</span>anomalies<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">2</span>))</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>ax.boxplot(transactions, vert<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Transaction amount (PLN)'</span>)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Anomaly detection with IQR'</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Q1=87.75, Q3=101.25, IQR=13.5
+Bounds: [68, 122]
+Anomalies: [4500, 8200]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lecture5_files/figure-html/cell-4-output-2.png" width="758" height="182" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The IQR method is simple but works only for a single variable. For multidimensional data we need something more sophisticated.</p>
+</section>
+<section id="isolation-forest" class="level3">
+<h3 class="anchored" data-anchor-id="isolation-forest">Isolation Forest</h3>
+<p><strong>Isolation Forest</strong> is a tree-based algorithm designed specifically for anomaly detection (Liu, Ting, Zhou, 2008). It works on a simple intuition: <strong>anomalies are easier to isolate</strong> than normal observations.</p>
+<p>The algorithm randomly selects a feature and a split point. Outliers — being far from the rest — get isolated after fewer splits (closer to the tree root). Normal observations require many splits.</p>
+<div id="e69040d9" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> IsolationForest</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Transaction data: amount, weekly frequency, hours since last transaction</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>normal <span class="op">=</span> np.column_stack([</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    np.random.normal(<span class="dv">200</span>, <span class="dv">50</span>, <span class="dv">50</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    np.random.normal(<span class="dv">10</span>, <span class="dv">3</span>, <span class="dv">50</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    np.random.normal(<span class="dv">24</span>, <span class="dv">8</span>, <span class="dv">50</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>anomalies <span class="op">=</span> np.array([</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">5000</span>, <span class="dv">1</span>, <span class="dv">720</span>],</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">4200</span>, <span class="dv">2</span>, <span class="dv">480</span>],</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">50</span>, <span class="dv">45</span>, <span class="fl">0.5</span>],</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> np.vstack([normal, anomalies])</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> IsolationForest(contamination<span class="op">=</span><span class="fl">0.05</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> model.fit_predict(data)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(data, columns<span class="op">=</span>[<span class="st">"amount"</span>, <span class="st">"weekly_freq"</span>, <span class="st">"hours_since_last"</span>])</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"anomaly"</span>] <span class="op">=</span> [<span class="st">"YES"</span> <span class="cf">if</span> l <span class="op">==</span> <span class="op">-</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">"no"</span> <span class="cf">for</span> l <span class="kw">in</span> labels]</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Detected anomalies:"</span>)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df[df[<span class="st">"anomaly"</span>] <span class="op">==</span> <span class="st">"YES"</span>].to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Detected anomalies:
+ amount  weekly_freq  hours_since_last anomaly
+ 5000.0          1.0             720.0     YES
+ 4200.0          2.0             480.0     YES
+   50.0         45.0               0.5     YES</code></pre>
+</div>
+</div>
+<p>Isolation Forest advantages: fast on large datasets, handles multidimensional data, doesn’t require labeled data (unsupervised method).</p>
+</section>
+<section id="anomaly-detection-in-a-stream" class="level3">
+<h3 class="anchored" data-anchor-id="anomaly-detection-in-a-stream">Anomaly Detection in a Stream</h3>
+<p>In a real-time context, anomaly detection works in a loop:</p>
+<ol type="1">
+<li>A Kafka consumer receives a new transaction.</li>
+<li>A model (e.g., Isolation Forest, trained offline) evaluates whether it’s an anomaly.</li>
+<li>If so — generates an alert.</li>
+<li>Optionally: the model updates itself on new data (online learning).</li>
+</ol>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> kafka <span class="im">import</span> KafkaConsumer</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> IsolationForest</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json, numpy <span class="im">as</span> np</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume model is pre-trained</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> IsolationForest(contamination<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># model.fit(historical_data)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>consumer <span class="op">=</span> KafkaConsumer(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"transactions"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">"localhost:9092"</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    value_deserializer<span class="op">=</span><span class="kw">lambda</span> x: json.loads(x.decode(<span class="st">'utf-8'</span>))</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> msg <span class="kw">in</span> consumer:</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> msg.value</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> np.array([[t[<span class="st">"amount"</span>], t[<span class="st">"weekly_freq"</span>], t[<span class="st">"hours_since_last"</span>]]])</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> model.predict(features)[<span class="dv">0</span>]</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pred <span class="op">==</span> <span class="op">-</span><span class="dv">1</span>:</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"ALERT: Suspicious transaction </span><span class="sc">{</span>t[<span class="st">'id'</span>]<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>t[<span class="st">'amount'</span>]<span class="sc">}</span><span class="ss"> PLN"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="algorithm-explainability" class="level2">
+<h2 class="anchored" data-anchor-id="algorithm-explainability">Algorithm Explainability</h2>
+<p>An ML model may be highly accurate, but if we can’t explain <strong>why</strong> it made a particular decision, its usefulness in many industries is limited.</p>
+<p>This is especially important in regulated sectors:</p>
 <ul>
-<li><strong>First quartile</strong> and third quartile define the edges of the box,</li>
-<li><strong>Second quartile</strong> (median) is marked inside the box,</li>
+<li><strong>Banking</strong> — a bank must explain to a customer why their loan was denied.</li>
+<li><strong>Healthcare</strong> — a diagnostic algorithm must indicate what its recommendation is based on.</li>
+<li><strong>Insurance</strong> — a claim denial decision must be justified.</li>
+<li><strong>Regulation</strong> — the EU AI Act requires transparency for high-risk AI systems.</li>
 </ul>
-<p>Outliers satisfy the condition:</p>
-<p>[ x_{out} &lt; Q_1 - 1.5 IQR x_{out} &gt; Q_3 + 1.5 IQR ]</p>
-<p>Where: [ IQR = Q_3 - Q_1 ]</p>
-<p>An example of an outlier could be a Formula 1 car – in terms of speed, it is an anomaly among regular cars.</p>
-<section id="use-of-anomaly-detection" class="level3">
-<h3 class="anchored" data-anchor-id="use-of-anomaly-detection">Use of Anomaly Detection</h3>
-<p>Anomaly detection has a wide range of applications, such as:</p>
-<ul>
-<li><strong>Finance</strong> – detecting fraudulent transactions in banking data analysis,</li>
-<li><strong>Cybersecurity</strong> – identifying intruders in a network based on user behavior,</li>
-<li><strong>Medicine</strong> – monitoring health parameters and detecting abnormalities,</li>
-<li><strong>Industry</strong> – detecting faulty components through image analysis.</li>
-</ul>
+<section id="lime-local-interpretable-model-agnostic-explanations" class="level3">
+<h3 class="anchored" data-anchor-id="lime-local-interpretable-model-agnostic-explanations">LIME — Local Interpretable Model-Agnostic Explanations</h3>
+<p>LIME (Ribeiro et al., 2016) explains individual predictions of any ML model. It works as follows:</p>
+<ol type="1">
+<li>Takes a specific observation we want explained.</li>
+<li>Generates perturbations — slightly modified versions of that observation.</li>
+<li>Checks how the model reacts to those changes.</li>
+<li>Builds a simple, interpretable local model (e.g., linear regression) that approximates the complex model’s behavior in the neighborhood of that observation.</li>
+</ol>
+<div id="ce3ce257" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_iris</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Train model on Iris data</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>iris <span class="op">=</span> load_iris()</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    iris.data, iris.target, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> RandomForestClassifier(n_estimators<span class="op">=</span><span class="dv">100</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>model.fit(X_train, y_train)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Pick one observation</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">7</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>obs <span class="op">=</span> X_test[i]</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> model.predict([obs])[<span class="dv">0</span>]</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>proba <span class="op">=</span> model.predict_proba([obs])[<span class="dv">0</span>]</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observation: </span><span class="sc">{</span>obs<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Prediction: </span><span class="sc">{</span>iris<span class="sc">.</span>target_names[pred]<span class="sc">}</span><span class="ss"> (probabilities: </span><span class="sc">{</span>proba<span class="sc">.</span><span class="bu">round</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Feature importance for this model</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>importances <span class="op">=</span> model.feature_importances_</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Feature importance (global):"</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, imp <span class="kw">in</span> <span class="bu">sorted</span>(<span class="bu">zip</span>(iris.feature_names, importances), key<span class="op">=</span><span class="kw">lambda</span> x: <span class="op">-</span>x[<span class="dv">1</span>]):</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>imp<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Observation: [6.9 3.1 5.1 2.3]
+Prediction: virginica (probabilities: [0.   0.08 0.92])
+
+Feature importance (global):
+  petal length (cm): 0.440
+  petal width (cm): 0.422
+  sepal length (cm): 0.108
+  sepal width (cm): 0.030</code></pre>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To use LIME (requires: pip install lime):</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lime.lime_tabular <span class="im">import</span> LimeTabularExplainer</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>explainer <span class="op">=</span> LimeTabularExplainer(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    X_train,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    feature_names<span class="op">=</span>iris.feature_names,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    class_names<span class="op">=</span>iris.target_names,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    discretize_continuous<span class="op">=</span><span class="va">True</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>exp <span class="op">=</span> explainer.explain_instance(X_test[i], model.predict_proba)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>exp.show_in_notebook()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>LIME will show which features (e.g., petal length &gt; 4.5, petal width &gt; 1.6) influenced the classification of a given flower as <em>Virginica</em>. The same approach works for any model — from logistic regression to deep neural networks.</p>
 </section>
-<section id="anomaly-detection-methods" class="level3">
-<h3 class="anchored" data-anchor-id="anomaly-detection-methods">Anomaly Detection Methods</h3>
-<section id="supervised-methods-supervised-learning" class="level4">
-<h4 class="anchored" data-anchor-id="supervised-methods-supervised-learning">1. Supervised Methods (supervised learning)</h4>
-<p>Used when labeled data is available (e.g., fraud cases in transactions). - Neural networks, - K-Nearest Neighbors algorithm (KNN), - Bayesian networks.</p>
 </section>
-<section id="unsupervised-methods-unsupervised-learning" class="level4">
-<h4 class="anchored" data-anchor-id="unsupervised-methods-unsupervised-learning">2. Unsupervised Methods (unsupervised learning)</h4>
-<p>Assumes that most data is correct, and anomalies are a small percentage of cases. - K-Means clustering, - Autoencoders in neural networks, - Statistical tests.</p>
+<section id="course-summary-whats-next" class="level2">
+<h2 class="anchored" data-anchor-id="course-summary-whats-next">Course Summary — What’s Next?</h2>
+<p>Over 5 lectures we followed this path:</p>
+<ol type="1">
+<li><strong>L1:</strong> What is real-time analytics and when is it needed (batch vs NRT vs RT).</li>
+<li><strong>L2:</strong> Evolution of data and processing models (OLTP -&gt; OLAP -&gt; Data Lake -&gt; Big Data).</li>
+<li><strong>L3:</strong> Stream processing — time, watermarking, time windows.</li>
+<li><strong>L4:</strong> Apache Kafka and microservices — real-time system architecture.</li>
+<li><strong>L5:</strong> Machine learning in streaming context — online learning, anomalies, explainability.</li>
+</ol>
+<p>In the <strong>labs</strong>, you’ll translate this knowledge into practice: set up an environment in Docker, write Kafka producers and consumers, build a Spark Streaming + Kafka pipeline, deploy an ML model as a FastAPI microservice, and build a complete real-time anomaly detection system.</p>
 </section>
-</section>
-<section id="classical-method-detection-based-on-probability" class="level3">
-<h3 class="anchored" data-anchor-id="classical-method-detection-based-on-probability">Classical Method – Detection Based on Probability</h3>
-<p>To determine whether a given observation is an anomaly, we can use the probability <span class="math inline">\(p(x)\)</span>: - If <span class="math inline">\(p(x) &lt; \epsilon\)</span>, we consider the value as an outlier. - In practice, we assume the data follows a <strong>normal distribution</strong> <span class="math inline">\(N(\mu, \sigma)\)</span>. - We estimate the parameters <span class="math inline">\(\mu\)</span> (mean) and <span class="math inline">\(\sigma^2\)</span> (variance) based on a sample. - Then, for each value, we calculate the probability of its occurrence and compare it with .</p>
-<p>Example: Salary Analysis in a Company</p>
-<p>We detect whether there are individuals in the company whose salaries significantly deviate from the average.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>salaries <span class="op">=</span> [<span class="dv">40</span>, <span class="dv">42</span>, <span class="dv">45</span>, <span class="dv">47</span>, <span class="dv">50</span>, <span class="dv">55</span>, <span class="dv">60</span>, <span class="dv">70</span>, <span class="dv">90</span>, <span class="dv">150</span>]  <span class="co"># 150 to outlier</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>Q1 <span class="op">=</span> np.percentile(salaries, <span class="dv">25</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>Q3 <span class="op">=</span> np.percentile(salaries, <span class="dv">75</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>IQR <span class="op">=</span> Q3 <span class="op">-</span> Q1</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>outlier_threshold_low <span class="op">=</span> Q1 <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> IQR</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>outlier_threshold_high <span class="op">=</span> Q3 <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> IQR</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>outliers <span class="op">=</span> [x <span class="cf">for</span> x <span class="kw">in</span> salaries <span class="cf">if</span> x <span class="op">&lt;</span> outlier_threshold_low <span class="kw">or</span> x <span class="op">&gt;</span> outlier_threshold_high]</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Outliers: </span><span class="sc">{</span>outliers<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>sns.boxplot(salaries)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Box plot"</span>)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Result: The box plot shows that 150k is an anomaly.</p>
-</section>
-<section id="isolation-forest-anomaly-detection-using-isolation-forest" class="level3">
-<h3 class="anchored" data-anchor-id="isolation-forest-anomaly-detection-using-isolation-forest">Isolation Forest – Anomaly Detection Using Isolation Forest</h3>
-<p><strong>Isolation Forest</strong> is an algorithm based on decision trees, proposed by Fei Tony Liu, Kai Ming Ting, and Zhi-Hua Zhou in 2008. It identifies anomalies by isolating outliers during the data partitioning process: - Randomly selects a feature and a split value, - Outliers are isolated more quickly (closer to the root of the tree), - The result is aggregated based on multiple trees.</p>
-<p>Its advantages include low computational requirements and effectiveness in analyzing high-dimensional data.</p>
-<p><a href="https://scikit-learn.org/0.20/auto_examples/plot_anomaly_comparison.html">Anomaly Detection Methods in sklearn</a></p>
-<p><strong>Example: Detecting Credit Card Fraud</strong></p>
-<p>A bank analyzes credit card transactions and detects those that may be unauthorized.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> IsolationForest</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Przykładowe dane transakcji (kwota, liczba transakcji w tygodniu)</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> np.array([</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">100</span>, <span class="dv">5</span>], [<span class="dv">120</span>, <span class="dv">6</span>], [<span class="dv">130</span>, <span class="dv">5</span>], [<span class="dv">110</span>, <span class="dv">4</span>], [<span class="dv">5000</span>, <span class="dv">1</span>],  <span class="co"># Outlier (duża kwota, rzadkość)</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">125</span>, <span class="dv">5</span>], [<span class="dv">115</span>, <span class="dv">5</span>], [<span class="dv">140</span>, <span class="dv">7</span>], [<span class="dv">135</span>, <span class="dv">6</span>], [<span class="dv">145</span>, <span class="dv">5</span>]</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Model Isolation Forest</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>clf <span class="op">=</span> IsolationForest(contamination<span class="op">=</span><span class="fl">0.1</span>)  <span class="co"># 10% transakcji uznajemy za anomalie</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>clf.fit(data)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Predykcja (1 = normalna transakcja, -1 = oszustwo)</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>predictions <span class="op">=</span> clf.predict(data)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(data, columns<span class="op">=</span>[<span class="st">"Kwota"</span>, <span class="st">"Liczba transakcji"</span>])</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Anomalia"</span>] <span class="op">=</span> predictions</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Result: A transaction of 5000 PLN will be detected as an anomaly.</p>
+<section id="business-impact" class="level2">
+<h2 class="anchored" data-anchor-id="business-impact">Business Impact</h2>
+<p>Anomaly detection is the foundation of modern risk management — from detecting financial fraud to predicting machine failures (predictive maintenance). Algorithm explainability is a necessity in regulated sectors — understanding “why the system said NO” protects a company from reputational and legal damage and ensures compliance with regulations (AI Act, GDPR). Companies that combine real-time analytics with interpretable ML gain a competitive advantage not only in speed, but also in customer trust.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

@@ -1,213 +1,314 @@
-
 ---
-title: "All tools"
+title: "Tools"
 ---
 
+## Python {#python}
 
-## Python env with Jupyter LAB
+In your terminal, type:
 
-For our first a few laboratories we will use just python codes. 
-Check what is Your Python3 environment. 
-
-In the terminal try first:
 ```bash
-python
-# and
-python3
+python3 --version
 ```
 
-I have python3 (You shouldn't use python 2.7 version) so i create a new and a clear python environment.
-
-
-The easiest way how to run a JupyterLab with your new python env. 
-For _<name of Your env>_ You can choose what You want. 
+Make sure your version is 3.10 or higher.
+To exit the Python shell, use the `exit()` function:
 
 ```bash
-python3 -m venv <name of Your env>
+Python 3.13.2 (main, Feb  4 2025, 14:51:09) [Clang 16.0.0 (clang-1600.0.26.6)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> exit()
+```
 
-source <name of your env>/bin/activate
-# . env/bin/activate
+### Creating a Python Virtual Environment
+
+```bash
+python3 -m venv <env_name>
+
+# Linux / macOS
+source <env_name>/bin/activate
+
+# Windows
+# <env_name>\Scripts\activate
+
+(env_name)$
+```
+
+Install core libraries and JupyterLab:
+
+```bash
 pip install --no-cache --upgrade pip setuptools
-
 pip install jupyterlab numpy pandas matplotlib scipy
-# or
+
+# if you have a requirements.txt
 pip install -r requirements.txt
 
-jupyterlab
+# start JupyterLab
+jupyter lab
 ```
-go to web browser: _localhost:8888_
 
-If You want rerun jupyterlab (after computer reset) just go to Your folder and run: 
+Open your browser at: _localhost:8888_
+
+After restarting your computer, navigate to the folder where you created the environment, activate it, and start JupyterLab:
 
 ```bash
-source <name of your env>/bin/activate
-jupyterlab
+source <env_name>/bin/activate
+jupyter lab
 ```
 
+### Python with JupyterLab -- Docker Version
 
-## Python env with JupyterLAB Docker Version
+Clone the course infrastructure repository and start the full environment with Docker:
 
-### Cookiecutter project 
-From [GitHub](https://github.com/sebkaz/jupyterlab-project) repository You can
-find how to use a cookiecutter for any data science project or other kind of programs. 
-
-To run and build full dockerfile project:
-Create python env and install cookiecutter library.
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip --no-cache install --upgrade pip setuptools
-pip install cookiecutter
+git clone -b 2026Redis https://github.com/sebkaz/jupyterlab-project.git
+cd jupyterlab-project
+docker compose up -d
 ```
-and run:
+
+Open your browser at: _localhost:8888_
+
+To stop the environment:
+
 ```bash
-cookiecutter https://github.com/sebkaz/jupyterlab-project
-```
-You can run a cookiecutter project directly from GitHub repo.
-
-Answer questions: 
-```bash
-cd jupyterlab
-docker-compose up -d --build
-```
-To stop: 
-```bash
-docker-compose down
+docker compose down
 ```
 
-### Cookiecutter with config yaml file
+### Learn Python
 
-1. [Python, Julia, R](https://github.com/sebkaz/docker-jupyterlab)
-2. [All + Apache Spark](https://github.com/sebkaz/docker-spark-jupyterlab)
+A recommended Python basics course: [Tomas Beuzen](https://www.tomasbeuzen.com/python-programming-for-data-science/README.html).
 
-Clone repo and run:
-```bash 
-python3 -m cookiecutter https://github.com/sebkaz/jupyterlab-project --no-input --config-file=spark_template.yml --overwrite-if-exists
-```
+Create an account on [Kaggle](https://kaggle.com), go to the `Courses` tab, and complete the Python module. It covers:
 
-
-## Start with GitHub
-
-Text from [web site](http://pbiecek.github.io/Przewodnik/Programowanie/jak_korzystac_z_serwisu_github_i_waffle.html)
-
+- expressions and variables
+- functions
+- conditionals and program flow
+- lists
+- loops
+- strings and dictionaries
+- importing and using external libraries
 
 
-When You working on a project, e.g. a master's thesis, (alone or in a team) you often need to check what changes, when and by whom were introduced to the project.
-The "version control system" or [GIT](https://git-scm.com) works great for this task.
+## Git {#git}
 
-You can download and install Git like a regular program on any computer.
-However, most often (small projects) you use websites with some kind of git system.
-One of the most recognized is [GitHub] (www.github.com) which allows you to use the git system without installing it on your computer.
+When working on a project (alone or in a team), you often need to track what changes were made, when, and by whom. [Git](https://git-scm.com) -- a version control system -- is the standard tool for this.
 
-In the free version of the `GitHub` website, you can store your files in public (everyone has access) repositories.
-We will only focus on the free version of GitHub:
+You can download and install Git on any operating system. However, most projects use a hosting service like [GitHub](https://github.com), which lets you use Git directly from your browser.
+
+GitHub's free tier supports both **public** and **private** repositories.
 
 ```bash
 git --version
 ```
 
-## GitHub
+### GitHub Structure
 
-At the highest level, there are individual accounts (eg. [http://github.com/sebkaz](http://github.com/sebkaz) or those set up by organizations.
-Individual users can create ** repositories ** public (`public`) or private (` private`).
+At the top level, there are individual accounts (e.g., [github.com/sebkaz](https://github.com/sebkaz)) or organizations. Users can create **public** or **private** repositories.
 
-One file should not exceed 100 MB.
+A single file should not exceed 100 MB.
 
-**Repo** (shortcut to repository) is created with `Create a new repository`.
- Each repo should have an individual name.
+A **repo** (short for repository) is created with the `Create a new repository` button. Each repo should have a unique name.
 
 ### Branches
 
-The main (created by default) branch of the repository is named `master`.
+The default branch of a repository is named `main` (previously `master`).
 
+### Essential Commands
 
-### Most important commends
-
-* _clone of Your repository_
+Clone a repository:
 
 ```bash
-git clone https://adres_repo.git
+git clone https://github.com/<username>/<repo>.git
 ```
 
-> In github case, you can download the repository as a 'zip' file.
+> You can also download a repository from GitHub as a ZIP file.
 
-* _Repository for local directory_
+Create a local repository:
 
 ```bash
-# new directory
+# create a new directory
 mkdir datamining
 cd datamining
-# init repo
+# initialize a repository
 git init
-# there sould be a .git new directory
-# add file
-echo "Info " >> README.md
+# add a file
+echo "Info" >> README.md
 ```
 
-* local and web version connection 
+Connect a local repository to GitHub:
 
 ```bash
-git remote add origin https://github.com/<twojGit>/nazwa.git
+git remote add origin https://github.com/<username>/<repo>.git
 ```
 
-* 3 steps
+The three-step workflow:
 
 ```bash
-# status check
+# check status
 git status
-# 1. add all changes
+# 1. stage all changes
 git add .
-# 2. commit all changes with message
-git commit -m " message "
-# 3. and
-git push origin master
+# 2. commit with a message
+git commit -m "description of changes"
+# 3. push to remote
+git push origin main
 ```
-You can watch [Youtube course](https://www.youtube.com/watch?v=HVsySz-h9r4).
+
+Recommended: [Git crash course on YouTube](https://www.youtube.com/watch?v=HVsySz-h9r4).
 
 
+## Docker {#docker}
 
+Download Docker from the [official website](https://docs.docker.com/get-docker/).
 
-All the necessary programs will be delivered in the form of docker containers.
+If installed correctly, run the following commands:
 
-## Start with Docker
+1. Check the installed version:
 
-In order to download the docer software to your system, go to [ the page](https://docs.docker.com/get-docker/).
-
-If everything is installed correctly, follow these instructions:
-
-1. Check the installed version
 ```bash
 docker --version
+docker compose version
 ```
 
-2. Download and run the image `Hello World` and
+2. Run a test image:
+
 ```bash
 docker run hello-world
 ```
-3. Overview of downloaded images:
-```bash
-docker image ls
 
+3. List downloaded images:
+
+```bash
 docker images
 ```
-4. Overview of running containers:
-```bash
-docker ps 
 
-docker ps -all
-```
-5. Stopping a running container:
+4. List running containers:
+
 ```bash
-docker stop <CONTAINER ID>
-```
-6. Container removal
-```bash
-docker rm -f <CONTAINER ID>
+docker ps
+docker ps -a
 ```
 
-I also recommend [short intro](https://medium.com/codingthesmartway-com-blog/docker-beginners-guide-part-1-images-containers-6f3507fffc98)
+5. Stop a running container:
+
+```bash
+docker stop <CONTAINER_ID>
+```
+
+6. Remove a container:
+
+```bash
+docker rm -f <CONTAINER_ID>
+```
+
+### Docker Compose {#docker-compose}
+
+Docker Compose lets you define and run multi-container environments with a single `docker-compose.yml` file. In this course, we use it to set up environments with Kafka, Spark, and other services.
+
+Check that Docker Compose is installed:
+
+```bash
+docker compose version
+```
+
+Example `docker-compose.yml`:
+
+```yaml
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+```
+
+Start and stop:
+
+```bash
+# start all services in the background
+docker compose up -d
+# check running containers
+docker compose ps
+# stop and remove containers
+docker compose down
+```
 
 
-## Docker as an application continuation tool
+## Apache Kafka {#kafka}
 
-[Docker with jupyter notebook](https://hub.docker.com/repository/docker/sebkaz/docker-data-science)
+Apache Kafka is a distributed platform for stream data processing. It enables publishing, subscribing to, and processing streams of records in real time.
+
+In this course, we run Kafka using Docker Compose (see above).
+
+Key concepts:
+
+- **Producer** -- sends messages (events) to Kafka.
+- **Consumer** -- reads messages from Kafka.
+- **Topic** -- a category to which messages are sent.
+- **Partition** -- a subdivision of a topic enabling parallel processing.
+- **Broker** -- a Kafka server that stores data.
+
+Quick Kafka test with Docker:
+
+```bash
+# create a topic
+docker compose exec kafka kafka-topics --create \
+  --topic test --bootstrap-server localhost:9092 \
+  --partitions 1 --replication-factor 1
+
+# send a message (producer)
+docker compose exec kafka kafka-console-producer \
+  --topic test --bootstrap-server localhost:9092
+
+# read messages (consumer) -- in a new terminal
+docker compose exec kafka kafka-console-consumer \
+  --topic test --bootstrap-server localhost:9092 --from-beginning
+```
+
+Python library: `pip install confluent-kafka`
+
+More information: [Apache Kafka documentation](https://kafka.apache.org/documentation/)
+
+
+## Apache Spark {#spark}
+
+Apache Spark is a distributed data processing engine supporting both batch and streaming modes. In this course, we use **PySpark** -- the Python interface to Spark.
+
+Install PySpark:
+
+```bash
+pip install pyspark
+```
+
+Quick test:
+
+```python
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+    .appName("Test") \
+    .master("local[*]") \
+    .getOrCreate()
+
+df = spark.createDataFrame(
+    [(1, "Anna", 28), (2, "Jan", 35), (3, "Ewa", 22)],
+    ["id", "name", "age"]
+)
+
+df.show()
+spark.stop()
+```
+
+In later labs, we will use **Structured Streaming** -- Spark's module for processing streaming data, including integration with Apache Kafka.
+
+More information: [Apache Spark documentation](https://spark.apache.org/docs/latest/)

@@ -2,59 +2,59 @@
 title: "Info"
 ---
 
-## Real Time Analytics 
+## Real-Time Analytics
 
 Code: 222891-D
 
-Semester: 2024/2025
-University: SGH Warsaw School of Economics
+Spring semester 2025/2026,
+SGH Warsaw School of Economics
 
-Basic course information can be found in the [sylabus](/sylabus).
-
-Recommended reading is available in the [books](/books) section.
-
+Detailed course description is available in the [syllabus](syllabus.qmd).
+Recommended reading is available in the [books](books.qmd) section.
 
 ## Schedule
 
 ### Lectures
-Lectures are conducted in a hybrid format. 
+
+Lectures are conducted in a hybrid format.
 Attendance is optional, with in-person sessions held in Aula VI, Building G.
 
-1. <del>23.03.2026 Lecture 1 - 11:40-13:20</del>
-2. 02.03.2026 Lecture 2 - 11:40-13:20
-3. 09.03.2026 Lecture 3 - 11:40-13:20
-4. 16.03.2026 Lecture 4 - 11:40-13:20
-5. 23.03.2026 Lecture 5 - 11:40-13:20
+1. ~~23.02.2026 Lecture 1 -- 11:40--13:20~~
+2. ~~02.03.2026 Lecture 2 -- 11:40--13:20~~
+3. ~~09.03.2026 Lecture 3 -- 11:40--13:20~~
+4. 16.03.2026 Lecture 4 -- 11:40--13:20
+5. 23.03.2026 Lecture 5 -- 11:40--13:20
 
+### Test
 
-Lecture 5 concludes with a test.
+Lectures conclude with a test during the final lecture (Lecture 5).
 
-Format: 20 questions | 30 minutes
-Platform: MS Teams
+- Format: 20 questions, 30 minutes
+- Platform: MS Teams
+- Passing threshold: more than 13 points -- this is a prerequisite for participating in the labs.
 
+### Labs and Assessment
 
-### TEST
+After completing the exercises, homework assignments must be submitted via MS Teams.
+Each missing homework lowers the final grade by 0.5.
 
-Lectures conclude with a test during the final class. 
-Achieving a score above 13 points qualifies you to participate in the exercises.
+#### Project
 
-After completing the exercises, homework assignments will be submitted via the MS Teams platform
-
-The project should be carried out in groups of no more than 5 people.
+Projects must be completed in groups of no more than 5 people.
 
 Project requirements:
 
-- The project should address a business problem that can be implemented using publicly available data.
-- Data should be ingested into Apache Kafka and subsequently processed and analyzed.
-- You may choose any programming language for each component of the project.
+- The project should address a real business problem that can be solved using data processed in real time (batch processing for model training is also acceptable).
+- Data should be ingested into Apache Kafka for further processing and analysis.
+- Any programming language may be used for each component of the project.
 - Business Intelligence (BI) tools may be utilized.
-- Data sources may include tables, synthetically generated data, IoT devices, etc.
+- Data sources may include any API, synthetically generated data, IoT devices, etc.
 
 ## Technology
 
-To participate in the classes, you should be familiar with and utilize the following technologies:
+To participate in the course, you need to be familiar with the following technologies:
 
-1. [GIT](https://sebkaz-teaching.github.io/RTA2026EN/info/) 
-2. Python, Jupyter notebook, Jupyter lab, Colab
-3. [Docker](https://sebkaz-teaching.github.io/RTA2026EN/info/)
-4. **Apache Spark**, Apache Flink, **Apache Kafka**, Apache Beam
+1. [Git](info.qmd#git)
+2. Python, Jupyter Notebook, JupyterLab, Google Colab
+3. [Docker and Docker Compose](info.qmd#docker)
+4. **Apache Spark**, **Apache Kafka**

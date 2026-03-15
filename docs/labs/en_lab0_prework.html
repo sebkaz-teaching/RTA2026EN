@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lecture 4: Apache Kafka and Microservices – Real-Time Analytics</title>
+<title>Pre-Lab Exercises: Environment Setup – Real-Time Analytics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture4.html">Lecture 4: Apache Kafka and Microservices</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../labs/en_lab0_prework.html">Pre-Lab Exercises: Environment Setup</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -199,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link active">
+  <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 4: Apache Kafka and Microservices</span></a>
   </div>
 </li>
@@ -211,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../labs/en_lab0_prework.html" class="sidebar-item-text sidebar-link">
+  <a href="../labs/en_lab0_prework.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Pre-Lab Exercises: Environment Setup</span></a>
   </div>
 </li>
@@ -227,20 +227,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Sections</h2>
    
   <ul class="collapse">
-  <li><a href="#from-monolith-to-microservices" id="toc-from-monolith-to-microservices" class="nav-link active" data-scroll-target="#from-monolith-to-microservices">From Monolith to Microservices</a></li>
-  <li><a href="#rest-api-with-fastapi" id="toc-rest-api-with-fastapi" class="nav-link" data-scroll-target="#rest-api-with-fastapi">REST API with FastAPI</a></li>
-  <li><a href="#apache-kafka" id="toc-apache-kafka" class="nav-link" data-scroll-target="#apache-kafka">Apache Kafka</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#business-impact" id="toc-business-impact" class="nav-link" data-scroll-target="#business-impact">Business Impact</a></li>
+  <li><a href="#where-do-i-run-what" id="toc-where-do-i-run-what" class="nav-link active" data-scroll-target="#where-do-i-run-what">Where do I run what?</a></li>
+  <li><a href="#part-1-python" id="toc-part-1-python" class="nav-link" data-scroll-target="#part-1-python">Part 1: Python</a></li>
+  <li><a href="#part-2-git" id="toc-part-2-git" class="nav-link" data-scroll-target="#part-2-git">Part 2: Git</a></li>
+  <li><a href="#part-3-docker" id="toc-part-3-docker" class="nav-link" data-scroll-target="#part-3-docker">Part 3: Docker</a></li>
+  <li><a href="#part-4-course-environment" id="toc-part-4-course-environment" class="nav-link" data-scroll-target="#part-4-course-environment">Part 4: Course Environment</a></li>
+  <li><a href="#checklist" id="toc-checklist" class="nav-link" data-scroll-target="#checklist">Checklist</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture4.html">Lecture 4: Apache Kafka and Microservices</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../labs/en_lab0_prework.html">Pre-Lab Exercises: Environment Setup</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Lecture 4: Apache Kafka and Microservices</h1>
+<h1 class="title">Pre-Lab Exercises: Environment Setup</h1>
 </div>
 
 
@@ -257,196 +258,185 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><em>Duration: 1.5h</em></p>
-<p><strong>Goal:</strong> Learn Apache Kafka’s architecture — a distributed streaming platform — and the concepts of microservices and APIs for serving data and ML models.</p>
+<p>These exercises should be completed <strong>before your first lab session</strong>. They ensure your environment is ready to work with Python, Git, Docker, and the full course infrastructure.</p>
 <hr>
-<section id="from-monolith-to-microservices" class="level2">
-<h2 class="anchored" data-anchor-id="from-monolith-to-microservices">From Monolith to Microservices</h2>
-<p>Traditional IT systems were built as <strong>monoliths</strong> — a single large application where all functions (customer service, payments, reports, logging) are part of one codebase. Monoliths are simple at first, but quickly become hard to maintain — changing one module requires redeploying the whole thing.</p>
-<p>The answer to these problems is <strong>microservices</strong> — an architecture where the system consists of many small, independent services, each handling one task and communicating with others via APIs.</p>
-<p>Advantages of microservices:</p>
-<ul>
-<li>Each service can be developed and deployed independently.</li>
-<li>Failure of one service doesn’t bring down the entire system.</li>
-<li>Easy scaling — add instances only of the services that need it.</li>
-<li>Different technologies can be used in different services.</li>
+<section id="where-do-i-run-what" class="level2">
+<h2 class="anchored" data-anchor-id="where-do-i-run-what">Where do I run what?</h2>
+<p>Throughout this course, you will work in three different places. It’s important to know which one to use:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Where</th>
+<th>What</th>
+<th>How to open</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>System terminal</strong></td>
+<td>Git commands, Docker commands, running <code>.py</code> files</td>
+<td>macOS: Terminal app. Windows: PowerShell or CMD. Linux: any terminal emulator.</td>
+</tr>
+<tr class="even">
+<td><strong>JupyterLab</strong></td>
+<td>Interactive notebooks (<code>.ipynb</code>), data exploration, visualizations</td>
+<td>Open your browser at <code>localhost:8888</code> after starting the environment</td>
+</tr>
+<tr class="odd">
+<td><strong>Text editor / IDE</strong></td>
+<td>Writing <code>.py</code> files (API servers, producers, consumers)</td>
+<td>VS Code recommended, or any editor you prefer</td>
+</tr>
+</tbody>
+</table>
+<p>When an exercise says <strong>“in the terminal”</strong>, it means your system terminal (not JupyterLab’s terminal). When it says <strong>“in JupyterLab”</strong>, open a new notebook or use the JupyterLab terminal. When it says <strong>“create a file”</strong>, write it in your editor or use <code>%%file filename.py</code> magic in JupyterLab.</p>
+<hr>
+</section>
+<section id="part-1-python" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-python">Part 1: Python</h2>
+<section id="task-1.1-check-python-version" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.1-check-python-version">Task 1.1 – Check Python version</h3>
+<p>Open your <strong>system terminal</strong> and run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">--version</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You need Python 3.10 or higher. If you don’t have it, install from <a href="https://python.org">python.org</a>.</p>
+</section>
+<section id="task-1.2-create-a-virtual-environment" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.2-create-a-virtual-environment">Task 1.2 – Create a virtual environment</h3>
+<p>Still in the <strong>terminal</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv rta_env</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> rta_env/bin/activate   <span class="co"># Linux/macOS</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># rta_env\Scripts\activate   # Windows</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">--upgrade</span> pip</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install jupyterlab pandas numpy matplotlib scikit-learn requests</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="task-1.3-start-jupyterlab" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.3-start-jupyterlab">Task 1.3 – Start JupyterLab</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">jupyter</span> lab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This opens JupyterLab in your browser at <code>localhost:8888</code>.</p>
+<p><strong>In JupyterLab</strong>, create a new Python notebook (click “Python 3” under Notebook) and run:</p>
+<div id="cell-2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sklearn</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"pandas:  </span><span class="sc">{</span>pd<span class="sc">.</span>__version__<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"numpy:   </span><span class="sc">{</span>np<span class="sc">.</span>__version__<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"sklearn: </span><span class="sc">{</span>sklearn<span class="sc">.</span>__version__<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">All good! Your Python environment is ready."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-2-git" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-git">Part 2: Git</h2>
+<section id="task-2.1-install-and-configure-git" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.1-install-and-configure-git">Task 2.1 – Install and configure Git</h3>
+<p>In your <strong>system terminal</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.name <span class="st">"Your Name"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.email <span class="st">"your@email.com"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="task-2.2-create-a-github-account" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.2-create-a-github-account">Task 2.2 – Create a GitHub account</h3>
+<p>If you don’t have one yet, go to <a href="https://github.com">github.com</a> and create an account.</p>
+</section>
+<section id="task-2.3-create-your-course-repository" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.3-create-your-course-repository">Task 2.3 – Create your course repository</h3>
+<ol type="1">
+<li>On GitHub, click “New repository”</li>
+<li>Name it <code>RTA_&lt;your_initials&gt;</code> (e.g., <code>RTA_SZ</code>)</li>
+<li>Check “Add a README file”</li>
+<li>Clone it to your computer:</li>
+</ol>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/<span class="op">&lt;</span>your_username<span class="op">&gt;</span>/RTA_<span class="op">&lt;</span>your_initials<span class="op">&gt;</span>.git</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> RTA_<span class="op">&lt;</span>your_initials<span class="op">&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="task-2.4-make-your-first-commit" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.4-make-your-first-commit">Task 2.4 – Make your first commit</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"# Real-Time Analytics - Course Repository"</span> <span class="op">&gt;</span> README.md</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Initial commit"</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push origin main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="part-3-docker" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-docker">Part 3: Docker</h2>
+<section id="task-3.1-install-docker" class="level3">
+<h3 class="anchored" data-anchor-id="task-3.1-install-docker">Task 3.1 – Install Docker</h3>
+<p>Download and install Docker Desktop from <a href="https://docs.docker.com/get-docker/">docker.com</a>.</p>
+</section>
+<section id="task-3.2-verify-installation" class="level3">
+<h3 class="anchored" data-anchor-id="task-3.2-verify-installation">Task 3.2 – Verify installation</h3>
+<p>In your <strong>terminal</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> <span class="at">--version</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose version</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run hello-world</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You should see “Hello from Docker!” in the output.</p>
+</section>
+<section id="task-3.3-run-python-in-a-container" class="level3">
+<h3 class="anchored" data-anchor-id="task-3.3-run-python-in-a-container">Task 3.3 – Run Python in a container</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-it</span> python:3.11-slim python <span class="at">-c</span> <span class="st">"print('Hello from Docker!')"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="part-4-course-environment" class="level2">
+<h2 class="anchored" data-anchor-id="part-4-course-environment">Part 4: Course Environment</h2>
+<section id="task-4.1-clone-the-course-infrastructure" class="level3">
+<h3 class="anchored" data-anchor-id="task-4.1-clone-the-course-infrastructure">Task 4.1 – Clone the course infrastructure</h3>
+<p>This repository contains the full lab environment: JupyterLab, Kafka, Spark, all pre-configured.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">-b</span> 2026Redis https://github.com/sebkaz/jupyterlab-project.git</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> jupyterlab-project</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="task-4.2-start-the-environment" class="level3">
+<h3 class="anchored" data-anchor-id="task-4.2-start-the-environment">Task 4.2 – Start the environment</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose up <span class="at">-d</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Wait 1-2 minutes for all services to start, then check:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose ps</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You should see several containers running (JupyterLab, Kafka, Zookeeper, etc.).</p>
+</section>
+<section id="task-4.3-access-jupyterlab" class="level3">
+<h3 class="anchored" data-anchor-id="task-4.3-access-jupyterlab">Task 4.3 – Access JupyterLab</h3>
+<p>Open your browser and go to: <code>http://localhost:8888</code></p>
+<p>You should see the JupyterLab interface. Create a new notebook and run:</p>
+<div id="cell-4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run this in a JupyterLab notebook inside the Docker environment</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Python: </span><span class="sc">{</span>sys<span class="sc">.</span>version<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Running inside: </span><span class="sc">{</span>sys<span class="sc">.</span>prefix<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Course environment is ready!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="task-4.4-verify-kafka-is-running" class="level3">
+<h3 class="anchored" data-anchor-id="task-4.4-verify-kafka-is-running">Task 4.4 – Verify Kafka is running</h3>
+<p>Open a <strong>terminal inside JupyterLab</strong> (File &gt; New &gt; Terminal) and run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kafka/bin/kafka-topics.sh</span> <span class="at">--list</span> <span class="at">--bootstrap-server</span> broker:9092</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If it returns without errors (may show empty list), Kafka is running.</p>
+</section>
+<section id="task-4.5-stop-the-environment" class="level3">
+<h3 class="anchored" data-anchor-id="task-4.5-stop-the-environment">Task 4.5 – Stop the environment</h3>
+<p>When you’re done:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose down</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="checklist" class="level2">
+<h2 class="anchored" data-anchor-id="checklist">Checklist</h2>
+<p>Before your first lab, make sure you can:</p>
+<ul class="task-list">
+<li><label><input type="checkbox">Run Python 3.10+ and import pandas, numpy, sklearn</label></li>
+<li><label><input type="checkbox">Have a GitHub account with your course repository</label></li>
+<li><label><input type="checkbox">Run <code>docker compose up</code> and access JupyterLab at localhost:8888</label></li>
+<li><label><input type="checkbox">Open a terminal inside JupyterLab</label></li>
+<li><label><input type="checkbox">Verify Kafka is running</label></li>
 </ul>
-<p>Challenges:</p>
-<ul>
-<li>Communication complexity between services.</li>
-<li>Need to monitor many components.</li>
-<li>Managing distributed transactions.</li>
-</ul>
-<p>In practice, microservices run in <strong>containers</strong> (Docker), managed by orchestrators (Kubernetes), and communicate via <strong>APIs</strong> (REST, gRPC) or <strong>asynchronous messaging systems</strong> (Apache Kafka).</p>
-</section>
-<section id="rest-api-with-fastapi" class="level2">
-<h2 class="anchored" data-anchor-id="rest-api-with-fastapi">REST API with FastAPI</h2>
-<p>An API (<em>Application Programming Interface</em>) is an interface through which services communicate with each other. In microservice architecture it’s the <strong>primary method of data exchange</strong>.</p>
-<p>When you visit a website, your browser sends an HTTP request to a server, which returns an HTML page. An API works the same way — except instead of HTML it returns data (usually in JSON format).</p>
-<section id="key-rest-api-principles" class="level3">
-<h3 class="anchored" data-anchor-id="key-rest-api-principles">Key REST API Principles</h3>
-<ul>
-<li><strong>Client–Server</strong> — client sends a request, server returns a response.</li>
-<li><strong>Statelessness</strong> — each request contains all information needed to handle it. The server doesn’t remember previous requests.</li>
-<li><strong>HTTP Methods</strong> — GET (retrieve), POST (create), PUT (update), DELETE (remove).</li>
-</ul>
-</section>
-<section id="example-a-simple-microservice-in-fastapi" class="level3">
-<h3 class="anchored" data-anchor-id="example-a-simple-microservice-in-fastapi">Example: a simple microservice in FastAPI</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastapi <span class="im">import</span> FastAPI</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastAPI()</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>customers <span class="op">=</span> {</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>: {<span class="st">"name"</span>: <span class="st">"Anna"</span>, <span class="st">"city"</span>: <span class="st">"Warsaw"</span>, <span class="st">"segment"</span>: <span class="st">"premium"</span>},</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>: {<span class="st">"name"</span>: <span class="st">"Piotr"</span>, <span class="st">"city"</span>: <span class="st">"Krakow"</span>, <span class="st">"segment"</span>: <span class="st">"standard"</span>},</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span>: {<span class="st">"name"</span>: <span class="st">"Kasia"</span>, <span class="st">"city"</span>: <span class="st">"Gdansk"</span>, <span class="st">"segment"</span>: <span class="st">"premium"</span>},</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">"/customers/</span><span class="sc">{customer_id}</span><span class="st">"</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_customer(customer_id: <span class="bu">int</span>):</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Returns customer data by ID."""</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> customers.get(customer_id, {<span class="st">"error"</span>: <span class="st">"Customer not found"</span>})</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">"/customers/"</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> list_customers(segment: <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span>):</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Returns customer list, optionally filtered by segment."""</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> segment:</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {k: v <span class="cf">for</span> k, v <span class="kw">in</span> customers.items() <span class="cf">if</span> v[<span class="st">"segment"</span>] <span class="op">==</span> segment}</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> customers</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>After starting (<code>uvicorn main:app --reload</code>), the server listens on <code>http://localhost:8000</code>. You can test:</p>
-<ul>
-<li><code>GET /customers/1</code> — Anna’s data</li>
-<li><code>GET /customers/?segment=premium</code> — all premium customers</li>
-<li><code>GET /docs</code> — automatic API documentation (Swagger UI)</li>
-</ul>
-</section>
-<section id="ml-model-as-a-service" class="level3">
-<h3 class="anchored" data-anchor-id="ml-model-as-a-service">ML Model as a Service</h3>
-<p>Training a good ML model is just the first step. To make it useful, you need to <strong>serve</strong> it to end users — most commonly as an API.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastapi <span class="im">import</span> FastAPI</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pickle</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastAPI()</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Load trained model</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"model.pkl"</span>, <span class="st">"rb"</span>) <span class="im">as</span> f:</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> pickle.load(f)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">"/predict/"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict_price(area: <span class="bu">float</span>, bedrooms: <span class="bu">int</span>, building_age: <span class="bu">int</span>):</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Real estate price prediction."""</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> np.array([[area, bedrooms, building_age]])</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    price <span class="op">=</span> model.predict(features)[<span class="dv">0</span>]</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"estimated_price"</span>: <span class="bu">round</span>(price, <span class="dv">2</span>)}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A request <code>GET /predict/?area=65&amp;bedrooms=3&amp;building_age=10</code> returns the estimated property price. A million users can simultaneously use the same model.</p>
-<p>Key model serving metrics:</p>
-<ul>
-<li><strong>Latency</strong> — response time per request,</li>
-<li><strong>QPS</strong> (<em>Queries Per Second</em>) — number of requests handled per second,</li>
-<li><strong>Infrastructure cost</strong> — how much we pay for servers.</li>
-</ul>
-</section>
-</section>
-<section id="apache-kafka" class="level2">
-<h2 class="anchored" data-anchor-id="apache-kafka">Apache Kafka</h2>
-<p>Apache Kafka is a <strong>distributed platform for stream data processing</strong>. It was created at LinkedIn in 2009 and has been developed as an Apache project since 2012.</p>
-<p>Kafka is not a regular message queue. The difference is fundamental.</p>
-<section id="kafka-vs-traditional-queue" class="level3">
-<h3 class="anchored" data-anchor-id="kafka-vs-traditional-queue">Kafka vs Traditional Queue</h3>
-<p>In a classical queue system (e.g., RabbitMQ), a message is <strong>deleted after being read</strong>. One consumer picks it up and it’s gone.</p>
-<p>In Kafka, messages are <strong>stored on disk</strong> for a configured retention period (e.g., 7 days). Multiple consumers can read the same data independently. A consumer that restarts can resume from where it left off.</p>
-</section>
-<section id="kafka-architecture" class="level3">
-<h3 class="anchored" data-anchor-id="kafka-architecture">Kafka Architecture</h3>
-<p>Kafka consists of several key components:</p>
-<p><strong>Broker</strong> — a Kafka server. A Kafka cluster is a group of brokers working together. If one goes down, the others take over its responsibilities.</p>
-<p><strong>Topic</strong> — a logical channel to which producers send messages and from which consumers read them. Think of it as a folder — grouping related events (e.g., topic <code>transactions</code>, topic <code>logs</code>, topic <code>orders</code>).</p>
-<p><strong>Partition</strong> — a physical division of a topic. Each partition is an ordered, immutable sequence of messages. Partitions enable parallel processing — more partitions means more consumers can read simultaneously.</p>
-<p><strong>Offset</strong> — a unique message identifier within a partition. A consumer tracks its offset — knowing which messages it has already processed.</p>
-<p><strong>Replication</strong> — each partition can be replicated across multiple brokers. If one broker fails, data isn’t lost.</p>
-</section>
-<section id="producer" class="level3">
-<h3 class="anchored" data-anchor-id="producer">Producer</h3>
-<p>A producer is an application that sends messages to a Kafka topic.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> kafka <span class="im">import</span> KafkaProducer</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>producer <span class="op">=</span> KafkaProducer(</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">"localhost:9092"</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    value_serializer<span class="op">=</span><span class="kw">lambda</span> v: json.dumps(v).encode(<span class="st">'utf-8'</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>transaction <span class="op">=</span> {</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"id"</span>: <span class="st">"TX5001"</span>,</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"amount"</span>: <span class="fl">1250.00</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"store"</span>: <span class="st">"Warsaw"</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"type"</span>: <span class="st">"purchase"</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>producer.send(<span class="st">"transactions"</span>, value<span class="op">=</span>transaction)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>producer.flush()</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Sent: </span><span class="sc">{</span>transaction<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>How Kafka assigns messages to partitions:</p>
-<ul>
-<li>Default: <em>round-robin</em> algorithm — successive messages go to successive partitions.</li>
-<li>With a key: if we provide a message key (e.g., <code>store</code>), Kafka computes its hash and always assigns messages with the same key to the same partition. This guarantees event ordering per key.</li>
-</ul>
-</section>
-<section id="consumer" class="level3">
-<h3 class="anchored" data-anchor-id="consumer">Consumer</h3>
-<p>A consumer reads messages from a topic and processes them.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> kafka <span class="im">import</span> KafkaConsumer</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>consumer <span class="op">=</span> KafkaConsumer(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"transactions"</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">"localhost:9092"</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    auto_offset_reset<span class="op">=</span><span class="st">"earliest"</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    value_deserializer<span class="op">=</span><span class="kw">lambda</span> x: json.loads(x.decode(<span class="st">'utf-8'</span>))</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Listening for transactions..."</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> message <span class="kw">in</span> consumer:</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> message.value</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"[offset=</span><span class="sc">{</span>message<span class="sc">.</span>offset<span class="sc">}</span><span class="ss">] </span><span class="sc">{</span>t[<span class="st">'id'</span>]<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>t[<span class="st">'amount'</span>]<span class="sc">}</span><span class="ss"> PLN (</span><span class="sc">{</span>t[<span class="st">'store'</span>]<span class="sc">}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="consumer-groups" class="level3">
-<h3 class="anchored" data-anchor-id="consumer-groups">Consumer Groups</h3>
-<p>When a single consumer can’t keep up with processing, we add more consumers to a <strong>group</strong>. Kafka automatically distributes partitions among consumers in the group:</p>
-<ul>
-<li>Each partition is assigned to exactly one consumer in the group.</li>
-<li>Ideally: as many consumers as partitions.</li>
-<li>If a consumer fails, Kafka reassigns its partitions to another consumer (rebalancing).</li>
-</ul>
-<p>This mechanism ensures <strong>scalability</strong> — you add consumers as load grows.</p>
-</section>
-<section id="publishsubscribe-pattern" class="level3">
-<h3 class="anchored" data-anchor-id="publishsubscribe-pattern">Publish/Subscribe Pattern</h3>
-<p>Kafka implements the <strong>Pub/Sub</strong> pattern — a producer publishes messages to a topic, and any number of consumers (from different groups) can independently read them. This is the fundamental difference from classical queues, where a message goes to only one receiver.</p>
-<p>Example: a producer sends transactions to the <code>transactions</code> topic. Simultaneously:</p>
-<ul>
-<li>Group A (anti-fraud system) analyzes them for fraud.</li>
-<li>Group B (reporting module) generates sales statistics.</li>
-<li>Group C (recommendation engine) updates customer profiles.</li>
-</ul>
-<p>Each group reads the same data independently.</p>
-</section>
-</section>
-<section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">Summary</h2>
-<p>In this lecture you learned:</p>
-<ul>
-<li>Microservice architecture and why it’s replacing monoliths.</li>
-<li>REST APIs with FastAPI — serving data and ML models.</li>
-<li>Apache Kafka — a distributed streaming platform: brokers, topics, partitions, offsets, producers, consumers, consumer groups.</li>
-</ul>
-<p>In the labs, you’ll set up Kafka in Docker and write your own producer and consumer. In the next (final) lecture, we’ll cover machine learning in the context of stream processing.</p>
-</section>
-<section id="business-impact" class="level2">
-<h2 class="anchored" data-anchor-id="business-impact">Business Impact</h2>
-<p>Microservice architecture built on Kafka gives a company flexibility — new business features can be deployed without stopping the entire system. Serving ML models via API opens the door to <em>API Economy</em> — monetizing algorithms as products for external partners. Containerization (Docker) converts fixed infrastructure costs (Capex) into variable costs (Opex), which is key to data-driven project profitability.</p>
+<p><strong>Submit</strong> the link to your GitHub repository via MS Teams.</p>
 
 
 </section>

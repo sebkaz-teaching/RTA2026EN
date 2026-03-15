@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Info – Real-Time Analytics</title>
+<title>Lab 8: Full Pipeline – Kafka -&gt; Spark Streaming -&gt; ML -&gt; Alerts – Real-Time Analytics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +20,62 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-8843a38191b55497cd032d3fc2c3d839.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8843a38191b55497cd032d3fc2c3d839.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,7 +105,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 </head>
 
 <body class="nav-sidebar docked nav-fixed quarto-light">
@@ -80,7 +115,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Real-Time Analytics</span>
     </a>
   </div>
@@ -91,19 +126,19 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./sylabus.html"> 
+    <a class="nav-link" href="../sylabus.html"> 
 <span class="menu-text">Syllabus</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./info.html"> 
+    <a class="nav-link" href="../info.html"> 
 <span class="menu-text">Tools</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./books.html"> 
+    <a class="nav-link" href="../books.html"> 
 <span class="menu-text">Books</span></a>
   </li>  
 </ul>
@@ -117,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Info</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Lab 8: Full Pipeline – Kafka -&gt; Spark Streaming -&gt; ML -&gt; Alerts</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -131,7 +166,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Info</span></a>
   </div>
 </li>
@@ -146,37 +181,37 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture1.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture1.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 1: Introduction to Real-Time Data Analytics</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture2.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 2: Evolution of Data and Processing Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture3.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture3.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 3: Stream Processing — Time and Windows</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture4.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 4: Apache Kafka and Microservices</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture5.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture5.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 5: Machine Learning in Real Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./labs/en_lab0_prework.html" class="sidebar-item-text sidebar-link">
+  <a href="../labs/en_lab0_prework.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Pre-Lab Exercises: Environment Setup</span></a>
   </div>
 </li>
@@ -192,9 +227,11 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Sections</h2>
    
   <ul class="collapse">
-  <li><a href="#real-time-analytics" id="toc-real-time-analytics" class="nav-link active" data-scroll-target="#real-time-analytics">Real-Time Analytics</a></li>
-  <li><a href="#schedule" id="toc-schedule" class="nav-link" data-scroll-target="#schedule">Schedule</a></li>
-  <li><a href="#technology" id="toc-technology" class="nav-link" data-scroll-target="#technology">Technology</a></li>
+  <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
+  <li><a href="#part-1-setup" id="toc-part-1-setup" class="nav-link" data-scroll-target="#part-1-setup">Part 1: Setup</a></li>
+  <li><a href="#part-2-apply-ml-model-in-stream" id="toc-part-2-apply-ml-model-in-stream" class="nav-link" data-scroll-target="#part-2-apply-ml-model-in-stream">Part 2: Apply ML Model in Stream</a></li>
+  <li><a href="#part-3-windowed-monitoring-dashboard" id="toc-part-3-windowed-monitoring-dashboard" class="nav-link" data-scroll-target="#part-3-windowed-monitoring-dashboard">Part 3: Windowed Monitoring Dashboard</a></li>
+  <li><a href="#homework" id="toc-homework" class="nav-link" data-scroll-target="#homework">Homework</a></li>
   </ul>
 </nav>
     </div>
@@ -203,7 +240,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Info</h1>
+<h1 class="title">Lab 8: Full Pipeline – Kafka -&gt; Spark Streaming -&gt; ML -&gt; Alerts</h1>
 </div>
 
 
@@ -220,60 +257,119 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="real-time-analytics" class="level2">
-<h2 class="anchored" data-anchor-id="real-time-analytics">Real-Time Analytics</h2>
-<p>Code: 222891-D</p>
-<p>Spring semester 2025/2026, SGH Warsaw School of Economics</p>
-<p>Detailed course description is available in the <a href="syllabus.qmd">syllabus</a>. Recommended reading is available in the <a href="./books.html">books</a> section.</p>
-</section>
-<section id="schedule" class="level2">
-<h2 class="anchored" data-anchor-id="schedule">Schedule</h2>
-<section id="lectures" class="level3">
-<h3 class="anchored" data-anchor-id="lectures">Lectures</h3>
-<p>Lectures are conducted in a hybrid format. Attendance is optional, with in-person sessions held in Aula VI, Building G.</p>
-<ol type="1">
-<li><del>23.02.2026 Lecture 1 – 11:40–13:20</del></li>
-<li><del>02.03.2026 Lecture 2 – 11:40–13:20</del></li>
-<li><del>09.03.2026 Lecture 3 – 11:40–13:20</del></li>
-<li>16.03.2026 Lecture 4 – 11:40–13:20</li>
-<li>23.03.2026 Lecture 5 – 11:40–13:20</li>
-</ol>
-</section>
-<section id="test" class="level3">
-<h3 class="anchored" data-anchor-id="test">Test</h3>
-<p>Lectures conclude with a test during the final lecture (Lecture 5).</p>
+<section id="goal" class="level2">
+<h2 class="anchored" data-anchor-id="goal">Goal</h2>
 <ul>
-<li>Format: 20 questions, 30 minutes</li>
-<li>Platform: MS Teams</li>
-<li>Passing threshold: more than 13 points – this is a prerequisite for participating in the labs.</li>
+<li>Build a complete end-to-end real-time pipeline,</li>
+<li>Read transactions from Kafka in Spark,</li>
+<li>Apply ML model scoring in the stream,</li>
+<li>Write alerts back to Kafka.</li>
 </ul>
+<p><strong>Business case (continued):</strong> Time to connect everything. Your system reads live transactions, scores them with the ML model, and pushes alerts downstream.</p>
+<hr>
 </section>
-<section id="labs-and-assessment" class="level3">
-<h3 class="anchored" data-anchor-id="labs-and-assessment">Labs and Assessment</h3>
-<p>After completing the exercises, homework assignments must be submitted via MS Teams. Each missing homework lowers the final grade by 0.5.</p>
-<section id="project" class="level4">
-<h4 class="anchored" data-anchor-id="project">Project</h4>
-<p>Projects must be completed in groups of no more than 5 people.</p>
-<p>Project requirements:</p>
-<ul>
-<li>The project should address a real business problem that can be solved using data processed in real time (batch processing for model training is also acceptable).</li>
-<li>Data should be ingested into Apache Kafka for further processing and analysis.</li>
-<li>Any programming language may be used for each component of the project.</li>
-<li>Business Intelligence (BI) tools may be utilized.</li>
-<li>Data sources may include any API, synthetically generated data, IoT devices, etc.</li>
-</ul>
+<section id="part-1-setup" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-setup">Part 1: Setup</h2>
+<p>Start the producer from Lab 1, make sure Kafka is running and the <code>fraud_model_v2.pkl</code> from Lab 6 exists.</p>
+<section id="task-1.1-load-model-in-spark" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.1-load-model-in-spark">Task 1.1 – Load model in Spark</h3>
+<p>We’ll broadcast the model to all Spark workers.</p>
+<div id="cell-2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.types <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pickle</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder.appName(<span class="st">"Lab8-Pipeline"</span>).getOrCreate()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>spark.sparkContext.setLogLevel(<span class="st">"WARN"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load sklearn model and broadcast</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'fraud_model_v2.pkl'</span>, <span class="st">'rb'</span>) <span class="im">as</span> f:</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> pickle.load(f)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>model_broadcast <span class="op">=</span> spark.sparkContext.broadcast(model)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Model loaded and broadcast"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="task-1.2-read-and-parse-kafka-stream" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.2-read-and-parse-kafka-stream">Task 1.2 – Read and parse Kafka stream</h3>
+<p>Reuse your parsing code from Lab 2.</p>
+<div id="cell-4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tx_schema <span class="op">=</span> StructType([</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"tx_id"</span>, StringType()),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"user_id"</span>, StringType()),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"amount"</span>, DoubleType()),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"store"</span>, StringType()),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"category"</span>, StringType()),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"timestamp"</span>, StringType()),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Read from Kafka, parse JSON, convert timestamp</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
 </section>
 </section>
+<section id="part-2-apply-ml-model-in-stream" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-apply-ml-model-in-stream">Part 2: Apply ML Model in Stream</h2>
+<section id="task-2.1-udf-for-model-scoring" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.1-udf-for-model-scoring">Task 2.1 – UDF for model scoring</h3>
+<p>Create a Spark UDF that uses the broadcast model to score each row.</p>
+<div id="cell-6" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> udf</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.types <span class="im">import</span> DoubleType</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">@udf</span>(DoubleType())</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict_fraud_prob(amount, hour, is_electronics, tx_per_day):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> model_broadcast.value</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> np.array([[amount, hour, is_electronics, tx_per_day]])</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># YOUR CODE</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Return fraud probability (predict_proba[:, 1])</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
-<section id="technology" class="level2">
-<h2 class="anchored" data-anchor-id="technology">Technology</h2>
-<p>To participate in the course, you need to be familiar with the following technologies:</p>
+<section id="task-2.2-apply-udf-to-stream-and-filter-alerts" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.2-apply-udf-to-stream-and-filter-alerts">Task 2.2 – Apply UDF to stream and filter alerts</h3>
+<div id="cell-8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Add feature columns (hour from timestamp, is_electronics flag, etc.)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Apply predict_fraud_prob UDF</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Filter fraud_probability &gt; 0.5</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Display alerts</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="task-2.3-write-alerts-to-kafka-alerts-topic" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.3-write-alerts-to-kafka-alerts-topic">Task 2.3 – Write alerts to Kafka <code>alerts</code> topic</h3>
+<div id="cell-10" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Select alert fields, convert to JSON, write to Kafka</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-3-windowed-monitoring-dashboard" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-windowed-monitoring-dashboard">Part 3: Windowed Monitoring Dashboard</h2>
+<section id="task-3.1-aggregate-alerts-per-5-minute-window" class="level3">
+<h3 class="anchored" data-anchor-id="task-3.1-aggregate-alerts-per-5-minute-window">Task 3.1 – Aggregate alerts per 5-minute window</h3>
+<p>How many alerts per window? What’s the average fraud probability?</p>
+<div id="cell-12" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="homework" class="level2">
+<h2 class="anchored" data-anchor-id="homework">Homework</h2>
 <ol type="1">
-<li><a href="./info.html#git">Git</a></li>
-<li>Python, Jupyter Notebook, JupyterLab, Google Colab</li>
-<li><a href="./info.html#docker">Docker and Docker Compose</a></li>
-<li><strong>Apache Spark</strong>, <strong>Apache Kafka</strong></li>
+<li>Add the rule-based score from Lab 3 alongside the ML score. Compare them in the stream.</li>
+<li>Write a separate consumer that reads from <code>alerts</code> and saves to CSV.</li>
+<li>Push to Git.</li>
 </ol>
+<p><strong>Next lab:</strong> Dockerize the complete system.</p>
+<div id="cell-14" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>spark.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 
 
 </section>

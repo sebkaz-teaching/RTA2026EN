@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Info – Real-Time Analytics</title>
+<title>Lab 9: Complete System in Docker Compose – Real-Time Analytics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +20,62 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-8843a38191b55497cd032d3fc2c3d839.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-8843a38191b55497cd032d3fc2c3d839.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,7 +105,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 </head>
 
 <body class="nav-sidebar docked nav-fixed quarto-light">
@@ -80,7 +115,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Real-Time Analytics</span>
     </a>
   </div>
@@ -91,19 +126,19 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link active" href="../index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./sylabus.html"> 
+    <a class="nav-link" href="../sylabus.html"> 
 <span class="menu-text">Syllabus</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./info.html"> 
+    <a class="nav-link" href="../info.html"> 
 <span class="menu-text">Tools</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./books.html"> 
+    <a class="nav-link" href="../books.html"> 
 <span class="menu-text">Books</span></a>
   </li>  
 </ul>
@@ -117,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Info</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Lab 9: Complete System in Docker Compose</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -131,7 +166,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Info</span></a>
   </div>
 </li>
@@ -146,37 +181,37 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture1.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture1.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 1: Introduction to Real-Time Data Analytics</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture2.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture2.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 2: Evolution of Data and Processing Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture3.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture3.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 3: Stream Processing — Time and Windows</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture4.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 4: Apache Kafka and Microservices</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lectures/lecture5.html" class="sidebar-item-text sidebar-link">
+  <a href="../lectures/lecture5.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 5: Machine Learning in Real Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./labs/en_lab0_prework.html" class="sidebar-item-text sidebar-link">
+  <a href="../labs/en_lab0_prework.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Pre-Lab Exercises: Environment Setup</span></a>
   </div>
 </li>
@@ -192,9 +227,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Sections</h2>
    
   <ul class="collapse">
-  <li><a href="#real-time-analytics" id="toc-real-time-analytics" class="nav-link active" data-scroll-target="#real-time-analytics">Real-Time Analytics</a></li>
-  <li><a href="#schedule" id="toc-schedule" class="nav-link" data-scroll-target="#schedule">Schedule</a></li>
-  <li><a href="#technology" id="toc-technology" class="nav-link" data-scroll-target="#technology">Technology</a></li>
+  <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
+  <li><a href="#part-1-architecture" id="toc-part-1-architecture" class="nav-link" data-scroll-target="#part-1-architecture">Part 1: Architecture</a></li>
+  <li><a href="#part-2-monitoring" id="toc-part-2-monitoring" class="nav-link" data-scroll-target="#part-2-monitoring">Part 2: Monitoring</a></li>
+  <li><a href="#homework" id="toc-homework" class="nav-link" data-scroll-target="#homework">Homework</a></li>
   </ul>
 </nav>
     </div>
@@ -203,7 +239,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Info</h1>
+<h1 class="title">Lab 9: Complete System in Docker Compose</h1>
 </div>
 
 
@@ -220,60 +256,96 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="real-time-analytics" class="level2">
-<h2 class="anchored" data-anchor-id="real-time-analytics">Real-Time Analytics</h2>
-<p>Code: 222891-D</p>
-<p>Spring semester 2025/2026, SGH Warsaw School of Economics</p>
-<p>Detailed course description is available in the <a href="syllabus.qmd">syllabus</a>. Recommended reading is available in the <a href="./books.html">books</a> section.</p>
-</section>
-<section id="schedule" class="level2">
-<h2 class="anchored" data-anchor-id="schedule">Schedule</h2>
-<section id="lectures" class="level3">
-<h3 class="anchored" data-anchor-id="lectures">Lectures</h3>
-<p>Lectures are conducted in a hybrid format. Attendance is optional, with in-person sessions held in Aula VI, Building G.</p>
-<ol type="1">
-<li><del>23.02.2026 Lecture 1 – 11:40–13:20</del></li>
-<li><del>02.03.2026 Lecture 2 – 11:40–13:20</del></li>
-<li><del>09.03.2026 Lecture 3 – 11:40–13:20</del></li>
-<li>16.03.2026 Lecture 4 – 11:40–13:20</li>
-<li>23.03.2026 Lecture 5 – 11:40–13:20</li>
-</ol>
-</section>
-<section id="test" class="level3">
-<h3 class="anchored" data-anchor-id="test">Test</h3>
-<p>Lectures conclude with a test during the final lecture (Lecture 5).</p>
+<section id="goal" class="level2">
+<h2 class="anchored" data-anchor-id="goal">Goal</h2>
 <ul>
-<li>Format: 20 questions, 30 minutes</li>
-<li>Platform: MS Teams</li>
-<li>Passing threshold: more than 13 points – this is a prerequisite for participating in the labs.</li>
+<li>Containerize all components of your pipeline,</li>
+<li>Run everything with a single <code>docker compose up</code>,</li>
+<li>Monitor the system.</li>
 </ul>
+<p><strong>Business case (final):</strong> Package your fraud detection system for production deployment.</p>
+<hr>
 </section>
-<section id="labs-and-assessment" class="level3">
-<h3 class="anchored" data-anchor-id="labs-and-assessment">Labs and Assessment</h3>
-<p>After completing the exercises, homework assignments must be submitted via MS Teams. Each missing homework lowers the final grade by 0.5.</p>
-<section id="project" class="level4">
-<h4 class="anchored" data-anchor-id="project">Project</h4>
-<p>Projects must be completed in groups of no more than 5 people.</p>
-<p>Project requirements:</p>
-<ul>
-<li>The project should address a real business problem that can be solved using data processed in real time (batch processing for model training is also acceptable).</li>
-<li>Data should be ingested into Apache Kafka for further processing and analysis.</li>
-<li>Any programming language may be used for each component of the project.</li>
-<li>Business Intelligence (BI) tools may be utilized.</li>
-<li>Data sources may include any API, synthetically generated data, IoT devices, etc.</li>
-</ul>
+<section id="part-1-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-architecture">Part 1: Architecture</h2>
+<p>Your system has these components:</p>
+<pre><code>[Producer] --&gt; [Kafka] --&gt; [Spark Streaming + ML] --&gt; [Kafka: alerts]
+                                                         |
+                                               [FastAPI Dashboard]</code></pre>
+<section id="task-1.1-containerize-the-producer" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.1-containerize-the-producer">Task 1.1 – Containerize the producer</h3>
+<div id="cell-2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span><span class="bu">file</span> producer<span class="op">/</span>Dockerfile</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># FROM python:3.11-slim</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># COPY producer.py .</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># COPY requirements.txt .</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># RUN pip install -r requirements.txt</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># CMD ["python", "producer.py"]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span><span class="bu">file</span> producer<span class="op">/</span>requirements.txt</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>kafka<span class="op">-</span>python</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="task-1.2-containerize-the-api" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.2-containerize-the-api">Task 1.2 – Containerize the API</h3>
+<div id="cell-5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span><span class="bu">file</span> api<span class="op">/</span>Dockerfile</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="task-1.3-docker-compose-for-the-full-system" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.3-docker-compose-for-the-full-system">Task 1.3 – Docker Compose for the full system</h3>
+<div id="cell-7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span><span class="bu">file</span> docker<span class="op">-</span>compose.yml</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Services:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   zookeeper</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   kafka (broker)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   producer (depends_on kafka)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   fraud-api (depends_on kafka)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   alert-consumer (optional)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="task-1.4-run-and-verify" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.4-run-and-verify">Task 1.4 – Run and verify</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose up <span class="at">-d</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose ps</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose logs <span class="at">-f</span> producer</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose logs <span class="at">-f</span> fraud-api</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
 </section>
 </section>
+<section id="part-2-monitoring" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-monitoring">Part 2: Monitoring</h2>
+<section id="task-2.1-health-check-endpoint" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.1-health-check-endpoint">Task 2.1 – Health check endpoint</h3>
+<p>Add a <code>/health</code> endpoint to your FastAPI that returns: - model version - number of predictions made - average fraud probability - uptime</p>
+<div id="cell-9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE -- modify fraud_api.py</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
-<section id="technology" class="level2">
-<h2 class="anchored" data-anchor-id="technology">Technology</h2>
-<p>To participate in the course, you need to be familiar with the following technologies:</p>
+<section id="task-2.2-alert-consumer-with-csv-logging" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.2-alert-consumer-with-csv-logging">Task 2.2 – Alert consumer with CSV logging</h3>
+<div id="cell-11" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span><span class="bu">file</span> alert_logger.py</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Read from 'alerts' topic</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Append each alert to alerts.csv with timestamp</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="homework" class="level2">
+<h2 class="anchored" data-anchor-id="homework">Homework</h2>
 <ol type="1">
-<li><a href="./info.html#git">Git</a></li>
-<li>Python, Jupyter Notebook, JupyterLab, Google Colab</li>
-<li><a href="./info.html#docker">Docker and Docker Compose</a></li>
-<li><strong>Apache Spark</strong>, <strong>Apache Kafka</strong></li>
+<li>Get the full system running with <code>docker compose up</code>.</li>
+<li>Let it run for 5 minutes and analyze the alerts CSV.</li>
+<li>Create a README.md with architecture diagram and setup instructions.</li>
+<li>Push to Git.</li>
 </ol>
+<p><strong>Next lab:</strong> Project presentations.</p>
 
 
 </section>

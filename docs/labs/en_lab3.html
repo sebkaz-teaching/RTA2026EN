@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lecture 4: Apache Kafka and Microservices – Real-Time Analytics</title>
+<title>Lab 3: Decision Rules on Streaming Data – Real-Time Analytics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture4.html">Lecture 4: Apache Kafka and Microservices</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Lab 3: Decision Rules on Streaming Data</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -199,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link active">
+  <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Lecture 4: Apache Kafka and Microservices</span></a>
   </div>
 </li>
@@ -227,20 +227,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Sections</h2>
    
   <ul class="collapse">
-  <li><a href="#from-monolith-to-microservices" id="toc-from-monolith-to-microservices" class="nav-link active" data-scroll-target="#from-monolith-to-microservices">From Monolith to Microservices</a></li>
-  <li><a href="#rest-api-with-fastapi" id="toc-rest-api-with-fastapi" class="nav-link" data-scroll-target="#rest-api-with-fastapi">REST API with FastAPI</a></li>
-  <li><a href="#apache-kafka" id="toc-apache-kafka" class="nav-link" data-scroll-target="#apache-kafka">Apache Kafka</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#business-impact" id="toc-business-impact" class="nav-link" data-scroll-target="#business-impact">Business Impact</a></li>
+  <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
+  <li><a href="#part-1-rule-based-scoring-in-python" id="toc-part-1-rule-based-scoring-in-python" class="nav-link" data-scroll-target="#part-1-rule-based-scoring-in-python">Part 1: Rule-Based Scoring in Python</a></li>
+  <li><a href="#part-2-rules-in-spark-streaming" id="toc-part-2-rules-in-spark-streaming" class="nav-link" data-scroll-target="#part-2-rules-in-spark-streaming">Part 2: Rules in Spark Streaming</a></li>
+  <li><a href="#homework" id="toc-homework" class="nav-link" data-scroll-target="#homework">Homework</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture4.html">Lecture 4: Apache Kafka and Microservices</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Lecture 4: Apache Kafka and Microservices</h1>
+<h1 class="title">Lab 3: Decision Rules on Streaming Data</h1>
 </div>
 
 
@@ -257,196 +256,187 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><em>Duration: 1.5h</em></p>
-<p><strong>Goal:</strong> Learn Apache Kafka’s architecture — a distributed streaming platform — and the concepts of microservices and APIs for serving data and ML models.</p>
+<section id="goal" class="level2">
+<h2 class="anchored" data-anchor-id="goal">Goal</h2>
+<ul>
+<li>Define business rules for fraud detection,</li>
+<li>Apply rules to live Kafka transactions (Python consumer),</li>
+<li>Apply rules inside Spark Structured Streaming,</li>
+<li>Write alerts to a separate Kafka topic.</li>
+</ul>
+<p><strong>Business case (continued):</strong> Your monitoring system now needs to flag suspicious transactions based on business rules before you have a trained ML model.</p>
 <hr>
-<section id="from-monolith-to-microservices" class="level2">
-<h2 class="anchored" data-anchor-id="from-monolith-to-microservices">From Monolith to Microservices</h2>
-<p>Traditional IT systems were built as <strong>monoliths</strong> — a single large application where all functions (customer service, payments, reports, logging) are part of one codebase. Monoliths are simple at first, but quickly become hard to maintain — changing one module requires redeploying the whole thing.</p>
-<p>The answer to these problems is <strong>microservices</strong> — an architecture where the system consists of many small, independent services, each handling one task and communicating with others via APIs.</p>
-<p>Advantages of microservices:</p>
-<ul>
-<li>Each service can be developed and deployed independently.</li>
-<li>Failure of one service doesn’t bring down the entire system.</li>
-<li>Easy scaling — add instances only of the services that need it.</li>
-<li>Different technologies can be used in different services.</li>
-</ul>
-<p>Challenges:</p>
-<ul>
-<li>Communication complexity between services.</li>
-<li>Need to monitor many components.</li>
-<li>Managing distributed transactions.</li>
-</ul>
-<p>In practice, microservices run in <strong>containers</strong> (Docker), managed by orchestrators (Kubernetes), and communicate via <strong>APIs</strong> (REST, gRPC) or <strong>asynchronous messaging systems</strong> (Apache Kafka).</p>
 </section>
-<section id="rest-api-with-fastapi" class="level2">
-<h2 class="anchored" data-anchor-id="rest-api-with-fastapi">REST API with FastAPI</h2>
-<p>An API (<em>Application Programming Interface</em>) is an interface through which services communicate with each other. In microservice architecture it’s the <strong>primary method of data exchange</strong>.</p>
-<p>When you visit a website, your browser sends an HTTP request to a server, which returns an HTML page. An API works the same way — except instead of HTML it returns data (usually in JSON format).</p>
-<section id="key-rest-api-principles" class="level3">
-<h3 class="anchored" data-anchor-id="key-rest-api-principles">Key REST API Principles</h3>
-<ul>
-<li><strong>Client–Server</strong> — client sends a request, server returns a response.</li>
-<li><strong>Statelessness</strong> — each request contains all information needed to handle it. The server doesn’t remember previous requests.</li>
-<li><strong>HTTP Methods</strong> — GET (retrieve), POST (create), PUT (update), DELETE (remove).</li>
-</ul>
+<section id="part-1-rule-based-scoring-in-python" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-rule-based-scoring-in-python">Part 1: Rule-Based Scoring in Python</h2>
+<section id="task-1.1-define-scoring-rules" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.1-define-scoring-rules">Task 1.1 – Define scoring rules</h3>
+<p>A transaction is suspicious if ANY of these conditions is true:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Rule</th>
+<th>Condition</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>R1</td>
+<td>amount &gt; 3000</td>
+<td>+3</td>
+</tr>
+<tr class="even">
+<td>R2</td>
+<td>category == “electronics” and amount &gt; 1500</td>
+<td>+2</td>
+</tr>
+<tr class="odd">
+<td>R3</td>
+<td>hour of transaction &lt; 6 (night)</td>
+<td>+2</td>
+</tr>
+<tr class="even">
+<td>R4</td>
+<td>amount &gt; 2x average for that store</td>
+<td>+1</td>
+</tr>
+</tbody>
+</table>
+<p>If total score &gt;= 3, flag as <strong>SUSPICIOUS</strong>.</p>
+<p>Write a function <code>score_transaction(tx, store_averages)</code> that returns the total score and list of triggered rules.</p>
+<div id="cell-2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> score_transaction(tx, store_averages):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Score a transaction based on business rules.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">        tx: dict with keys: tx_id, user_id, amount, store, category, timestamp</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">        store_averages: dict {store_name: average_amount}</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">        (score: int, triggered_rules: list[str])</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># YOUR CODE</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Test</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>test_tx <span class="op">=</span> {<span class="st">'tx_id'</span>: <span class="st">'TX999'</span>, <span class="st">'user_id'</span>: <span class="st">'u05'</span>, <span class="st">'amount'</span>: <span class="fl">4500.0</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>           <span class="st">'store'</span>: <span class="st">'Warsaw'</span>, <span class="st">'category'</span>: <span class="st">'electronics'</span>, <span class="st">'timestamp'</span>: <span class="st">'2026-04-01T03:15:00'</span>}</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>avgs <span class="op">=</span> {<span class="st">'Warsaw'</span>: <span class="dv">500</span>, <span class="st">'Krakow'</span>: <span class="dv">400</span>, <span class="st">'Gdansk'</span>: <span class="dv">350</span>, <span class="st">'Wroclaw'</span>: <span class="dv">450</span>}</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>score, rules <span class="op">=</span> score_transaction(test_tx, avgs)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Score: </span><span class="sc">{</span>score<span class="sc">}</span><span class="ss">, Rules: </span><span class="sc">{</span>rules<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># Should be &gt;= 3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
-<section id="example-a-simple-microservice-in-fastapi" class="level3">
-<h3 class="anchored" data-anchor-id="example-a-simple-microservice-in-fastapi">Example: a simple microservice in FastAPI</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastapi <span class="im">import</span> FastAPI</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastAPI()</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>customers <span class="op">=</span> {</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>: {<span class="st">"name"</span>: <span class="st">"Anna"</span>, <span class="st">"city"</span>: <span class="st">"Warsaw"</span>, <span class="st">"segment"</span>: <span class="st">"premium"</span>},</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>: {<span class="st">"name"</span>: <span class="st">"Piotr"</span>, <span class="st">"city"</span>: <span class="st">"Krakow"</span>, <span class="st">"segment"</span>: <span class="st">"standard"</span>},</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span>: {<span class="st">"name"</span>: <span class="st">"Kasia"</span>, <span class="st">"city"</span>: <span class="st">"Gdansk"</span>, <span class="st">"segment"</span>: <span class="st">"premium"</span>},</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">"/customers/</span><span class="sc">{customer_id}</span><span class="st">"</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_customer(customer_id: <span class="bu">int</span>):</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Returns customer data by ID."""</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> customers.get(customer_id, {<span class="st">"error"</span>: <span class="st">"Customer not found"</span>})</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">"/customers/"</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> list_customers(segment: <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span>):</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Returns customer list, optionally filtered by segment."""</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> segment:</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {k: v <span class="cf">for</span> k, v <span class="kw">in</span> customers.items() <span class="cf">if</span> v[<span class="st">"segment"</span>] <span class="op">==</span> segment}</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> customers</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>After starting (<code>uvicorn main:app --reload</code>), the server listens on <code>http://localhost:8000</code>. You can test:</p>
-<ul>
-<li><code>GET /customers/1</code> — Anna’s data</li>
-<li><code>GET /customers/?segment=premium</code> — all premium customers</li>
-<li><code>GET /docs</code> — automatic API documentation (Swagger UI)</li>
-</ul>
-</section>
-<section id="ml-model-as-a-service" class="level3">
-<h3 class="anchored" data-anchor-id="ml-model-as-a-service">ML Model as a Service</h3>
-<p>Training a good ML model is just the first step. To make it useful, you need to <strong>serve</strong> it to end users — most commonly as an API.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastapi <span class="im">import</span> FastAPI</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pickle</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastAPI()</span>
+<section id="task-1.2-scoring-consumer-with-learning-averages" class="level3">
+<h3 class="anchored" data-anchor-id="task-1.2-scoring-consumer-with-learning-averages">Task 1.2 – Scoring consumer with learning averages</h3>
+<p>Write a Kafka consumer that: 1. Reads transactions from <code>transactions</code> topic 2. Maintains running averages per store (stateful!) 3. Scores each transaction with your rules 4. Prints ALERT for suspicious ones 5. Sends suspicious transactions to a new topic <code>alerts</code></p>
+<div id="cell-4" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span><span class="bu">file</span> scoring_consumer.py</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> kafka <span class="im">import</span> KafkaConsumer, KafkaProducer</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> defaultdict</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Load trained model</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"model.pkl"</span>, <span class="st">"rb"</span>) <span class="im">as</span> f:</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> pickle.load(f)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">"/predict/"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict_price(area: <span class="bu">float</span>, bedrooms: <span class="bu">int</span>, building_age: <span class="bu">int</span>):</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Real estate price prediction."""</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> np.array([[area, bedrooms, building_age]])</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    price <span class="op">=</span> model.predict(features)[<span class="dv">0</span>]</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"estimated_price"</span>: <span class="bu">round</span>(price, <span class="dv">2</span>)}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A request <code>GET /predict/?area=65&amp;bedrooms=3&amp;building_age=10</code> returns the estimated property price. A million users can simultaneously use the same model.</p>
-<p>Key model serving metrics:</p>
-<ul>
-<li><strong>Latency</strong> — response time per request,</li>
-<li><strong>QPS</strong> (<em>Queries Per Second</em>) — number of requests handled per second,</li>
-<li><strong>Infrastructure cost</strong> — how much we pay for servers.</li>
-</ul>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>consumer <span class="op">=</span> KafkaConsumer(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'transactions'</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">'broker:9092'</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    auto_offset_reset<span class="op">=</span><span class="st">'earliest'</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    group_id<span class="op">=</span><span class="st">'scoring-group'</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    value_deserializer<span class="op">=</span><span class="kw">lambda</span> x: json.loads(x.decode(<span class="st">'utf-8'</span>))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>alert_producer <span class="op">=</span> KafkaProducer(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">'broker:9092'</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    value_serializer<span class="op">=</span><span class="kw">lambda</span> v: json.dumps(v).encode(<span class="st">'utf-8'</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Running averages</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>store_totals <span class="op">=</span> defaultdict(<span class="bu">float</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>store_counts <span class="op">=</span> defaultdict(<span class="bu">int</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># For each message:</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Update running averages</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Compute store_averages dict</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Score the transaction</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. If score &gt;= 3: print </span><span class="al">ALERT</span><span class="co"> and send to 'alerts' topic</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Every 20 messages: print summary of alerts so far</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
 </section>
 </section>
-<section id="apache-kafka" class="level2">
-<h2 class="anchored" data-anchor-id="apache-kafka">Apache Kafka</h2>
-<p>Apache Kafka is a <strong>distributed platform for stream data processing</strong>. It was created at LinkedIn in 2009 and has been developed as an Apache project since 2012.</p>
-<p>Kafka is not a regular message queue. The difference is fundamental.</p>
-<section id="kafka-vs-traditional-queue" class="level3">
-<h3 class="anchored" data-anchor-id="kafka-vs-traditional-queue">Kafka vs Traditional Queue</h3>
-<p>In a classical queue system (e.g., RabbitMQ), a message is <strong>deleted after being read</strong>. One consumer picks it up and it’s gone.</p>
-<p>In Kafka, messages are <strong>stored on disk</strong> for a configured retention period (e.g., 7 days). Multiple consumers can read the same data independently. A consumer that restarts can resume from where it left off.</p>
+<section id="part-2-rules-in-spark-streaming" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-rules-in-spark-streaming">Part 2: Rules in Spark Streaming</h2>
+<section id="task-2.1-read-from-kafka-and-apply-rules-in-spark" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.1-read-from-kafka-and-apply-rules-in-spark">Task 2.1 – Read from Kafka and apply rules in Spark</h3>
+<p>Implement the same scoring logic using Spark’s <code>withColumn</code> and <code>when</code>/<code>otherwise</code>.</p>
+<div id="cell-6" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.types <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder.appName(<span class="st">"Lab3-Rules"</span>).getOrCreate()</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>spark.sparkContext.setLogLevel(<span class="st">"WARN"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Read from Kafka (reuse schema from Lab 2)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>tx_schema <span class="op">=</span> StructType([</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"tx_id"</span>, StringType()),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"user_id"</span>, StringType()),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"amount"</span>, DoubleType()),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"store"</span>, StringType()),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"category"</span>, StringType()),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"timestamp"</span>, StringType()),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>kafka_df <span class="op">=</span> (spark.readStream</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"kafka"</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"kafka.bootstrap.servers"</span>, <span class="st">"broker:9092"</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"subscribe"</span>, <span class="st">"transactions"</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"startingOffsets"</span>, <span class="st">"earliest"</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    .load()</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>parsed <span class="op">=</span> (kafka_df</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    .select(from_json(col(<span class="st">"value"</span>).cast(<span class="st">"string"</span>), tx_schema).alias(<span class="st">"data"</span>))</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    .select(<span class="st">"data.*"</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    .withColumn(<span class="st">"ts"</span>, to_timestamp(<span class="st">"timestamp"</span>))</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Add columns:</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co"># - rule_r1: when(col("amount") &gt; 3000, 3).otherwise(0)</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co"># - rule_r2: when((col("category") == "electronics") &amp; (col("amount") &gt; 1500), 2).otherwise(0)</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co"># - rule_r3: when(hour(col("ts")) &lt; 6, 2).otherwise(0)</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co"># - total_score: rule_r1 + rule_r2 + rule_r3</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co"># - is_suspicious: when(col("total_score") &gt;= 3, True).otherwise(False)</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter only suspicious and display</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
-<section id="kafka-architecture" class="level3">
-<h3 class="anchored" data-anchor-id="kafka-architecture">Kafka Architecture</h3>
-<p>Kafka consists of several key components:</p>
-<p><strong>Broker</strong> — a Kafka server. A Kafka cluster is a group of brokers working together. If one goes down, the others take over its responsibilities.</p>
-<p><strong>Topic</strong> — a logical channel to which producers send messages and from which consumers read them. Think of it as a folder — grouping related events (e.g., topic <code>transactions</code>, topic <code>logs</code>, topic <code>orders</code>).</p>
-<p><strong>Partition</strong> — a physical division of a topic. Each partition is an ordered, immutable sequence of messages. Partitions enable parallel processing — more partitions means more consumers can read simultaneously.</p>
-<p><strong>Offset</strong> — a unique message identifier within a partition. A consumer tracks its offset — knowing which messages it has already processed.</p>
-<p><strong>Replication</strong> — each partition can be replicated across multiple brokers. If one broker fails, data isn’t lost.</p>
-</section>
-<section id="producer" class="level3">
-<h3 class="anchored" data-anchor-id="producer">Producer</h3>
-<p>A producer is an application that sends messages to a Kafka topic.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> kafka <span class="im">import</span> KafkaProducer</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>producer <span class="op">=</span> KafkaProducer(</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">"localhost:9092"</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    value_serializer<span class="op">=</span><span class="kw">lambda</span> v: json.dumps(v).encode(<span class="st">'utf-8'</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>transaction <span class="op">=</span> {</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"id"</span>: <span class="st">"TX5001"</span>,</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"amount"</span>: <span class="fl">1250.00</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"store"</span>: <span class="st">"Warsaw"</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"type"</span>: <span class="st">"purchase"</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>producer.send(<span class="st">"transactions"</span>, value<span class="op">=</span>transaction)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>producer.flush()</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Sent: </span><span class="sc">{</span>transaction<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>How Kafka assigns messages to partitions:</p>
-<ul>
-<li>Default: <em>round-robin</em> algorithm — successive messages go to successive partitions.</li>
-<li>With a key: if we provide a message key (e.g., <code>store</code>), Kafka computes its hash and always assigns messages with the same key to the same partition. This guarantees event ordering per key.</li>
-</ul>
-</section>
-<section id="consumer" class="level3">
-<h3 class="anchored" data-anchor-id="consumer">Consumer</h3>
-<p>A consumer reads messages from a topic and processes them.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> kafka <span class="im">import</span> KafkaConsumer</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>consumer <span class="op">=</span> KafkaConsumer(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"transactions"</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">"localhost:9092"</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    auto_offset_reset<span class="op">=</span><span class="st">"earliest"</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    value_deserializer<span class="op">=</span><span class="kw">lambda</span> x: json.loads(x.decode(<span class="st">'utf-8'</span>))</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Listening for transactions..."</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> message <span class="kw">in</span> consumer:</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> message.value</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"[offset=</span><span class="sc">{</span>message<span class="sc">.</span>offset<span class="sc">}</span><span class="ss">] </span><span class="sc">{</span>t[<span class="st">'id'</span>]<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>t[<span class="st">'amount'</span>]<span class="sc">}</span><span class="ss"> PLN (</span><span class="sc">{</span>t[<span class="st">'store'</span>]<span class="sc">}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="consumer-groups" class="level3">
-<h3 class="anchored" data-anchor-id="consumer-groups">Consumer Groups</h3>
-<p>When a single consumer can’t keep up with processing, we add more consumers to a <strong>group</strong>. Kafka automatically distributes partitions among consumers in the group:</p>
-<ul>
-<li>Each partition is assigned to exactly one consumer in the group.</li>
-<li>Ideally: as many consumers as partitions.</li>
-<li>If a consumer fails, Kafka reassigns its partitions to another consumer (rebalancing).</li>
-</ul>
-<p>This mechanism ensures <strong>scalability</strong> — you add consumers as load grows.</p>
-</section>
-<section id="publishsubscribe-pattern" class="level3">
-<h3 class="anchored" data-anchor-id="publishsubscribe-pattern">Publish/Subscribe Pattern</h3>
-<p>Kafka implements the <strong>Pub/Sub</strong> pattern — a producer publishes messages to a topic, and any number of consumers (from different groups) can independently read them. This is the fundamental difference from classical queues, where a message goes to only one receiver.</p>
-<p>Example: a producer sends transactions to the <code>transactions</code> topic. Simultaneously:</p>
-<ul>
-<li>Group A (anti-fraud system) analyzes them for fraud.</li>
-<li>Group B (reporting module) generates sales statistics.</li>
-<li>Group C (recommendation engine) updates customer profiles.</li>
-</ul>
-<p>Each group reads the same data independently.</p>
+<section id="task-2.2-write-alerts-to-kafka-from-spark" class="level3">
+<h3 class="anchored" data-anchor-id="task-2.2-write-alerts-to-kafka-from-spark">Task 2.2 – Write alerts to Kafka from Spark</h3>
+<p>Send suspicious transactions to the <code>alerts</code> topic.</p>
+<div id="cell-8" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># suspicious = scored.filter(col("is_suspicious") == True)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Write to Kafka:</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># .select(to_json(struct("*")).alias("value"))</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># .writeStream.format("kafka")...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
 </section>
 </section>
-<section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">Summary</h2>
-<p>In this lecture you learned:</p>
-<ul>
-<li>Microservice architecture and why it’s replacing monoliths.</li>
-<li>REST APIs with FastAPI — serving data and ML models.</li>
-<li>Apache Kafka — a distributed streaming platform: brokers, topics, partitions, offsets, producers, consumers, consumer groups.</li>
-</ul>
-<p>In the labs, you’ll set up Kafka in Docker and write your own producer and consumer. In the next (final) lecture, we’ll cover machine learning in the context of stream processing.</p>
-</section>
-<section id="business-impact" class="level2">
-<h2 class="anchored" data-anchor-id="business-impact">Business Impact</h2>
-<p>Microservice architecture built on Kafka gives a company flexibility — new business features can be deployed without stopping the entire system. Serving ML models via API opens the door to <em>API Economy</em> — monetizing algorithms as products for external partners. Containerization (Docker) converts fixed infrastructure costs (Capex) into variable costs (Opex), which is key to data-driven project profitability.</p>
+<section id="homework" class="level2">
+<h2 class="anchored" data-anchor-id="homework">Homework</h2>
+<ol type="1">
+<li>Add a <strong>Rule R4</strong> in Spark: compare each transaction amount to the windowed average (5-min tumbling window per store). Flag if amount &gt; 2x window average. (Hint: use a self-join on windowed aggregation or a separate stream.)</li>
+<li>Read from the <code>alerts</code> topic and write alerts to a CSV file.</li>
+<li>Push code to your Git repository.</li>
+</ol>
+<p><strong>Next lab:</strong> We’ll replace rules with a real ML model served via FastAPI.</p>
+<div id="cell-10" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>spark.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 
 
 </section>
