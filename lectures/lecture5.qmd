@@ -1,280 +1,288 @@
 ---
-title:  Lecture 5
-
+title: "Lecture 5: Machine Learning in Real Time"
 format:
   html:
     code-fold: true
 jupyter: python3
 ---
 
+*Duration: 1.5h*
 
-## Algorithms
+**Goal:** Understand the differences between offline and online learning, anomaly detection in real time, and algorithm explainability — from a business perspective.
 
-Before designing a solution to a business problem, it is essential to consider the complexity of the issue.
+---
 
-### Algorithm Classification
+## Offline Learning vs Online Learning
 
-1. **Algorithms Processing Large Amounts of Data**
+In previous lectures we learned the difference between batch and stream processing. The same dichotomy applies to machine learning.
 
-Processing vast datasets requires an appropriate approach to organizing and analyzing them. When the amount of data exceeds the available memory of a computing unit, iterative processing methods are often used.
+### Offline Learning (Batch Learning)
 
-🔹 Example: Recommendation Systems in E-commerce (e.g., Amazon, Netflix)
+The classical approach: collect historical data, train a model, deploy it — and the model doesn't change until you retrain it on new data.
 
-- Analyzes large datasets about users, their purchase history, and viewed content.
-- Processes data iteratively (e.g., stream processing in Apache Spark).
-- Uses collaborative filtering or graph-based algorithms to predict user preferences.
-
-🔹 Other Applications:
-
-- Real-time server log analysis (e.g., DDoS attack detection).
-- IoT network monitoring (e.g., sensor data analysis in smart cities).
-
-2. **Algorithms Performing Intensive Computations**
-
-These require significant computing power but typically do not operate on large datasets. An example is an algorithm searching for large prime numbers. Parallel computation techniques are often used to optimize performance.
-
-🔹 Example: Cryptography and Finding Large Prime Numbers (e.g., RSA)
-
-- Generates large prime numbers essential for RSA encryption.
-- Requires intensive computations but does not operate on vast datasets.
-- Often employs parallel methods, such as the Miller-Rabin probabilistic algorithm for primality testing.
-
-🔹 Other Applications:
-
-- Physical simulations (e.g., weather forecasting, climate models).
-- Optimization algorithms (e.g., solving the traveling salesman problem).
-
-3. **Algorithms Processing Large Data and Performing Intensive Computations**
-
-These combine the requirements of the previous types, demanding both high computational power and handling of large datasets. An example is sentiment analysis in live video streams.
-
-🔹 Example: Sentiment Analysis in Live Video Streams (e.g., YouTube, Twitch)
-
-- Analyzes both text (chat) and video/audio in real time.
-- Requires both significant computational resources (NLP and CV processing) and large-scale data handling.
-- Uses Transformer models (e.g., BERT) for text analysis and CNN/RNN for image and audio processing.
-
-🔹 Other Applications:
-
-- Autonomous vehicles (real-time image analysis and decision-making).
-- Anomaly detection in massive financial datasets (e.g., fraud detection in banking).
-
-### Data Dimension
-
-To determine the dimensionality of a problem's data, it is not enough to consider just the amount of storage required. Three main aspects are crucial:
-
-1. **Input Size** – Expected volume of data to be processed.
-2. **Growth Rate** – The rate at which new data is generated during algorithm execution.
-3. **Structural Diversity** – The types of data that the algorithm must handle.
-
-### Computational Dimension
-
-This concerns processing resources and computational power. For example, deep learning (DL) algorithms require significant computational power, making it necessary to provide a parallelized architecture using GPUs or TPUs, significantly speeding up computations.
-
-### Algorithm Explainability
-
-In many cases, modeling is used in critical situations, such as in software for administering medications. In such cases, explaining the reasons behind each algorithmic decision is crucial to ensure that the outcomes are error-free and unbiased.
-
-The ability of an algorithm to indicate the mechanisms generating its results is called explainability. Ethical analysis is a standard part of the algorithm validation process.
-
-Achieving high explainability is particularly challenging for machine learning (ML) and deep learning (DL) algorithms. For instance, banks using algorithms for credit decision-making must ensure transparency and justify their decisions.
-
-One method for improving algorithm explainability is LIME (Local Interpretable Model-Agnostic Explanations), published in 2016. This method introduces small changes to input data and analyzes their impact on the output, allowing the identification of local decision-making rules within the model.
-
-```python
+```{python}
+from sklearn.linear_model import LinearRegression
 import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from lime.lime_tabular import LimeTabularExplainer
 
-# Wczytanie danych Iris
-from sklearn.datasets import load_iris
-iris = load_iris()
-X = iris.data
-y = iris.target
+# Historical data — area (sqm) vs price (thousands PLN)
+X = np.array([[30], [45], [55], [70], [85], [100], [120]])
+y = np.array([250, 370, 430, 560, 680, 790, 950])
 
-# Podział na zbiór treningowy i testowy
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = LinearRegression()
+model.fit(X, y)
 
-# Trenowanie modelu
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X_train, y_train)
-
-# Tworzenie obiektu LIME do interpretacji modelu
-explainer = LimeTabularExplainer(X_train, feature_names=iris.feature_names, class_names=iris.target_names, discretize_continuous=True)
-
-# Interpretacja losowego przykładu ze zbioru testowego
-i = np.random.randint(0, len(X_test))  # Wybór losowego przykładu
-exp = explainer.explain_instance(X_test[i], model.predict_proba)
-
-# Wyświetlenie interpretacji
-exp.show_in_notebook()
-
+# Model is "frozen" — it doesn't learn from new data
+new = np.array([[65], [90]])
+print("Predictions:", model.predict(new).round(0))
 ```
 
-How Does This Code Work?
+Problem: the world changes. Property prices rise, customer preferences evolve, new fraud patterns emerge. A model trained on last year's data may be outdated.
 
-1. Loading Data and Training the Model
-
-- Uses the Iris dataset, containing 150 examples of flowers from three species:
-- Setosa
-- Versicolor
-- Virginica
-- The RandomForestClassifier model is trained on this data.
-
-2. Creating an Interpretable Model Using LIME
-
-- LIME generates local explanations, interpreting the model for individual predictions.
-- A random test example is selected.
-
-3. Exploring the Outcome for a Single Example
-
-- LIME slightly modifies input values and observes how the prediction changes.
-- It creates a "local" linear model that shows which features had the most influence on the decision.
-
-Let's assume our model selects a sample flower and classifies it as Virginica.
-
-Interpretation of Results:
-
-1. Key Features Affecting Model Decision:
-
-- Petal length: The most significant factor (e.g., a longer petal suggests Virginica).
-- Petal width: Also a crucial factor (e.g., above a certain threshold indicates Virginica).
-- Sepal length: A less significant but still relevant factor.
-- Sepal width: Usually the least important feature.
-
-2. Visualization of Results:
-
-- LIME generates a bar chart showing the impact of each feature on classification.
-- The chart highlights which features increased or decreased the probability of a specific classification.
-
-3. What Does This Mean?
-
-- If the model predicts Virginica with high probability, key features (e.g., long petals) strongly indicate this species.
-- If the features had mixed influences, it suggests the model had difficulty classifying the instance (e.g., petal width was ambiguous).
-
-## Anomaly detection
-
-**An outlier** is an observation (a row in a dataset) that is significantly different from the other elements in the sample. This means that the relationship between independent and dependent variables for this observation may differ from other cases.
-
-For single variables, outliers can be identified using a box plot, which is based on quartiles:
-
-- **First quartile**  and third quartile  define the edges of the box,
-- **Second quartile**  (median) is marked inside the box,
-
-Outliers satisfy the condition:
-
-\[
- x_{out} < Q_1 - 1.5 \times IQR \quad \text{lub} \quad x_{out} > Q_3 + 1.5 \times IQR
-\]
-
-Where:
-\[
-IQR = Q_3 - Q_1
-\]
+Brute-force solution: retrain the model periodically (e.g., weekly) on new data. This works, but it's expensive and delayed.
 
 
-An example of an outlier could be a Formula 1 car – in terms of speed, it is an anomaly among regular cars.
+### Online Learning (Incremental Learning)
 
-### Use of Anomaly Detection
+An alternative approach: the model learns **continuously**, updating its parameters with each new observation (or small batch).
 
-Anomaly detection has a wide range of applications, such as:
+Key algorithm: **Stochastic Gradient Descent (SGD)** — instead of computing the gradient on the entire dataset, we update weights after each observation.
 
--	**Finance** – detecting fraudulent transactions in banking data analysis,
-- 	**Cybersecurity** – identifying intruders in a network based on user behavior,
-- 	**Medicine** – monitoring health parameters and detecting abnormalities,
-- 	**Industry** – detecting faulty components through image analysis.
+```{python}
+from sklearn.linear_model import SGDRegressor
+import numpy as np
 
-### Anomaly Detection Methods
+# Data arrives as a stream — one observation at a time
+np.random.seed(42)
+model = SGDRegressor(max_iter=1, warm_start=True, learning_rate='constant', eta0=0.0001)
 
-#### 1. Supervised Methods (supervised learning)
+# Simulated data stream
+print("Online learning — model learns with each new observation:")
+for i in range(50):
+    X_new = np.array([[30 + i * 2]])
+    y_new = np.array([250 + i * 15 + np.random.normal(0, 20)])
+    model.partial_fit(X_new, y_new)
 
-Used when labeled data is available (e.g., fraud cases in transactions).
-- 	Neural networks,
-- 	K-Nearest Neighbors algorithm (KNN),
-- 	Bayesian networks.
+    if i % 10 == 0:
+        pred = model.predict(np.array([[75]]))[0]
+        print(f"  After {i+1} observations -> prediction for 75sqm: {pred:.0f}k PLN")
+```
 
-#### 2. Unsupervised Methods (unsupervised learning)
+The `partial_fit()` method is the heart of online learning — the model updates its parameters without needing to store the entire dataset.
 
-Assumes that most data is correct, and anomalies are a small percentage of cases.
-- 	K-Means clustering,
-- 	Autoencoders in neural networks,
-- 	Statistical tests.
+### When to Use Which?
 
-### Classical Method – Detection Based on Probability
+| Feature | Offline learning | Online learning |
+|---|---|---|
+| **Data** | Historical, collected | Streaming, incremental |
+| **Model update** | Periodic (retrain) | Continuous (partial_fit) |
+| **Compute cost** | High one-time | Low per observation |
+| **Reaction to change** | Delayed | Immediate |
+| **Risk** | Stale model | Instability, concept drift |
+| **Use case** | Reports, predictive models | Fraud detection, live recommendations |
 
-To determine whether a given observation is an anomaly, we can use the probability $p(x)$:
-- 	If $p(x) < \epsilon$, we consider the value as an outlier.
-- 	In practice, we assume the data follows a **normal distribution**  $N(\mu, \sigma)$.
--	We estimate the parameters $\mu$ (mean) and $\sigma^2$ (variance) based on a sample.
--	Then, for each value, we calculate the probability of its occurrence and compare it with \epsilon.
+In practice, a **hybrid** approach is often used: a base model trained offline, updated online with current data.
 
-Example: Salary Analysis in a Company
 
-We detect whether there are individuals in the company whose salaries significantly deviate from the average.
+## Anomaly Detection
 
-```python
+Anomaly detection is one of the most important applications of real-time analytics. An anomaly (outlier) is an observation that significantly deviates from the rest — a suspicious transaction, unusual sensor reading, unexpected traffic spike.
+
+### Statistical Method — IQR
+
+The simplest method: an observation is an anomaly if it lies far from the median. Formally, a value is an outlier when:
+
+$$x_{out} < Q_1 - 1.5 \times IQR \quad \text{or} \quad x_{out} > Q_3 + 1.5 \times IQR$$
+
+where $IQR = Q_3 - Q_1$ (interquartile range).
+
+```{python}
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-salaries = [40, 42, 45, 47, 50, 55, 60, 70, 90, 150]  # 150 to outlier
+# Credit card transactions (amounts in PLN)
+transactions = [85, 92, 78, 110, 95, 88, 102, 91, 87, 99,
+                105, 82, 97, 4500, 89, 94, 101, 86, 93, 8200]
 
-Q1 = np.percentile(salaries, 25)
-Q3 = np.percentile(salaries, 75)
+Q1 = np.percentile(transactions, 25)
+Q3 = np.percentile(transactions, 75)
 IQR = Q3 - Q1
 
-outlier_threshold_low = Q1 - 1.5 * IQR
-outlier_threshold_high = Q3 + 1.5 * IQR
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
 
-outliers = [x for x in salaries if x < outlier_threshold_low or x > outlier_threshold_high]
+anomalies = [x for x in transactions if x < lower_bound or x > upper_bound]
+print(f"Q1={Q1}, Q3={Q3}, IQR={IQR}")
+print(f"Bounds: [{lower_bound:.0f}, {upper_bound:.0f}]")
+print(f"Anomalies: {anomalies}")
 
-print(f"Outliers: {outliers}")
-
-sns.boxplot(salaries)
-plt.title("Box plot")
+fig, ax = plt.subplots(figsize=(8, 2))
+ax.boxplot(transactions, vert=False)
+ax.set_xlabel('Transaction amount (PLN)')
+ax.set_title('Anomaly detection with IQR')
+plt.tight_layout()
 plt.show()
 ```
 
-Result: The box plot shows that 150k is an anomaly.
+The IQR method is simple but works only for a single variable. For multidimensional data we need something more sophisticated.
 
-### Isolation Forest – Anomaly Detection Using Isolation Forest
 
-**Isolation Forest** is an algorithm based on decision trees, proposed by Fei Tony Liu, Kai Ming Ting, and Zhi-Hua Zhou in 2008. It identifies anomalies by isolating outliers during the data partitioning process:
--	Randomly selects a feature and a split value,
--	Outliers are isolated more quickly (closer to the root of the tree),
--	The result is aggregated based on multiple trees.
+### Isolation Forest
 
-Its advantages include low computational requirements and effectiveness in analyzing high-dimensional data.
+**Isolation Forest** is a tree-based algorithm designed specifically for anomaly detection (Liu, Ting, Zhou, 2008). It works on a simple intuition: **anomalies are easier to isolate** than normal observations.
 
-[Anomaly Detection Methods in sklearn](https://scikit-learn.org/0.20/auto_examples/plot_anomaly_comparison.html)
+The algorithm randomly selects a feature and a split point. Outliers — being far from the rest — get isolated after fewer splits (closer to the tree root). Normal observations require many splits.
 
-**Example: Detecting Credit Card Fraud**
-
-A bank analyzes credit card transactions and detects those that may be unauthorized.
-
-```python
+```{python}
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 
-# Przykładowe dane transakcji (kwota, liczba transakcji w tygodniu)
-data = np.array([
-    [100, 5], [120, 6], [130, 5], [110, 4], [5000, 1],  # Outlier (duża kwota, rzadkość)
-    [125, 5], [115, 5], [140, 7], [135, 6], [145, 5]
+# Transaction data: amount, weekly frequency, hours since last transaction
+np.random.seed(42)
+normal = np.column_stack([
+    np.random.normal(200, 50, 50),
+    np.random.normal(10, 3, 50),
+    np.random.normal(24, 8, 50),
 ])
 
-# Model Isolation Forest
-clf = IsolationForest(contamination=0.1)  # 10% transakcji uznajemy za anomalie
-clf.fit(data)
+anomalies = np.array([
+    [5000, 1, 720],
+    [4200, 2, 480],
+    [50, 45, 0.5],
+])
 
-# Predykcja (1 = normalna transakcja, -1 = oszustwo)
-predictions = clf.predict(data)
-df = pd.DataFrame(data, columns=["Kwota", "Liczba transakcji"])
-df["Anomalia"] = predictions
+data = np.vstack([normal, anomalies])
 
-print(df)
+model = IsolationForest(contamination=0.05, random_state=42)
+labels = model.fit_predict(data)
+
+df = pd.DataFrame(data, columns=["amount", "weekly_freq", "hours_since_last"])
+df["anomaly"] = ["YES" if l == -1 else "no" for l in labels]
+
+print("Detected anomalies:")
+print(df[df["anomaly"] == "YES"].to_string(index=False))
 ```
 
-Result: A transaction of 5000 PLN will be detected as an anomaly.
+Isolation Forest advantages: fast on large datasets, handles multidimensional data, doesn't require labeled data (unsupervised method).
+
+
+### Anomaly Detection in a Stream
+
+In a real-time context, anomaly detection works in a loop:
+
+1. A Kafka consumer receives a new transaction.
+2. A model (e.g., Isolation Forest, trained offline) evaluates whether it's an anomaly.
+3. If so — generates an alert.
+4. Optionally: the model updates itself on new data (online learning).
+
+```python
+from kafka import KafkaConsumer
+from sklearn.ensemble import IsolationForest
+import json, numpy as np
+
+# Assume model is pre-trained
+model = IsolationForest(contamination=0.05)
+# model.fit(historical_data)
+
+consumer = KafkaConsumer(
+    "transactions",
+    bootstrap_servers="localhost:9092",
+    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+)
+
+for msg in consumer:
+    t = msg.value
+    features = np.array([[t["amount"], t["weekly_freq"], t["hours_since_last"]]])
+    pred = model.predict(features)[0]
+
+    if pred == -1:
+        print(f"ALERT: Suspicious transaction {t['id']}: {t['amount']} PLN")
+```
+
+
+## Algorithm Explainability
+
+An ML model may be highly accurate, but if we can't explain **why** it made a particular decision, its usefulness in many industries is limited.
+
+This is especially important in regulated sectors:
+
+- **Banking** — a bank must explain to a customer why their loan was denied.
+- **Healthcare** — a diagnostic algorithm must indicate what its recommendation is based on.
+- **Insurance** — a claim denial decision must be justified.
+- **Regulation** — the EU AI Act requires transparency for high-risk AI systems.
+
+
+### LIME — Local Interpretable Model-Agnostic Explanations
+
+LIME (Ribeiro et al., 2016) explains individual predictions of any ML model. It works as follows:
+
+1. Takes a specific observation we want explained.
+2. Generates perturbations — slightly modified versions of that observation.
+3. Checks how the model reacts to those changes.
+4. Builds a simple, interpretable local model (e.g., linear regression) that approximates the complex model's behavior in the neighborhood of that observation.
+
+```{python}
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+import numpy as np
+
+# Train model on Iris data
+iris = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(
+    iris.data, iris.target, test_size=0.2, random_state=42
+)
+
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Pick one observation
+i = 7
+obs = X_test[i]
+pred = model.predict([obs])[0]
+proba = model.predict_proba([obs])[0]
+
+print(f"Observation: {obs}")
+print(f"Prediction: {iris.target_names[pred]} (probabilities: {proba.round(3)})")
+
+# Feature importance for this model
+importances = model.feature_importances_
+print(f"\nFeature importance (global):")
+for name, imp in sorted(zip(iris.feature_names, importances), key=lambda x: -x[1]):
+    print(f"  {name}: {imp:.3f}")
+```
+
+```python
+# To use LIME (requires: pip install lime):
+from lime.lime_tabular import LimeTabularExplainer
+
+explainer = LimeTabularExplainer(
+    X_train,
+    feature_names=iris.feature_names,
+    class_names=iris.target_names,
+    discretize_continuous=True
+)
+
+exp = explainer.explain_instance(X_test[i], model.predict_proba)
+exp.show_in_notebook()
+```
+
+LIME will show which features (e.g., petal length > 4.5, petal width > 1.6) influenced the classification of a given flower as *Virginica*. The same approach works for any model — from logistic regression to deep neural networks.
+
+
+## Course Summary — What's Next?
+
+Over 5 lectures we followed this path:
+
+1. **L1:** What is real-time analytics and when is it needed (batch vs NRT vs RT).
+2. **L2:** Evolution of data and processing models (OLTP -> OLAP -> Data Lake -> Big Data).
+3. **L3:** Stream processing — time, watermarking, time windows.
+4. **L4:** Apache Kafka and microservices — real-time system architecture.
+5. **L5:** Machine learning in streaming context — online learning, anomalies, explainability.
+
+In the **labs**, you'll translate this knowledge into practice: set up an environment in Docker, write Kafka producers and consumers, build a Spark Streaming + Kafka pipeline, deploy an ML model as a FastAPI microservice, and build a complete real-time anomaly detection system.
+
+
+## Business Impact
+
+Anomaly detection is the foundation of modern risk management — from detecting financial fraud to predicting machine failures (predictive maintenance). Algorithm explainability is a necessity in regulated sectors — understanding "why the system said NO" protects a company from reputational and legal damage and ensures compliance with regulations (AI Act, GDPR). Companies that combine real-time analytics with interpretable ML gain a competitive advantage not only in speed, but also in customer trust.

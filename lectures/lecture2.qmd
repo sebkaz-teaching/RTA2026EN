@@ -1,427 +1,242 @@
 ---
-title: Lecture 2
+title: "Lecture 2: Evolution of Data and Processing Models"
 format:
   html:
     code-fold: true
 jupyter: python3
 ---
 
-⏳ Duration: 1.5h  
-*🎯 Lecture Objective*
+*Duration: 1.5h*
 
-Understanding how data has evolved in different industries and the tools used for its analysis today.
+**Goal:** Understand how data types and processing models evolved — from simple SQL tables, through data warehouses, to Data Lakes and Big Data.
 
 ---
 
-In this lecture, we will present the evolution of data analysis, showing how technologies and approaches to data processing have changed over the years.  
-We will start with classical tabular structures, move through more advanced graph and text models, and finish with modern approaches to stream processing.
+## Evolution of Data
 
-# **Evolution of Data**
+Data hasn't always looked the same. The way we store and process it has changed with technology and business needs.
 
-## **1. Tabular Data (SQL Tables)**  
+### Structured Data — SQL Tables
 
-Initially, data was stored in tables, where each table contained organized information in columns and rows (e.g., SQL databases).  
-Such models were perfect for **structured** data.
+For decades, business data was stored in relational databases — tables with columns following a strict schema. This remains the foundation of most transactional systems.
 
-### 📌 **Features:**
-
-- ✅ Data divided into columns with a fixed structure.  
-- ✅ CRUD operations (Create, Read, Update, Delete) can be applied.  
-- ✅ Strict consistency and normalization rules.
-
-### 📌 **Examples:**  
-➡️ Banking systems, e-commerce, ERP, CRM systems.
-
-### 🖥️ **Example Python Code (SQLite):**  
-```python
+```{python}
 import sqlite3
+
 conn = sqlite3.connect(':memory:')
 cursor = conn.cursor()
-cursor.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)")
-cursor.execute("INSERT INTO users (name, age) VALUES ('Alice', 30)")
-cursor.execute("SELECT * FROM users")
-print(cursor.fetchall())
+cursor.execute("""
+    CREATE TABLE customers (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        city TEXT,
+        revenue REAL
+    )
+""")
+cursor.executemany("INSERT INTO customers VALUES (?, ?, ?, ?)", [
+    (1, 'Anna', 'Warsaw', 125000),
+    (2, 'Piotr', 'Krakow', 89000),
+    (3, 'Kasia', 'Gdansk', 210000),
+])
+cursor.execute("SELECT city, SUM(revenue) FROM customers GROUP BY city")
+for row in cursor.fetchall():
+    print(f"{row[0]}: {row[1]:,.0f} PLN")
 conn.close()
 ```
----
 
-## **2. Graph Data**  
+Advantages: consistency, normalization, ACID. Drawbacks: rigid schema, difficulty handling unstructured data.
 
-As business needs grew, graph data emerged, where relationships between objects are represented as nodes and edges.
 
-### 📌 **Features:** 
+### Semi-Structured Data — JSON, XML
 
-- ✅ Data describing relationships and connections.
-- ✅ Flexible structure (graphs instead of tables).
-- ✅ Allows analysis of connections (e.g., PageRank algorithms, centrality).
+With the rise of APIs and web applications, data emerged that has some structure but isn't strictly tabular. JSON became the lingua franca of data exchange between services.
 
-### 📌 **Examples:** 
-
-➡️ Social networks (Facebook, LinkedIn), search engines (Google), recommendation systems (Netflix, Amazon).
-
-### 🖥️ **Example Python Code (Karate Graph - NetworkX) **:
-```{python}
-import networkx as nx
-G = nx.karate_club_graph()
-nx.draw(G, with_labels=True)
-```
-
-## **3. Semi-structured Data (JSON, XML, YAML)**  
-
-These data are not fully structured like in SQL databases, but they have some schema.
-
-### 📌 **Features:** 
-
-- ✅ Hierarchical structure (e.g., key-value pairs, nested objects).
-- ✅ No strict schema (possibility to add new fields).
-- ✅ Popular in NoSQL systems and APIs.
-
-### 📌 **Examples:** 
-
-➡️ Documents in MongoDB, configuration files, REST APIs, log files.
-
-### 🖥️ **Example Python Code (JSON)**:
 ```{python}
 import json
-data = {'name': 'Alice', 'age': 30, 'city': 'New York'}
-json_str = json.dumps(data)
-print(json.loads(json_str))
+
+transaction = {
+    "id": "TX4521",
+    "amount": 1250.00,
+    "currency": "PLN",
+    "customer": {
+        "name": "Anna",
+        "segment": "premium"
+    },
+    "products": ["laptop", "mouse"]
+}
+
+print(json.dumps(transaction, indent=2, ensure_ascii=False))
 ```
 
-## **4. Text Data (NLP)**
-
-Text has become a key source of information, especially in sentiment analysis, chatbots, and search engines.
-
-### 📌 **Features:** 
-
-- ✅ Unstructured data requiring transformation.
-- ✅ Use of embeddings (e.g., Word2Vec, BERT, GPT).
-- ✅ Widely used in sentiment analysis and chatbots.
-
-### 📌 **Examples:** 
-
-➡️ Social media, emails, chatbots, machine translation.
-
-### 🖥️ **Example Python Code **:
+JSON is flexible — you can add new fields without changing the schema. That's why it dominates in NoSQL systems (MongoDB), REST APIs, and data streams (Kafka).
 
 
-```{python}
-import ollama
+### Unstructured Data
 
-# Przykładowe zdanie
-sentence = "Artificial intelligence is changing the world."
-response = ollama.embeddings(model='llama3.2', prompt=sentence)
-embedding = response['embedding']
-print(embedding[:4])
-```
-## **5. Multimedia Data (Images, Sound, Video)**
+Today, most generated data is unstructured: text (emails, reviews, posts), images, audio, video. These require specialized tools — NLP models (BERT, GPT), convolutional networks (CNN), or multimodal models.
 
-Modern data analysis systems also use images and sound.
+We won't cover these in detail in this course, but it's important to know that streaming systems (Kafka, Spark) can process all these data types.
 
-### 📌 **Features:** 
 
-- ✅ Require significant computational power (AI, deep learning).
-- ✅ Processed by CNN models (images) and RNN/Transformers (sound).
+### Streaming Data
 
-### 📌 **Examples:** 
+This is the newest "type" of data — or rather, a way of thinking about it. Every transaction, page click, sensor reading is an **event** appearing in a continuous stream.
 
-➡️ Face recognition, speech analysis, biometrics, video content analysis.
+The key shift in perspective: **data is always generated as a stream**. We decide whether to process it on the fly (streaming) or collect and analyze it later (batch).
 
-### 🖥️ **Example Python Code  (Image - OpenCV)** :
-
-```python
-import cv2
-image = cv2.imread('cloud.jpeg')
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-```
-# **6. Stream Data**
-
-Currently, streaming data analysis is rapidly evolving, where data is analyzed as it flows in real-time.
-
-### 📌 **Features:** 
-
-- ✅ Real-time processing.
-- ✅ Technologies such as Apache Kafka, Flink, Spark Streaming.
-
-### 📌 **Examples:** 
-
-➡️ Bank transactions (fraud detection), social media analysis, IoT.
-
-### 🖥️ **Example Python Code  (Streaming Bank Transactions)**:
 ```{python}
 import time
-transactions = [{'id': 1, 'amount': 100}, {'id': 2, 'amount': 200}]
-for transaction in transactions:
-    print(f"Processing transaction: {transaction}")
-    time.sleep(1)
+from datetime import datetime
+
+# Simulated event stream
+events = [
+    {"type": "purchase", "amount": 150, "store": "Warsaw"},
+    {"type": "return", "amount": 50, "store": "Krakow"},
+    {"type": "purchase", "amount": 2200, "store": "Warsaw"},
+]
+
+for e in events:
+    e["time"] = datetime.now().strftime("%H:%M:%S")
+    print(f"[{e['time']}] {e['type'].upper()}: {e['amount']} PLN ({e['store']})")
+    time.sleep(0.5)
 ```
-# **7. Sensor Data and IoT**
 
-Data from sensors and IoT devices is the next step in evolution.
 
-### 📌 **Features:** 
+## Data Processing Models
 
-- ✅ Often comes from billions of devices (big data).
-- ✅ Requires edge computing analysis.
+### OLTP — Transaction Processing
 
-### 📌 **Examples:** 
+The OLTP model (*Online Transaction Processing*) is classical transaction handling: recording an order, updating an account balance, registering a customer. OLTP systems (ERP, CRM, banking) are optimized for fast read/write operations on individual records.
 
-➡️ Smart homes, wearables, autonomous cars, industrial systems.
+Features:
 
-🖥️ Example Python Code (Sensor - Temperature):
+- CRUD operations (Create, Read, Update, Delete),
+- ACID guarantees (Atomicity, Consistency, Isolation, Durability),
+- normalized data schemas,
+- support for many concurrent users.
+
+Limitation: OLTP is not designed for complex analytics. A query like "what was the sales breakdown by region and product category over the last 12 months?" will overwhelm a transactional system.
+
+
+### OLAP — Analytical Processing
+
+The analytical problem was solved by creating **data warehouses** and the OLAP model (*Online Analytical Processing*).
+
+Data from multiple OLTP systems is collected via an **ETL** process (Extract–Transform–Load) and loaded into a single analytical database, optimized for aggregation and reporting.
+
+Typical analytical questions:
+
+- What is the sales breakdown by quarter, region, and category?
+- Which products generate losses?
+- What does the year-over-year sales trend look like?
+
+A data warehouse operates in **batch** mode — data is loaded periodically (e.g., daily), and reports are generated on demand.
+
 ```{python}
-import random
-def get_temperature():
-    return round(random.uniform(20.0, 25.0), 2)
-print(f"Current temperature: {get_temperature()}°C")
+import pandas as pd
+import numpy as np
+
+# Simulated warehouse data
+np.random.seed(42)
+n = 500
+df = pd.DataFrame({
+    'date': pd.date_range('2025-01-01', periods=n, freq='D'),
+    'region': np.random.choice(['Warsaw', 'Krakow', 'Gdansk', 'Wroclaw'], n),
+    'category': np.random.choice(['Electronics', 'Appliances', 'Clothing'], n),
+    'sales': np.random.uniform(1000, 50000, n).round(2)
+})
+
+# Typical OLAP query — pivot by region and category
+pivot = df.pivot_table(values='sales', index='region', columns='category', aggfunc='sum')
+print(pivot.round(0))
 ```
 
 
-# The Real Process of Data Generation
+### From Warehouses to Data Lakes
 
-Data is generated in an unlimited manner—it appears as a result of continuous system operations.  
-Today, you have generated a lot of data on your phone (even during this lecture!).  
-Will you not generate data in the next session or tomorrow?
+A data warehouse requires structured data and a strict schema. What if we want to store raw logs, images, IoT data, or JSON files as well?
 
-> Data is always generated as a form of a data stream.
+The answer is the **Data Lake** — a data store that accepts data in any format (schema-on-read instead of schema-on-write). Data is stored raw and structured only at the point of analysis.
 
-📌 Systems handling data streams:
+| Feature | Data Warehouse | Data Lake |
+|---|---|---|
+| **Schema** | Defined at load (ETL) | Defined at read |
+| **Data types** | Structured | Any (raw) |
+| **Users** | Business analysts | Data Scientists, engineers |
+| **Storage cost** | High | Low |
+| **Technologies** | SQL Server, Oracle, Teradata | Hadoop HDFS, S3, Azure Data Lake |
 
-- Data warehouses  
-- Device monitoring systems (IoT)  
-- Transactional systems  
-- Web analytics systems  
-- Online advertising  
-- Social media  
-- Logging systems  
 
-> A company is an organization that generates and responds to a continuous stream of data.
+## Big Data
 
-In batch processing, the source (and also the result) of data processing is a **file**.  
+The term *Big Data* describes situations where data exceeds the processing capabilities of traditional tools. It's characterized by the **5 V's**:
 
-It is written once and can be referenced multiple times (multiple processes or tasks can operate on it).  
+- **Volume** — terabytes and petabytes of data,
+- **Velocity** — the rate at which new data is generated,
+- **Variety** — different formats and sources,
+- **Veracity** — data quality and completeness,
+- **Value** — the actual business value hidden in the data.
 
-The file name serves as an identifier for the set of records.  
+Important distinction: **a data warehouse is not a Big Data system**. A warehouse stores structured data and serves reporting. Big Data is an ecosystem of tools for processing data of any structure and scale.
 
-In the case of a stream, an event is generated only once by a so-called producer (also referred to as a sender or provider).  
-The generated event can be processed by multiple so-called consumers (receivers).  
-Streaming events are grouped into so-called **topics**.
 
-# Big Data  
+### MapReduce — Historical Context
 
-When should you make a business decision?  
+When Google needed to process petabytes of web index data, traditional SQL databases weren't enough. In 2004, they published a paper describing **MapReduce** — a computational model where data is split into fragments processed in parallel across many machines.
 
-<img alt="Batch Processing" src="../img/batch0.png" class="center" />  
+Two steps:
 
-## **Hadoop Map-Reduce – Scaling Computation on Big Data**  
+1. **Map** — split data into fragments and process them independently.
+2. **Reduce** — aggregate partial results into the final answer.
 
-When we talk about **scalable data processing**, the first association might be **Google**.  
-But what actually enables us to search for information in a fraction of a second while processing petabytes of data?  
-
-👉 **Did you know that the name "Google" comes from the word "Googol," which represents the number 10¹⁰⁰?**  
-That's more than the number of atoms in the known universe! 🌌  
-
-### **🔥 Challenge: Can you write out the number Googol by the end of this lecture?**  
-
----  
-
-## **🔍 Why Are SQL and Traditional Algorithms Insufficient?**  
-
-Traditional **SQL databases** and **single-threaded algorithms** fail when data scales beyond a single computer.  
-This is where **MapReduce** comes in—a revolutionary computational model developed by Google.  
-
-### **🛠️ Google’s Solutions for Big Data:**  
-- ✅ **Google File System (GFS)** – a distributed file system.  
-- ✅ **Bigtable** – a system for storing massive amounts of structured data.  
-- ✅ **MapReduce** – an algorithm for distributing workloads across multiple machines. 
-
-## **🖼️ Graphical Representation of MapReduce**  
-
-### **1. Mapping Splits Tasks (Map)**  
-Each input is divided into smaller parts and processed in parallel.  
-
-🌍 Imagine you have a **phone book** and want to find all people with the last name "Nowak".  
-➡️ **Divide the book into sections and give each person one section to analyze.**  
-
-### **2. Reducing Gathers the Results (Reduce)**  
-All partial results are combined into one final answer.  
-
-🔄 **All students report their findings, and one student collects and summarizes the response.**  
-
-<img alt="MapReduce in action – distributing and aggregating data" src="../img/mapreduce_flow.png" class="center" />  
----
-
-## **💡 Classic Example: Counting Words in a Text**  
-Let's assume we have millions of books and we want to count how many times each word appears.  
-
-### **🖥️ MapReduce Code in Python (Using Multiprocessing)**  
-
-```python
-from multiprocessing import Pool
+```{python}
 from collections import Counter
 
-# Map function (splitting text into words)
+# Map: each text fragment processed independently
 def map_function(text):
-    words = text.split()
-    return Counter(words)
+    return Counter(text.split())
 
-# Reduce function (summing up results)
+# Reduce: aggregate results
 def reduce_function(counters):
-    total_count = Counter()
-    for counter in counters:
-        total_count.update(counter)
-    return total_count
+    total = Counter()
+    for c in counters:
+        total.update(c)
+    return total
 
 texts = [
-        "big data is amazing",
-        "data science and big data",
-        "big data is everywhere"
-    ]
-if __name__ == '__main__':    
-    with Pool() as pool:
-        mapped_results = pool.map(map_function, texts)
-    
-    final_result = reduce_function(mapped_results)
-    print(final_result)
+    "real time data analytics",
+    "stream processing and batch data processing",
+    "data analysis and machine learning"
+]
 
-# Counter({'data': 4, 'big': 3, 'is': 2, 'amazing': 1, 'science': 1, 'and': 1, 'everywhere': 1})
+results = [map_function(t) for t in texts]
+print(dict(reduce_function(results)))
 ```
-### **🔹  What’s Happening Here?**  
 
-- ✅ Each text fragment is processed independently (map).
-- ✅ The results are collected and summed (reduce).
-- ✅ Outcome: We can process terabytes of text in parallel!
+MapReduce (and Hadoop) revolutionized Big Data processing, but it was slow and cumbersome. That's why **Apache Spark** was created — a successor that's faster (in-memory processing) and simpler to use. Spark supports both batch and streaming modes — and it's what we'll use in the labs.
 
-<img alt="Batch Processing" src="../img/batch3.png" class="center" />
 
----  
+## Data Technology Timeline
 
-## **🎨 Visualization – Comparison of the Classic Approach and MapReduce**  
+- **1960s–70s:** relational databases, OLTP
+- **1980s–90s:** data warehouses, OLAP, data mining
+- **2004:** Google publishes MapReduce paper
+- **2005:** Hadoop — open-source MapReduce implementation
+- **2009:** Apache Kafka — distributed streaming platform (LinkedIn)
+- **2014:** Apache Spark — fast in-memory processing
+- **2020+:** Data Lakehouse, real-time ML, serverless analytics
 
-📊 **Old Approach** – A single computer processes everything sequentially.  
-📊 **New Approach (MapReduce)** – Each machine processes a fragment, and the results are aggregated.  
 
-<img alt="MapReduce Processing" src="../img/mapreduce_vs_classic.png" class="center" />  
+## Summary
 
----  
+In this lecture we traced the evolution from simple SQL tables to complex Big Data ecosystems. Key takeaways:
 
-## **🚀 Challenge for You!**  
+- Data evolved from structured (SQL) through semi-structured (JSON) to streaming (events).
+- Processing models evolved from OLTP through OLAP to Data Lakes.
+- MapReduce opened the Big Data era but was replaced by the faster Spark.
+- In the next lecture we'll focus on stream processing — the concept of time, latency, and time windows.
 
-🔹 **Find and run your own MapReduce algorithm in any programming language!**  
-🔹 **Can you implement your own MapReduce for a different task?** (e.g., log analysis, counting website clicks)  
 
----
+## Business Impact
 
-## **Big Data**  
-
-Big Data systems can serve as a source for data warehouses (e.g., Data Lake, Enterprise Data Hub).  
-
-However, Data Warehouses are **not** Big Data systems!  
-
-### **1. Data Warehouses** 
-
-- Store highly structured data  
-- Focused on analytics and reporting processes  
-- **100% accuracy**  
-
-### **2. Big Data** 
-
-- Can handle data of any structure  
-- Used for various data-driven purposes (analytics, data science, etc.)  
-- **Less than 100% accuracy**  
-
-> _"Big Data is like teenage sex: everyone talks about it, nobody really knows how to do it, everyone thinks everyone else is doing it, so everyone claims they are doing it."_  
-> — Dan Ariely, Professor of Psychology and Behavioral Economics, Duke University
-
-### One, Two, ... Four V  
-
-1. **Volume** – The size of data produced worldwide is growing at an exponential rate.  
-2. **Velocity** – The speed at which data is generated, transmitted, and processed.  
-3. **Variety** – Traditional data is alphanumeric, consisting of letters and numbers. Today, we also deal with images, audio, video files, and IoT data streams.  
-4. **Veracity** – Are the data complete and accurate? Do they objectively reflect reality? Are they a reliable basis for decision-making?  
-5. **Value** – The actual worth of the data. Ultimately, it's about cost and benefits.  
-
-> _"The purpose of computing is insight, not numbers."_ – R.W. Hamming, 1962.  
-
----
-
-## **Data Processing Models**  
-
-Data has always been processed in business.  
-Over the past decades, the amount of processed data has been steadily increasing, affecting the way data is prepared and handled.  
-
-### **A Bit of History**  
-
-- **1960s**: Data collections, databases  
-- **1970s**: Relational data models and their implementation in OLTP systems  
-- **1975**: First personal computers  
-- **1980s**: Advanced data models (extended-relational, object-oriented, application-oriented, etc.)  
-- **1983**: The beginning of the Internet  
-- **1990s**: Data mining, data warehouses, OLAP systems  
-- **Later**: NoSQL, Hadoop, SPARK, data lakes  
-- **2002**: AWS, **2005**: Hadoop, Cloud computing  
-
----
-
-Most data is stored in databases or data warehouses.  
-Typically, data access is performed through applications by executing queries.  
-
-The method of utilizing and accessing a database is called the **data processing model**.  
-The two most commonly used implementations are:  
-
-### **Traditional Model**  
-
-The **traditional model** refers to **online transaction processing (OLTP)**,  
-which excels at handling real-time tasks such as customer service, order management, and sales processing.  
-It is commonly used in **Enterprise Resource Planning (ERP) systems, Customer Relationship Management (CRM) software, and web-based applications**.  
-
-![](../img/baza1.png){.center}  
-
-This model provides efficient solutions for:  
-
-- Secure and efficient data storage  
-- Transactional data recovery after failures  
-- Optimized data access  
-- Concurrency management  
-- Event processing → read → write  
-
-However, what happens when we need to deal with:  
-
-- Aggregation of data from multiple systems (e.g., multiple stores)  
-- Reporting and data summarization  
-- Optimization of complex queries  
-- Business decision support  
-
-Research on these topics led to the formulation of a new **data processing model** and a new type of database – **Data Warehouses**.  
-
-### **OLAP Model**  
-
-**Online Analytical Processing (OLAP)**  
-
-OLAP supports **data analysis** and provides tools for **multidimensional analysis**  
-based on dimensions such as **time, location, and product**.  
-
-The process of extracting data from various systems into a single database is known as **Extract-Transform-Load (ETL)**,  
-which involves **normalization, encoding, and schema transformation**.  
-
-Analyzing data in a data warehouse mainly involves calculating **aggregates** (summaries) across different dimensions.  
-This process is **entirely user-driven**.  
-
-### **Example**  
-
-Imagine we have access to a data warehouse storing sales information from a supermarket.  
-How can we analyze queries such as:
-
-1. What is the total sales of products in the subsequent quarters, months, and weeks?
-2. What is the sales breakdown by product categories?
-3. What is the sales breakdown by supermarket branches?
-
-Answers to these questions help identify **bottlenecks** in product sales, plan inventory levels, and compare sales across different product groups and supermarket branches.
-
-In a **Data Warehouse**, two types of queries are most commonly executed (both in batch mode):
-
-1. Periodic queries that generate business statistics, such as reporting queries.
-2. Ad-hoc queries that support critical business decisions.
-
-![](../img/baza2.png){.center}
+Data variety allows companies to build a complete customer picture (Customer 360) — combining transactional data (SQL) with social media opinions (JSON/NLP). Moving from warehouses to Data Lakes reduces storage costs and opens the door to experimenting with new data sources — and that's the foundation of a data-driven culture.

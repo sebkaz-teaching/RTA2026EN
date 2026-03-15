@@ -1,239 +1,264 @@
 ---
-title:  Lecture 3
-
+title: "Lecture 3: Stream Processing — Time and Windows"
 format:
   html:
     code-fold: true
 jupyter: python3
 ---
-⏳ Duration: 1.5h
 
-*🎯 Lecture Goal*
+*Duration: 1.5h*
 
-Introducing students to the fundamentals of real-time analytics.
-
-
-# Data Streams: Understanding the Flow of Real-Time Information
-
-You might associate `streaming` with platforms that deliver video content online, such as Netflix or YT.
-When you’re watching your favorite TV show, for example, the streaming service continuously sends you `chunks` of video, allowing you to watch without waiting for the entire video to download.
-
-This concept of continuous, real-time delivery applies to streaming data. 
-However, the “chunks” of data don’t have to be video. 
-Instead, they could represent a wide range of information, such as continuous measurements from sensors in factories, power plants, or even monitoring systems in healthcare.
-
-The key idea here is that streaming data is generated continuously and needs to be processed in real time. 
-Unlike traditional batch processing (where large datasets are collected and analyzed later), stream processing works with live data, making it possible to detect issues, identify patterns, and make decisions in the moment.
-
-For instance, you can’t afford to wait for a production line to stop in order to analyze its data. 
-If a sensor detects an anomaly or failure, it needs to be logged immediately so that corrective action can be taken without delay. 
-This is the essence of stream processing—the continuous analysis of data as it flows.
-
-**Stream processing** refers to the continuous processing and analysis of large sets of data in motion.
-
-This can be compared to other aspects of Big Data. **Batch processing** is the opposite of stream processing – you first collect large amounts of data, and only then analyze them. 
-Of course, you could download the entire video before watching it, but would that really make sense?
-
-There are situations where a batch approach is sufficient, but you can already see that stream processing can offer additional business value that is difficult to achieve with traditional batch processing.
-
-[Interesting Information](https://aws.amazon.com/streaming-data/)
-
-### Real-Time Data Analytics vs. Event Stream Processing
-
-While both real-time data analytics and event stream processing involve the analysis of data with minimal delay, they are not the same thing.
-
-It’s easy to confuse real-time analytics with stream analytics (or event stream processing). 
-While stream analytics technologies enable real-time analysis, they are not the same thing!
-
-**Stream Analytics** (or event stream processing) involves analyzing a continuous stream of data, usually tied to a dedicated architecture. It focuses on events that occur over time—things like sensor readings, clicks on a website, or changes in stock prices.
-
-Typically, real-time analytics systems are divided into hard and soft real-time systems:
-- **Hard real-time systems** (e.g., flight control systems) require strict adherence to deadlines – any delay could have catastrophic consequences.
-- **Soft real-time systems** (e.g., weather stations) can tolerate some delays, although in extreme cases, it could lead to data loss.
-
-Moreover, while stream analytics assumes the presence of a dedicated streaming architecture, real-time analytics is not tied to any specific architecture.
-
-The key point is that real-time analytics means processing data within the time period that a business defines as "real-time" – this can range from a few milliseconds to a few seconds, depending on business needs.
-
-### Data Sources for Streaming:
-
-The variety of data sources that can feed into streaming systems is vast and spans several industries. Examples include:
-
-- IoT devices, equipment sensors,  
-- clickstreams,  
-- geolocation tracking,  
-- user interactions (e.g., user actions on your website),  
-- social media channels,  
-- stock market data,  
-- app activity.
-
-This real-time data is used by businesses to detect patterns, create visualizations, trigger alerts, and take immediate action.
-
-### Business Justification: The Need for Streaming Data
-
-The sheer volume and speed of modern data are unprecedented. 
-In 2025, IoT devices are expected to generate a staggering 79.4 zettabytes (ZB) of data. 
-Similarly, Twitter processes over 500 million tweets every day.
-
-The speed at which this data is generated means traditional batch processing is no longer enough. 
-Stream analytics is necessary for businesses to unlock insights from this massive flow of real-time information.
-
-For example, IoT sensors can detect anomalies in equipment performance, allowing maintenance teams to take proactive action. 
-In stock trading, real-time regression models can help traders make split-second decisions about buying and selling based on the latest market data.
-
-### Example Business Applications
-
-1. IoT Sensor Data and Anomaly Detection  - Sensors in factories or on machinery can generate continuous data streams. Stream analytics can detect anomalies in real-time, allowing immediate maintenance or corrective actions to prevent costly downtime or equipment failure.
-2. Stock Trading, Real-time regression models analyze price movements and help traders identify trends. Timely processing of streaming data can trigger trades in response to market changes—potentially within milliseconds.  
-3. Clickstream Analytics for Websites. Real-time analytics of website visitors’ actions can personalize the user experience, adjust content dynamically, or trigger targeted ads based on live user behavior.
-
-[8 Best Examples of Real-Time Data Analytics](https://www.linkedin.com/pulse/8-best-examples-real-time-data-analytics-bernard-marr/)  
-[Business Applications](https://www.forbes.com/sites/forbestechcouncil/2021/10/26/how-to-build-a-strong-business-case-for-streaming-analytics/?sh=eee8eaa465d0)
-
-## Definitions
-
-### Learn more about [streaming data](https://medium.com/cuelogic-technologies/analyzing-data-streaming-using-spark-vs-kafka-bcfdc33ac828)
-
-> **Definition 1** – **Event**: Any observable occurrence at a specific point in time. In data streams, events are immutable records that represent a specific action.
->
-> **Definition 2** – In the context of data, an *event* is encoded as JSON, XML, CSV, or in a binary format.  
->
-> **Definition 3** – **Continuous Event Stream**: An ongoing sequence of events that happen over time, such as logs from servers, sensor readings, or user activity.
->
-> **Definition 4** – **Data Stream**: A continuous flow of data from dynamic sources like sensor readings or log entries. These streams can be generated in real-time or derived from static sources like databases or files.
->
-> **A business is an organization that generates and responds to a continuous stream of events.**
-
-### **Stream Analytics**
-
-**Stream Analytics** (also called **Event Stream Processing**) refers to processing large amounts of data as they are generated, in real-time.
-
-Regardless of the technology used, all data exists as a **continuous stream of events**, including:
-- User actions on websites,  
-- System logs,  
-- Sensor measurements.
-
-## Time in Real-Time Data Analysis
-
-In batch processing, we analyze historical data, and the timing of the process is unrelated to when the events actually occurred.
-
-In stream processing, there are two key concepts of time:
-1. **Event Time** – the actual moment the event occurred.
-2. **Processing Time** – the moment the system processes the event.
-
-### Ideal Data Processing
-
-In an ideal scenario, processing happens immediately after the event occurs:
-
-<img alt="Ideal Processing" src="img/rys2_1.png" class="center" />
-
-### Real Data Processing
-
-In reality, data processing always involves some delay, visible as points below the ideal processing line (below the diagonal in the chart):
-
-<img alt="Real Processing" src="img/rys2_2.png" class="center" />
-
-In stream processing applications, the difference between event time and processing time is crucial. Common causes of delays include:
-
-- Data transmission over the network,
-- Lack of communication between the device and the network.
-
-An example of this is tracking the location of a car via a GPS application – passing through a tunnel might cause temporary data loss.
-
-### Handling Delays in Stream Processing
-
-Delays in event processing can be managed in two main ways:
-1. **Monitoring the number of missed events** and triggering an alarm if the number of rejected events exceeds a threshold.
-2. **Applying correction using watermarking**, which is an additional mechanism that accounts for delayed events.
-
-The process of real-time event processing can be represented as a step function:
-
-<img alt="Event Processing" src="img/rys2_3.png" class="center" />
-
-Not all events contribute to the analysis – some may be discarded due to excessive delays.
-
-By using **watermarking**, additional time is allowed for the appearance of delayed events. This process includes all events above the dashed line. However, there might still be cases where some points are skipped.
-
-<img alt="Watermarking Event Processing" src="img/rys2_4.png" class="center" />
-
-The situations illustrated in the charts explicitly indicate why the concept of time is a critical factor and needs to be clearly defined at the business requirements level. 
-Assigning timestamps to data (events) is a complex task.
-
-## **Time Windows in Stream Analytics**
-
-In stream processing, **time windows** allow grouping data into time-limited segments, enabling event analysis within specific time intervals. Depending on the use case, various types of windows are applied, tailored to the characteristics of the data and analytical requirements.
+**Goal:** Understand the fundamentals of stream processing — what a data stream is, how to interpret time in streaming systems, and how time windows work.
 
 ---
 
-### **1. Tumbling Window**  
-A tumbling window is a fixed-length window that **does not overlap** – each event belongs to only one window.  
+## Data Streams
 
-✅ **Characteristics:**  
-- Fixed window length  
-- No overlap between windows  
-- Ideal for dividing data into equal time segments  
+When you watch a series on a streaming platform, it delivers video fragments continuously. You don't wait for the entire file to download — data flows.
 
-📌 **Example:** Analyzing the number of orders in an online store every 5 minutes.  
+The same concept applies to business data. Every transaction, page click, sensor reading, or login event is an **event** that appears in a continuous, infinite stream.
 
-<img alt="Tumbling Window" src="img/rys2_5.png" class="center" />  
+An **event** is an immutable record describing something that happened at a specific point in time. It can be encoded as JSON, CSV, or a binary format. Once generated, an event doesn't change — it can be read but not modified.
 
----
+A **data stream** is an infinite sequence of events ordered in time.
 
-### **2. Sliding Window**  
-A sliding window includes all events occurring within a specific time interval, where the window **slides continuously**.  
+```{python}
+import json
+from datetime import datetime, timedelta
+import random
 
-✅ **Characteristics:**  
-- Each event can belong to multiple windows  
-- The window shifts by a specified interval  
-- Useful for detecting trends and anomalies  
+# Simulated e-commerce event stream
+random.seed(42)
+base_time = datetime(2026, 3, 9, 10, 0, 0)
 
-📌 **Example:** Tracking the average temperature over the last 10 minutes, updated every 2 minutes.  
+for i in range(8):
+    event = {
+        "event_id": f"E{1000+i}",
+        "timestamp": (base_time + timedelta(seconds=random.randint(1, 120))).isoformat(),
+        "type": random.choice(["page_view", "add_to_cart", "purchase"]),
+        "user_id": random.choice(["U01", "U02", "U03"]),
+        "value": round(random.uniform(10, 500), 2) if random.random() > 0.5 else None
+    }
+    print(json.dumps(event))
+```
 
-<img alt="Sliding Window" src="img/rys2_6.png" class="center" />  
+Systems that handle data streams: transactional systems, IoT monitoring, website analytics, online ads, social media, logging systems.
 
----
-
-### **3. Hopping Window**  
-A hopping window is similar to a tumbling window, but it allows **overlapping windows**, meaning one event can belong to multiple windows. It is used to smooth data.  
-
-✅ **Characteristics:**  
-- Fixed window length  
-- Overlapping windows  
-- Useful for noise reduction in data  
-
-📌 **Example:** Analyzing the number of website visitors every 10 minutes, but updated every 5 minutes to better capture trends.  
-
-<img alt="Hopping Window" src="img/rys2_7.png" class="center" />  
-
----
-
-### **4. Session Window**  
-A session window groups events based on **activity periods** and closes after a specified period of inactivity.  
-
-✅ **Characteristics:**  
-- Dynamic window length  
-- Defined by user activity  
-- Used in user session analysis  
-
-📌 **Example:** Analyzing user sessions on a website – the session lasts as long as the user is active, but ends after 15 minutes of inactivity.  
----
-
-### **Summary**  
-Different types of time windows are applied depending on the data's characteristics and the analysis objectives. Choosing the right window impacts the accuracy of results and the efficiency of the analytical system.  
-
-| Window Type | Characteristics | Use Cases |
-|-------------|-----------------|-----------|
-| **Tumbling** | Fixed length, no overlap | Periodic reports |
-| **Sliding**  | Fixed length, overlapping windows | Trend detection, anomaly detection |
-| **Hopping**  | Fixed length, partial overlap | Data smoothing |
-| **Session**  | Dynamic length, activity-dependent | User session analysis |
-
-Each window type has its unique use cases and helps with better interpretation of streaming data. The choice of method depends on business needs and the nature of the analyzed data.
+The key perspective shift from the previous lecture: in batch processing the data source is a **file** — written once, read many times. In stream processing the source is a **producer** that generates events continuously, and those events can be processed by multiple **consumers** simultaneously.
 
 
-In stream data analysis, interpreting time is a complex issue due to:
-1. Different systems having different clocks, leading to inconsistencies,
-2. Data arriving with delays, requiring watermarking and time window techniques,
-3. Different approaches to event time vs. processing time impacting result accuracy.
+## Stream Processing vs Real-Time Analytics
+
+These two concepts are often confused, but they mean different things.
+
+**Stream processing** is an architecture — we process data in motion as it arrives, instead of collecting it into files.
+
+**Real-time analytics** is a business requirement — data must be processed fast enough to meet the company's expectations. What "fast enough" means depends on context:
+
+- **Hard real-time systems** (e.g., flight control systems): any delay can have catastrophic consequences. Time guarantees are required.
+- **Soft real-time systems** (e.g., weather monitoring, dynamic pricing): some delay is tolerated, but shorter is better for business value.
+
+Stream processing *enables* real-time analytics, but doesn't guarantee it on its own — everything depends on architecture, infrastructure, and optimization.
 
 
+## Time in Streaming Systems
+
+In batch processing, time isn't critical — we analyze historical data, and the moment we run a report has no connection to when the analyzed events occurred.
+
+In stream processing, time is critical, and we distinguish two concepts:
+
+### Event Time
+
+The moment the event actually occurred. Assigned by the data source (e.g., sensor, application). This is the time we care about analytically.
+
+### Processing Time
+
+The moment the system processes the event. Always later than event time — because data must travel through the network, be received by the broker, and processed by the consumer.
+
+```{python}
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Illustration: event time vs processing time
+np.random.seed(42)
+n = 15
+event_times = np.sort(np.random.uniform(0, 10, n))
+delays = np.random.exponential(0.5, n)
+processing_times = event_times + delays
+
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.plot([0, 12], [0, 12], 'k--', alpha=0.3, label='Ideal processing (delay = 0)')
+ax.scatter(event_times, processing_times, c='steelblue', s=60, zorder=5)
+
+for i in range(n):
+    ax.plot([event_times[i], event_times[i]], [event_times[i], processing_times[i]],
+            'r-', alpha=0.3, linewidth=1)
+
+ax.set_xlabel('Event time')
+ax.set_ylabel('Processing time')
+ax.set_title('Latency: the gap between event time and processing time')
+ax.legend()
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 12)
+plt.tight_layout()
+plt.show()
+```
+
+In an ideal world, every event would be processed instantly — points would lie on the diagonal. In reality, there's always a delay (points below the diagonal). Causes: network transmission, temporary connectivity loss (e.g., driving through a tunnel), system overload.
+
+
+### Watermarking — Handling Late Events
+
+What to do with events that arrive late? Two strategies:
+
+1. **Discard** — ignore events that arrive after the window closes. Monitor the number of skipped events and alert when there are too many.
+
+2. **Watermarking** — define additional wait time for late events. A watermark is a marker saying: "all events up to this point should have arrived by now." Events arriving before the watermark are included; after it — discarded.
+
+```{python}
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
+
+np.random.seed(42)
+n = 20
+event_times = np.sort(np.random.uniform(0, 10, n))
+delays = np.random.exponential(0.8, n)
+processing_times = event_times + delays
+watermark_delay = 1.5
+
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.plot([0, 12], [0, 12], 'k--', alpha=0.3, label='Ideal processing')
+ax.plot([0, 12], [watermark_delay, 12 + watermark_delay], 'b--', alpha=0.4, label=f'Watermark (delay {watermark_delay}s)')
+
+for i in range(n):
+    in_window = processing_times[i] <= event_times[i] + watermark_delay + 0.5
+    color = 'green' if in_window else 'red'
+    ax.scatter(event_times[i], processing_times[i], c=color, s=50, zorder=5)
+
+ax.set_xlabel('Event time')
+ax.set_ylabel('Processing time')
+ax.set_title('Watermarking — handling late events')
+green_patch = mpatches.Patch(color='green', label='Included')
+red_patch = mpatches.Patch(color='red', label='Discarded (too late)')
+ax.legend(handles=[green_patch, red_patch, ax.lines[0], ax.lines[1]])
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 14)
+plt.tight_layout()
+plt.show()
+```
+
+Watermarking is a trade-off: longer wait time = more events included, but greater delay in producing results.
+
+
+## Time Windows
+
+In stream processing we can't analyze "all data" because the stream is infinite. Instead, we group events into **time windows** — bounded segments on which we perform computations.
+
+### Tumbling Window
+
+Fixed length, windows don't overlap. Each event belongs to exactly one window.
+
+Use case: periodic reports — e.g., transaction count every 5 minutes.
+
+```{python}
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+# Simulated events
+events = []
+t = datetime(2026, 3, 9, 10, 0, 0)
+for i in range(20):
+    t += timedelta(seconds=15 + (i * 7) % 30)
+    events.append({"time": t, "amount": 50 + i * 13})
+
+# Tumbling window: 1-minute windows
+windows = defaultdict(list)
+for e in events:
+    key = e["time"].replace(second=0)
+    windows[key].append(e["amount"])
+
+print("Tumbling Window (1 min):")
+for w, amounts in sorted(windows.items()):
+    print(f"  {w.strftime('%H:%M')} -> {len(amounts)} events, total: {sum(amounts)} PLN")
+```
+
+
+### Sliding Window
+
+Fixed length, but slides continuously. Each event can belong to multiple windows.
+
+Use case: moving averages — e.g., average temperature over the last 10 minutes, updated every 2 minutes.
+
+
+### Hopping Window
+
+Similar to tumbling, but windows can overlap. Window length and slide interval are two independent parameters.
+
+Use case: data smoothing — e.g., page traffic analysis every 10 minutes, updated every 5 minutes.
+
+
+### Session Window
+
+Dynamic length, defined by user activity. Closes after a specified period of inactivity (gap).
+
+Use case: user session analysis — e.g., a shopping session lasts as long as the user clicks, and ends after 15 minutes of inactivity.
+
+```{python}
+from datetime import datetime, timedelta
+
+# Simulated user session
+clicks = [
+    datetime(2026, 3, 9, 10, 0, 0),
+    datetime(2026, 3, 9, 10, 0, 30),
+    datetime(2026, 3, 9, 10, 1, 15),
+    datetime(2026, 3, 9, 10, 2, 0),
+    # gap > 5 minutes
+    datetime(2026, 3, 9, 10, 8, 0),
+    datetime(2026, 3, 9, 10, 8, 45),
+    datetime(2026, 3, 9, 10, 9, 10),
+]
+
+gap = timedelta(minutes=5)
+sessions = []
+session_start = clicks[0]
+prev = clicks[0]
+
+for k in clicks[1:]:
+    if k - prev > gap:
+        sessions.append((session_start, prev, (prev - session_start).seconds))
+        session_start = k
+    prev = k
+sessions.append((session_start, prev, (prev - session_start).seconds))
+
+print("Session Windows (gap = 5 min):")
+for i, (start, end, dur) in enumerate(sessions):
+    print(f"  Session {i+1}: {start.strftime('%H:%M:%S')} -> {end.strftime('%H:%M:%S')} ({dur}s)")
+```
+
+
+### Window Comparison
+
+| Window type | Length | Overlap | Typical use |
+|---|---|---|---|
+| **Tumbling** | Fixed | No | Periodic reports |
+| **Sliding** | Fixed | Yes (continuous) | Moving averages, trends |
+| **Hopping** | Fixed | Yes (stepped) | Data smoothing |
+| **Session** | Dynamic | No | User session analysis |
+
+
+## Summary
+
+In this lecture you learned the fundamentals of stream processing:
+
+- A data stream is an infinite sequence of events ordered in time.
+- Event time and processing time are two different things — managing that difference is a core challenge.
+- Watermarking handles late events.
+- Time windows group an infinite stream into finite segments for analysis.
+
+In the next lecture we'll explore **Apache Kafka** — a platform that implements these concepts in practice, along with microservice architecture and APIs.
+
+
+## Business Impact
+
+Time windows enable automation of decision processes: dynamic pricing in response to demand (sliding window), detecting unusual customer behavior (session window), or generating operational alerts (tumbling window). With stream analytics, a company detects problems as they happen — not a week later.

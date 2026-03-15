@@ -1,386 +1,230 @@
 ---
-title:  Lecture 4
-
+title: "Lecture 4: Apache Kafka and Microservices"
 format:
   html:
     code-fold: true
 jupyter: python3
 ---
-⏳ Duration: 1.5h
+
+*Duration: 1.5h*
+
+**Goal:** Learn Apache Kafka's architecture — a distributed streaming platform — and the concepts of microservices and APIs for serving data and ML models.
+
+---
+
+## From Monolith to Microservices
+
+Traditional IT systems were built as **monoliths** — a single large application where all functions (customer service, payments, reports, logging) are part of one codebase. Monoliths are simple at first, but quickly become hard to maintain — changing one module requires redeploying the whole thing.
+
+The answer to these problems is **microservices** — an architecture where the system consists of many small, independent services, each handling one task and communicating with others via APIs.
+
+Advantages of microservices:
+
+- Each service can be developed and deployed independently.
+- Failure of one service doesn't bring down the entire system.
+- Easy scaling — add instances only of the services that need it.
+- Different technologies can be used in different services.
+
+Challenges:
+
+- Communication complexity between services.
+- Need to monitor many components.
+- Managing distributed transactions.
+
+In practice, microservices run in **containers** (Docker), managed by orchestrators (Kubernetes), and communicate via **APIs** (REST, gRPC) or **asynchronous messaging systems** (Apache Kafka).
 
 
-## The Evolution of Architectural Approaches
+## REST API with FastAPI
 
-The development of technology, particularly the shift from monolithic to microservices architecture, has had a profound impact on modern information systems.
+An API (*Application Programming Interface*) is an interface through which services communicate with each other. In microservice architecture it's the **primary method of data exchange**.
 
-Monolithic applications, which were the dominant approach in the past, consisted of a single, large unit of code. While this approach had its advantages, such as simplicity during the initial stages of system development, it also presented significant drawbacks, including challenges with scaling, limited flexibility, and complex maintenance.
+When you visit a website, your browser sends an HTTP request to a server, which returns an HTML page. An API works the same way — except instead of HTML it returns data (usually in JSON format).
 
-As technology evolved, microservices emerged as a solution. This approach involves breaking an application into smaller, independent services, each responsible for a specific functionality. The shift to microservices enabled greater flexibility, easier system scaling, and faster deployment of new features. Additionally, each service can be developed, tested, and deployed independently, simplifying code management and reducing the risk of errors.
+### Key REST API Principles
 
-Thanks to microservices, organizations can better adapt to changing business needs, improve system availability (by isolating failures to individual services), and innovate more quickly. Furthermore, microservices promote the use of modern techniques like containerization and cloud solutions, which streamline infrastructure management and make better use of resources.
+- **Client–Server** — client sends a request, server returns a response.
+- **Statelessness** — each request contains all information needed to handle it. The server doesn't remember previous requests.
+- **HTTP Methods** — GET (retrieve), POST (create), PUT (update), DELETE (remove).
 
-However, despite the many benefits, transitioning to microservices also comes with challenges, such as:
+### Example: a simple microservice in FastAPI
 
-- Complexity in managing communication between services
-- The need to monitor and maintain a larger number of components
-- Managing distributed transactions
-
-These challenges require new tools and approaches to management, as well as the implementation of a DevOps culture.
-
-With the development of microservices, new technologies such as serverless and containerization have emerged, serving as natural extensions of system flexibility. These technologies further enhance the efficiency of managing and scaling modern applications, becoming key components of the cloud ecosystem.
-
-### Serverless
-
-Serverless is a model where developers don’t have to manage servers or infrastructure. Instead, cloud providers take care of all the infrastructure, allowing developers to focus solely on the application code. The key advantage of this approach is its scalability – applications automatically scale based on resource demand. Serverless systems allow functions to be dynamically started and stopped in response to specific events, leading to cost optimization (you only pay for the actual resource usage). This approach simplifies managing applications with variable or unpredictable traffic.
-
-Serverless is also a great complement to microservices, enabling the deployment of independent functions in response to various events, which offers even greater flexibility. It can be used for applications such as real-time data processing, API handling, and task automation.
-
-### Containerization
-
-Containerization (e.g., using Docker) is another step toward increasing flexibility. With containers, applications and their dependencies are packaged into isolated units that can be run across different environments in a consistent and predictable manner. Containers are lightweight, fast to deploy, and offer easy portability across platforms, which is crucial in microservice architectures.
-
-Containerization is gaining significance, especially when combined with container management tools like Kubernetes, which automatically scales applications, monitors their status, ensures high availability, and manages their lifecycle. This approach perfectly supports both microservices and serverless, enabling easy deployment, scaling, and monitoring of applications.
-
-### Common Goal – Flexibility
-
-Both serverless and containerization represent a further step towards flexibility, offering the ability to quickly adapt to changing conditions and demands. Together with microservices, they form a modern approach to application architecture that allows for the separation of responsibilities, easier scaling, dynamic resource allocation, and better utilization of cloud infrastructure.
-
-The combination of these technologies allows businesses to rapidly deploy new features, respond to changing user needs, and minimize costs by optimizing resource usage – all of which are particularly important in today’s fast-evolving technological landscape.
-
-
-
-## The Impact of Technology on Information Systems
-
-Networking communication, relational databases, cloud solutions, and Big Data have significantly transformed the way information systems are built and how work is carried out within them.
-
-Similarly, information-sharing tools such as newspapers, radio, television, the internet, messaging apps, and social media have influenced human interactions and social structures. 
-Each new technological medium shapes how people use computing and perceive its role in everyday life.
-
-## Microservices architecture
-
-The concept of microservices is essential to understand when working on architectures. Although there are other ways to architecture software projects, `microservices` are famous for a good reason. They help teams be flexible and effective and help to keep software loose and structured. 
-
-The idea behind microservices is in the name: of software is represented as many small services that operate individually. 
-When looking at the overall architecture, each of the microservices is inside a small black box with clearly defined inputs and outputs.
-
-An often-chosen solution is to use Application Programming Interfaces ( **API**) to allow different microservices to communicate
-
-### Main Advantages of Microservices:
-
-- Efficiency – Each service performs a single, well-defined task (“do one thing, but do it well”).
-- Flexibility – They allow for easy modifications and scaling of the system.
-- Architecture Transparency – The system consists of small, independent modules.
-
-Microservices can be compared to pure functions in functional programming – each service operates independently and has clearly defined inputs and outputs.
-
-To enable communication between microservices, Application Programming Interfaces (APIs) are often used, allowing data exchange and integration between different services.
-
-Example of an API in Microservices – Python & FastAPI
-Below is an example of a REST API microservice in Python using FastAPI, which returns user information:
 ```python
 from fastapi import FastAPI
 
 app = FastAPI()
 
-# Przykładowe dane użytkowników
-users = {
-    1: {"name": "Anna", "age": 28},
-    2: {"name": "Piotr", "age": 35},
-    3: {"name": "Kasia", "age": 22},
+customers = {
+    1: {"name": "Anna", "city": "Warsaw", "segment": "premium"},
+    2: {"name": "Piotr", "city": "Krakow", "segment": "standard"},
+    3: {"name": "Kasia", "city": "Gdansk", "segment": "premium"},
 }
 
-@app.get("/users/{user_id}")
-def get_user(user_id: int):
-    """Zwraca dane użytkownika na podstawie ID."""
-    return users.get(user_id, {"error": "User not found"})
+@app.get("/customers/{customer_id}")
+def get_customer(customer_id: int):
+    """Returns customer data by ID."""
+    return customers.get(customer_id, {"error": "Customer not found"})
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+@app.get("/customers/")
+def list_customers(segment: str = None):
+    """Returns customer list, optionally filtered by segment."""
+    if segment:
+        return {k: v for k, v in customers.items() if v["segment"] == segment}
+    return customers
 ```
 
-1. We start the FastAPI server.
-2. We can retrieve user data by sending a GET request to http://127.0.0.1:8000/users/1.
-3. The API will return the data in JSON format, for example:
-```json
-{
-    "name": "Anna",
-    "age": 28
-}
-```
+After starting (`uvicorn main:app --reload`), the server listens on `http://localhost:8000`. You can test:
 
-### Communication through API
-
-A central component in microservice architectures is the use of APIs. 
-An API is a part that allows you to connect two microservices. APIs are much like websites. 
-Like a website, the server sends You the code that represents the website. 
-Your internet browser then interprets this code and shows you a web page. 
-
-#### Let's take a business case with the ML model as a service.
-
-Let’s assume you work for a company that sells apartments in Boston.
-We want to increase our sales and offer better quality services to our customers with a new mobile application which can be used even by 1 000 000 people simultaneously. 
-We can realize this by serving a prediction of house value when the user requests for pricing over the web.
-
-#### Serving a Model 
-
-- Training a good ML model is ONLY the first part:
-You do need to make your model available to your end-users
-You do this by either providing access to the model on your server.
-- When serving ML Model You need: a model, an interpreter, input data.
-- Important Metrics:
-
-1. Latency,
-2. Cost,
-3. Throughput (number of requests served per unit time)
-
-> Sharing data between two or more systems has always been a fundamental requirement of software development – DevOps vs MLOps.
-
-Building a system ready for a production environment is more complex than training the model itself:
-- Cleaning and loading appropriate and validated data
-- Calculating variables and serving them in the correct environment
-- Serving the model in the most cost-efficient way
-- Versioning, tracking, and sharing data, models, and other artifacts
-- Monitoring the infrastructure and the model
-- Deploying the model on scalable infrastructure
-- Automating the deployment and training process
+- `GET /customers/1` — Anna's data
+- `GET /customers/?segment=premium` — all premium customers
+- `GET /docs` — automatic API documentation (Swagger UI)
 
 
-When you call an API, the API will receive your request. The request triggers your code to be run on the server and generates a response sent back to you. If something goes wrong, you may not receive any reply or receive an error code as an HTTP status code. 
+### ML Model as a Service
 
-- **Client-Server**: Client (system A) requests to a URL hosted by system B, which returns a response. 
-It’s identical to how a web browser works. 
-A browser requests for a specific URL. 
-The request is routed to a web server that returns an HTML (text) page.
+Training a good ML model is just the first step. To make it useful, you need to **serve** it to end users — most commonly as an API.
 
-- **Stateless**: The client request should contain all the information necessary to respond.
-
-You can call APIs with a lot of different tools. 
-Sometimes, you can even use your web browser. 
-Otherwise, tools such as CURL do the job on the command line. 
-You can use tools such as Postman for calling APIs with the user interface.
-
-> All communication is covered in fixed rules and practices, which are called the HTTP protocol.
-
-Example: API Serving an ML Model
-Below is an example of an API service that exposes an ML model for predicting real estate prices, using FastAPI and Scikit-Learn:
 ```python
 from fastapi import FastAPI
 import pickle
 import numpy as np
 
-# Tworzymy API
 app = FastAPI()
 
-# Wczytujemy wcześniej wytrenowany model ML (np. regresję liniową)
+# Load trained model
 with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
 @app.get("/predict/")
-def predict_price(area: float, bedrooms: int, age: int):
-    """
-    Real Estate Price Prediction Based on Features:
-    - area ( m²),
-    - bedrooms (#),
-    - age .
-    """
-    features = np.array([[area, bedrooms, age]])
+def predict_price(area: float, bedrooms: int, building_age: int):
+    """Real estate price prediction."""
+    features = np.array([[area, bedrooms, building_age]])
     price = model.predict(features)[0]
     return {"estimated_price": round(price, 2)}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
 ```
 
+A request `GET /predict/?area=65&bedrooms=3&building_age=10` returns the estimated property price. A million users can simultaneously use the same model.
 
-### Request
+Key model serving metrics:
 
-1.  An Endpoint URL a domain, port, path, query string - http://mydomain:8000/getapi?&val1=43&val2=3
-2.  The HTTP methods - GET, POST
-3.  HTTP headers contain authentication information, cookies metadata
-        - Content-Type: application/json, text ... Accept: application/json, Authorization: Basic abase64string, Tokens etc
-4.  Request body
+- **Latency** — response time per request,
+- **QPS** (*Queries Per Second*) — number of requests handled per second,
+- **Infrastructure cost** — how much we pay for servers.
 
-The most common format for interaction between services is the `JavaScript Object Notation` format.
-it is a data type that very strongly resembles the dictionary format in Python - key-value object.  
-
-```json
-{
-"RAD": 1,
-"PTRATIO": 15.3, "INDUS": 2.31, "B": 396.9,
-"ZN": 18,
-"DIS": 4.09, "CRIM": 0.00632, "RM": 6.575, "AGE": 65.2, "CHAS": 0, "NOX": 0.538, "TAX": 296, "LSTAT": 4.98
-}
-```
-
-### Response
-
-1. The response payload is defined in the response header: 
-```bash
-200 OK
-Content-Encoding: gzip
-Content-Type: text/html; charset=utf-8
-Date: Mon, 18 Jul 2016 16:06:00 GMT Server: Apache
-Path=/;
-```
-
-2. Header example: "Content-Type" => "application/json; charset=utf-8", "Server" => "Genie/Julia/1.8.5
-
-3. Body example: 
-```json
-{":input":{"RAD":1,"PTRATIO":15.3,"INDUS":2.31,.....}}, {":prediction":[29.919737211857683]}
-```
-4. HTTP status code:
-• 200 OK is used for successful requests,
-• 40X Access Denied
-• 50X Internal server error
-
-#### REST API
-
-The Representational State Transfer (REST) API works just like other APIs, but it follows a certain set of style rules that make it reconizable as a REST API: 
-- Client-server architecture
-- Statelessnes
-- Cacheability
-- Layered system 
-- Uniform Interface
-
-## Publish/Subscribe
-
-The “Publish/Subscribe” messaging system is crucial for data-driven applications. Pub/Sub messages are a pattern in which the sender (publisher) of a piece of data (message) does not directly target a specific receiver. Pub/Sub systems often have a broker, which is a central point where the messages are stored.
 
 ## Apache Kafka
 
-On the [Kafka website](https://kafka.apache.org), you will find the definition:
+Apache Kafka is a **distributed platform for stream data processing**. It was created at LinkedIn in 2009 and has been developed as an Apache project since 2012.
 
-### Distributed Streaming Platform
+Kafka is not a regular message queue. The difference is fundamental.
 
-What is a “distributed streaming platform”?
+### Kafka vs Traditional Queue
 
-First, I want to remind you what a “stream” is. Streams are simply limitless data, data that never ends. They keep coming in, and you can process them in real-time.
+In a classical queue system (e.g., RabbitMQ), a message is **deleted after being read**. One consumer picks it up and it's gone.
 
-And what does “distributed” mean? Distributed means that Kafka runs in a cluster, and each node in the group is called a Broker. These brokers are just servers that perform copies of Apache Kafka.
+In Kafka, messages are **stored on disk** for a configured retention period (e.g., 7 days). Multiple consumers can read the same data independently. A consumer that restarts can resume from where it left off.
 
-So, Kafka is a set of machines working together to handle and process limitless data in real-time.
+### Kafka Architecture
 
-Brokers make it reliable, scalable, and fault-tolerant. But why is there a misconception that Kafka is just another “queue-based messaging system”?
+Kafka consists of several key components:
 
-To answer this, we first need to explain how a queue-based messaging system works.
+**Broker** — a Kafka server. A Kafka cluster is a group of brokers working together. If one goes down, the others take over its responsibilities.
 
-### Queue-Based Messaging System
+**Topic** — a logical channel to which producers send messages and from which consumers read them. Think of it as a folder — grouping related events (e.g., topic `transactions`, topic `logs`, topic `orders`).
 
-Message passing is simply the act of sending a message from one place to another. It has three main “actors”:
-- Producer: Creates and sends messages to one or more queues.
-- Queue: A data structure that buffers messages, receiving them from producers and delivering them to consumers in a FIFO (First-In-First-Out) manner. Once a message is received, it is permanently removed from the queue; there is no chance of retrieving it.
-- Consumer: Subscribes to one or more queues and receives their messages after they are published.
+**Partition** — a physical division of a topic. Each partition is an ordered, immutable sequence of messages. Partitions enable parallel processing — more partitions means more consumers can read simultaneously.
 
-And that’s it; this is how message passing works. As you can see, there is nothing about streams, real-time processing, or clusters in this.
+**Offset** — a unique message identifier within a partition. A consumer tracks its offset — knowing which messages it has already processed.
 
-### Apache Kafka Architecture
-
-For more information about Kafka, you can visit this [link](https://www.cloudkarafka.com/blog/part1-kafka-for-beginners-what-is-apache-kafka.html).
-
-Now that we understand the basics of message passing, let’s dive into the world of Apache Kafka.
-In Kafka, there are two key concepts: Producers and Consumers, who work similarly to classic queue-based systems, producing and consuming messages.
+**Replication** — each partition can be replicated across multiple brokers. If one broker fails, data isn't lost.
 
 
-<br>
+### Producer
 
-<img src="img/kafka1.png" class="center" />
+A producer is an application that sends messages to a Kafka topic.
 
-As seen, Kafka resembles a classic messaging system; however, unlike traditional queues, Kafka uses Topics instead of the concept of a queue.
-
-Topics and Partitions
-
-A Topic is the fundamental data transmission channel in Kafka.
-It can be compared to a folder where messages are stored.
-
-Each topic has one or more partitions. 
-This division impacts scalability and load balancing.
-When creating a topic, the number of partitions is defined.
-
-#### Key Features of Topics and Partitions:
-- Topic is a logical unit where producers send messages, and consumers read them.
-- Partition is a physical subdivision of a topic. It can be compared to files in a folder.
-- Offset – Each message in a partition gets a unique identifier (offset), which allows consumers to track which messages have already been processed.
-- Kafka stores messages on disk, allowing them to be read again (unlike traditional queues, where a message is deleted after being processed).
-- Consumers read messages sequentially, from the oldest to the newest.
-- In case of failure, a consumer can resume processing from the last saved offset.
-
-<img src="img/kafka2.png" class="center" />
-
-### Kafka Brokers and Cluster
-
-Kafka operates in a distributed manner – this means it can consist of multiple brokers, which work together as a single cluster.
-
-<br>
-
-<img src="img/kafka3.png" class="center" />
-
-Key Information about Brokers
-- A Broker is a single server in a Kafka cluster, responsible for storing the partitions of topics.
-- Each broker in the cluster has a unique identifier.
-- To increase availability and reliability, Kafka uses data replication.
-- The replication factor defines how many copies of a partition should be stored on different brokers.
-- If a topic has three partitions and a replication factor of three, it means each partition will be replicated across three different brokers.
-
-The number of partitions should be chosen in a way that each broker handles at least one partition.
-
-### Producers
-
-In Kafka, producers are applications or services that create and send messages to topics.
-This works similarly to queue systems, except Kafka writes messages to partitions.
-
-#### How does Kafka assign messages to partitions?
-- Messages are distributed round-robin to available partitions.
-- We can specify a message key, and Kafka will calculate its hash to determine which partition the message will go to.
-- The message key determines the partition assignment – once the topic is created,
-the number of partitions cannot be changed without disrupting this mechanism.
-
-Example of message assignment to partitions:
-- Message 01 goes to partition 0 of topic Topic_1.
-- Message 02 goes to partition 1 of the same topic.
-- The next message may go back to partition 0 if round-robin assignment is applied.
-
-```python 
+```python
 from kafka import KafkaProducer
+import json
 
-# Tworzymy producenta Kafka
-producer = KafkaProducer(bootstrap_servers="localhost:9092")
+producer = KafkaProducer(
+    bootstrap_servers="localhost:9092",
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+)
 
-# Wysyłamy wiadomość do tematu "real_estate"
-topic = "real_estate"
-message = b"new flat "
+transaction = {
+    "id": "TX5001",
+    "amount": 1250.00,
+    "store": "Warsaw",
+    "type": "purchase"
+}
 
-producer.send(topic, message)
+producer.send("transactions", value=transaction)
 producer.flush()
-
-print(f"Message in topic: '{topic}'")
+print(f"Sent: {transaction}")
 ```
-### Consumers
 
-Consumers in Kafka read and process messages from topics.
-Each consumer can belong to a consumer group, which allows parallel message processing.
-- If multiple consumers belong to the same group, Kafka balances the load between them.
-- If one consumer fails, Kafka will automatically reassign its partitions to another active consumer.
+How Kafka assigns messages to partitions:
+
+- Default: *round-robin* algorithm — successive messages go to successive partitions.
+- With a key: if we provide a message key (e.g., `store`), Kafka computes its hash and always assigns messages with the same key to the same partition. This guarantees event ordering per key.
+
+
+### Consumer
+
+A consumer reads messages from a topic and processes them.
 
 ```python
 from kafka import KafkaConsumer
+import json
 
-# Tworzymy konsumenta, który nasłuchuje temat "real_estate"
-consumer = KafkaConsumer("real_estate", bootstrap_servers="localhost:9092")
+consumer = KafkaConsumer(
+    "transactions",
+    bootstrap_servers="localhost:9092",
+    auto_offset_reset="earliest",
+    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+)
 
-print("Wait for new message...")
-
+print("Listening for transactions...")
 for message in consumer:
-    print(f"new message: {message.value.decode()}")
+    t = message.value
+    print(f"[offset={message.offset}] {t['id']}: {t['amount']} PLN ({t['store']})")
 ```
-Another important concept in Kafka is Consumer Groups.
-This is crucial when we need to scale the reading of messages.
-It becomes costly when a single consumer must read from many partitions, so we need to balance the load between our consumers, and this is where consumer groups come in.
 
-Data from a single topic will be load-balanced between consumers, ensuring that our consumers can handle and process the data efficiently.
-The ideal scenario is to have the same number of consumers in the group as there are partitions in the topic, so each consumer only reads from one partition.
-When adding consumers to a group, be cautious — if the number of consumers exceeds the number of partitions, some consumers will not read from any topic and will remain idle.
-</br>
-<img src="img/kafka4.png" class="center" />
+### Consumer Groups
+
+When a single consumer can't keep up with processing, we add more consumers to a **group**. Kafka automatically distributes partitions among consumers in the group:
+
+- Each partition is assigned to exactly one consumer in the group.
+- Ideally: as many consumers as partitions.
+- If a consumer fails, Kafka reassigns its partitions to another consumer (rebalancing).
+
+This mechanism ensures **scalability** — you add consumers as load grows.
+
+
+### Publish/Subscribe Pattern
+
+Kafka implements the **Pub/Sub** pattern — a producer publishes messages to a topic, and any number of consumers (from different groups) can independently read them. This is the fundamental difference from classical queues, where a message goes to only one receiver.
+
+Example: a producer sends transactions to the `transactions` topic. Simultaneously:
+
+- Group A (anti-fraud system) analyzes them for fraud.
+- Group B (reporting module) generates sales statistics.
+- Group C (recommendation engine) updates customer profiles.
+
+Each group reads the same data independently.
+
+
+## Summary
+
+In this lecture you learned:
+
+- Microservice architecture and why it's replacing monoliths.
+- REST APIs with FastAPI — serving data and ML models.
+- Apache Kafka — a distributed streaming platform: brokers, topics, partitions, offsets, producers, consumers, consumer groups.
+
+In the labs, you'll set up Kafka in Docker and write your own producer and consumer. In the next (final) lecture, we'll cover machine learning in the context of stream processing.
+
+
+## Business Impact
+
+Microservice architecture built on Kafka gives a company flexibility — new business features can be deployed without stopping the entire system. Serving ML models via API opens the door to *API Economy* — monetizing algorithms as products for external partners. Containerization (Docker) converts fixed infrastructure costs (Capex) into variable costs (Opex), which is key to data-driven project profitability.
