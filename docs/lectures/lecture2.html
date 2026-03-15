@@ -267,7 +267,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="structured-data-sql-tables" class="level3">
 <h3 class="anchored" data-anchor-id="structured-data-sql-tables">Structured Data — SQL Tables</h3>
 <p>For decades, business data was stored in relational databases — tables with columns following a strict schema. This remains the foundation of most transactional systems.</p>
-<div id="7e76e467" class="cell" data-execution_count="1">
+<div id="751e17f7" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
@@ -303,7 +303,7 @@ Warsaw: 125,000 PLN</code></pre>
 <section id="semi-structured-data-json-xml" class="level3">
 <h3 class="anchored" data-anchor-id="semi-structured-data-json-xml">Semi-Structured Data — JSON, XML</h3>
 <p>With the rise of APIs and web applications, data emerged that has some structure but isn’t strictly tabular. JSON became the lingua franca of data exchange between services.</p>
-<div id="95c7f494" class="cell" data-execution_count="2">
+<div id="90d4f16c" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
@@ -348,7 +348,7 @@ Warsaw: 125,000 PLN</code></pre>
 <h3 class="anchored" data-anchor-id="streaming-data">Streaming Data</h3>
 <p>This is the newest “type” of data — or rather, a way of thinking about it. Every transaction, page click, sensor reading is an <strong>event</strong> appearing in a continuous stream.</p>
 <p>The key shift in perspective: <strong>data is always generated as a stream</strong>. We decide whether to process it on the fly (streaming) or collect and analyze it later (batch).</p>
-<div id="ed700834" class="cell" data-execution_count="3">
+<div id="ea7db085" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
@@ -367,9 +367,9 @@ Warsaw: 125,000 PLN</code></pre>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[23:09:10] PURCHASE: 150 PLN (Warsaw)
-[23:09:10] RETURN: 50 PLN (Krakow)
-[23:09:11] PURCHASE: 2200 PLN (Warsaw)</code></pre>
+<pre><code>[23:16:44] PURCHASE: 150 PLN (Warsaw)
+[23:16:45] RETURN: 50 PLN (Krakow)
+[23:16:45] PURCHASE: 2200 PLN (Warsaw)</code></pre>
 </div>
 </div>
 </section>
@@ -399,7 +399,7 @@ Warsaw: 125,000 PLN</code></pre>
 <li>What does the year-over-year sales trend look like?</li>
 </ul>
 <p>A data warehouse operates in <strong>batch</strong> mode — data is loaded periodically (e.g., daily), and reports are generated on demand.</p>
-<div id="0f1edb66" class="cell" data-execution_count="4">
+<div id="a2816a92" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -495,7 +495,7 @@ Wroclaw    1053424.0  987009.0    1583392.0</code></pre>
 <li><strong>Map</strong> — split data into fragments and process them independently.</li>
 <li><strong>Reduce</strong> — aggregate partial results into the final answer.</li>
 </ol>
-<div id="c196ba2f" class="cell" data-execution_count="5">
+<div id="9df57847" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>

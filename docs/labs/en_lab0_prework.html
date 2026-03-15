@@ -403,7 +403,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-4.3-access-jupyterlab" class="level3">
 <h3 class="anchored" data-anchor-id="task-4.3-access-jupyterlab">Task 4.3 – Access JupyterLab</h3>
-<p>Open your browser and go to: <code>http://localhost:8888</code></p>
+<p>Open your browser and go to: <code>http://localhost:8999</code></p>
+<p>password: root</p>
 <p>You should see the JupyterLab interface. Create a new notebook and run:</p>
 <div id="cell-4" class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run this in a JupyterLab notebook inside the Docker environment</span></span>
@@ -416,7 +417,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="task-4.4-verify-kafka-is-running" class="level3">
 <h3 class="anchored" data-anchor-id="task-4.4-verify-kafka-is-running">Task 4.4 – Verify Kafka is running</h3>
 <p>Open a <strong>terminal inside JupyterLab</strong> (File &gt; New &gt; Terminal) and run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kafka/bin/kafka-topics.sh</span> <span class="at">--list</span> <span class="at">--bootstrap-server</span> broker:9092</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kafka-topics.sh</span> <span class="at">--list</span> <span class="at">--bootstrap-server</span> broker:9092</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If it returns without errors (may show empty list), Kafka is running.</p>
 </section>
 <section id="task-4.5-stop-the-environment" class="level3">
