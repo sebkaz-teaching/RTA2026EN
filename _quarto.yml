@@ -18,9 +18,9 @@ website:
         - href: lectures/lecture4.qmd
         - href: lectures/lecture5.qmd
         - href: labs/en_lab0_prework.ipynb
-      # - section: "Labs"
-      #   contents:
-      #   - href: labs/en_lab1.ipynb
+      - section: "Labs"
+        contents:
+        - href: labs/en_lab1.ipynb
       #   - href: labs/en_lab2.ipynb
       #   - href: labs/en_lab3.ipynb
       #   - href: labs/en_lab4.ipynb

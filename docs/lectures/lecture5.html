@@ -246,6 +246,23 @@ window.Quarto = {
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Labs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/en_lab1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -295,7 +312,7 @@ window.Quarto = {
 <section id="offline-learning-batch-learning" class="level3">
 <h3 class="anchored" data-anchor-id="offline-learning-batch-learning">Offline Learning (Batch Learning)</h3>
 <p>The classical approach: collect historical data, train a model, deploy it — and the model doesn’t change until you retrain it on new data.</p>
-<div id="d0875734" class="cell" data-execution_count="1">
+<div id="a964a658" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -323,7 +340,7 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="online-learning-incremental-learning">Online Learning (Incremental Learning)</h3>
 <p>An alternative approach: the model learns <strong>continuously</strong>, updating its parameters with each new observation (or small batch).</p>
 <p>Key algorithm: <strong>Stochastic Gradient Descent (SGD)</strong> — instead of computing the gradient on the entire dataset, we update weights after each observation.</p>
-<div id="50a42cc8" class="cell" data-execution_count="2">
+<div id="1b830270" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> SGDRegressor</span>
@@ -414,7 +431,7 @@ window.Quarto = {
 <p>The simplest method: an observation is an anomaly if it lies far from the median. Formally, a value is an outlier when:</p>
 <p><span class="math display">\[x_{out} &lt; Q_1 - 1.5 \times IQR \quad \text{or} \quad x_{out} &gt; Q_3 + 1.5 \times IQR\]</span></p>
 <p>where <span class="math inline">\(IQR = Q_3 - Q_1\)</span> (interquartile range).</p>
-<div id="815cb318" class="cell" data-execution_count="3">
+<div id="83d2dabd" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -462,7 +479,7 @@ Anomalies: [4500, 8200]</code></pre>
 <h3 class="anchored" data-anchor-id="isolation-forest">Isolation Forest</h3>
 <p><strong>Isolation Forest</strong> is a tree-based algorithm designed specifically for anomaly detection (Liu, Ting, Zhou, 2008). It works on a simple intuition: <strong>anomalies are easier to isolate</strong> than normal observations.</p>
 <p>The algorithm randomly selects a feature and a split point. Outliers — being far from the rest — get isolated after fewer splits (closer to the tree root). Normal observations require many splits.</p>
-<div id="5d9ad505" class="cell" data-execution_count="4">
+<div id="47668c53" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -555,7 +572,7 @@ Anomalies: [4500, 8200]</code></pre>
 <li>Checks how the model reacts to those changes.</li>
 <li>Builds a simple, interpretable local model (e.g., linear regression) that approximates the complex model’s behavior in the neighborhood of that observation.</li>
 </ol>
-<div id="511b81b3" class="cell" data-execution_count="5">
+<div id="4fe3669e" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>

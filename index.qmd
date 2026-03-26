@@ -9,7 +9,7 @@ Code: 222891-D
 Spring semester 2025/2026,
 SGH Warsaw School of Economics
 
-Detailed course description is available in the [syllabus](syllabus.qmd).
+Detailed course description is available in the [syllabus](sylabus.qmd).
 Recommended reading is available in the [books](books.qmd) section.
 
 ## Schedule
@@ -22,8 +22,8 @@ Attendance is optional, with in-person sessions held in Aula VI, Building G.
 1. ~~23.02.2026 Lecture 1 -- 11:40--13:20~~
 2. ~~02.03.2026 Lecture 2 -- 11:40--13:20~~
 3. ~~09.03.2026 Lecture 3 -- 11:40--13:20~~
-4. 16.03.2026 Lecture 4 -- 11:40--13:20
-5. 23.03.2026 Lecture 5 -- 11:40--13:20
+4. <del>16.03.2026 Lecture 4 -- 11:40--13:20</del>
+5. <del>23.03.2026 Lecture 5 -- 11:40--13:20</del>
 
 ### Test
 

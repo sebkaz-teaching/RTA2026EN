@@ -88,7 +88,7 @@
     "href": "lectures/lecture2.html#evolution-of-data",
     "title": "Lecture 2: Evolution of Data and Processing Models",
     "section": "Evolution of Data",
-    "text": "Evolution of Data\nData hasn’t always looked the same. The way we store and process it has changed with technology and business needs.\n\nStructured Data — SQL Tables\nFor decades, business data was stored in relational databases — tables with columns following a strict schema. This remains the foundation of most transactional systems.\n\n\nCode\nimport sqlite3\n\nconn = sqlite3.connect(':memory:')\ncursor = conn.cursor()\ncursor.execute(\"\"\"\n    CREATE TABLE customers (\n        id INTEGER PRIMARY KEY,\n        name TEXT,\n        city TEXT,\n        revenue REAL\n    )\n\"\"\")\ncursor.executemany(\"INSERT INTO customers VALUES (?, ?, ?, ?)\", [\n    (1, 'Anna', 'Warsaw', 125000),\n    (2, 'Piotr', 'Krakow', 89000),\n    (3, 'Kasia', 'Gdansk', 210000),\n])\ncursor.execute(\"SELECT city, SUM(revenue) FROM customers GROUP BY city\")\nfor row in cursor.fetchall():\n    print(f\"{row[0]}: {row[1]:,.0f} PLN\")\nconn.close()\n\n\nGdansk: 210,000 PLN\nKrakow: 89,000 PLN\nWarsaw: 125,000 PLN\n\n\nAdvantages: consistency, normalization, ACID. Drawbacks: rigid schema, difficulty handling unstructured data.\n\n\nSemi-Structured Data — JSON, XML\nWith the rise of APIs and web applications, data emerged that has some structure but isn’t strictly tabular. JSON became the lingua franca of data exchange between services.\n\n\nCode\nimport json\n\ntransaction = {\n    \"id\": \"TX4521\",\n    \"amount\": 1250.00,\n    \"currency\": \"PLN\",\n    \"customer\": {\n        \"name\": \"Anna\",\n        \"segment\": \"premium\"\n    },\n    \"products\": [\"laptop\", \"mouse\"]\n}\n\nprint(json.dumps(transaction, indent=2, ensure_ascii=False))\n\n\n{\n  \"id\": \"TX4521\",\n  \"amount\": 1250.0,\n  \"currency\": \"PLN\",\n  \"customer\": {\n    \"name\": \"Anna\",\n    \"segment\": \"premium\"\n  },\n  \"products\": [\n    \"laptop\",\n    \"mouse\"\n  ]\n}\n\n\nJSON is flexible — you can add new fields without changing the schema. That’s why it dominates in NoSQL systems (MongoDB), REST APIs, and data streams (Kafka).\n\n\nUnstructured Data\nToday, most generated data is unstructured: text (emails, reviews, posts), images, audio, video. These require specialized tools — NLP models (BERT, GPT), convolutional networks (CNN), or multimodal models.\nWe won’t cover these in detail in this course, but it’s important to know that streaming systems (Kafka, Spark) can process all these data types.\n\n\nStreaming Data\nThis is the newest “type” of data — or rather, a way of thinking about it. Every transaction, page click, sensor reading is an event appearing in a continuous stream.\nThe key shift in perspective: data is always generated as a stream. We decide whether to process it on the fly (streaming) or collect and analyze it later (batch).\n\n\nCode\nimport time\nfrom datetime import datetime\n\n# Simulated event stream\nevents = [\n    {\"type\": \"purchase\", \"amount\": 150, \"store\": \"Warsaw\"},\n    {\"type\": \"return\", \"amount\": 50, \"store\": \"Krakow\"},\n    {\"type\": \"purchase\", \"amount\": 2200, \"store\": \"Warsaw\"},\n]\n\nfor e in events:\n    e[\"time\"] = datetime.now().strftime(\"%H:%M:%S\")\n    print(f\"[{e['time']}] {e['type'].upper()}: {e['amount']} PLN ({e['store']})\")\n    time.sleep(0.5)\n\n\n[23:16:44] PURCHASE: 150 PLN (Warsaw)\n[23:16:45] RETURN: 50 PLN (Krakow)\n[23:16:45] PURCHASE: 2200 PLN (Warsaw)",
+    "text": "Evolution of Data\nData hasn’t always looked the same. The way we store and process it has changed with technology and business needs.\n\nStructured Data — SQL Tables\nFor decades, business data was stored in relational databases — tables with columns following a strict schema. This remains the foundation of most transactional systems.\n\n\nCode\nimport sqlite3\n\nconn = sqlite3.connect(':memory:')\ncursor = conn.cursor()\ncursor.execute(\"\"\"\n    CREATE TABLE customers (\n        id INTEGER PRIMARY KEY,\n        name TEXT,\n        city TEXT,\n        revenue REAL\n    )\n\"\"\")\ncursor.executemany(\"INSERT INTO customers VALUES (?, ?, ?, ?)\", [\n    (1, 'Anna', 'Warsaw', 125000),\n    (2, 'Piotr', 'Krakow', 89000),\n    (3, 'Kasia', 'Gdansk', 210000),\n])\ncursor.execute(\"SELECT city, SUM(revenue) FROM customers GROUP BY city\")\nfor row in cursor.fetchall():\n    print(f\"{row[0]}: {row[1]:,.0f} PLN\")\nconn.close()\n\n\nGdansk: 210,000 PLN\nKrakow: 89,000 PLN\nWarsaw: 125,000 PLN\n\n\nAdvantages: consistency, normalization, ACID. Drawbacks: rigid schema, difficulty handling unstructured data.\n\n\nSemi-Structured Data — JSON, XML\nWith the rise of APIs and web applications, data emerged that has some structure but isn’t strictly tabular. JSON became the lingua franca of data exchange between services.\n\n\nCode\nimport json\n\ntransaction = {\n    \"id\": \"TX4521\",\n    \"amount\": 1250.00,\n    \"currency\": \"PLN\",\n    \"customer\": {\n        \"name\": \"Anna\",\n        \"segment\": \"premium\"\n    },\n    \"products\": [\"laptop\", \"mouse\"]\n}\n\nprint(json.dumps(transaction, indent=2, ensure_ascii=False))\n\n\n{\n  \"id\": \"TX4521\",\n  \"amount\": 1250.0,\n  \"currency\": \"PLN\",\n  \"customer\": {\n    \"name\": \"Anna\",\n    \"segment\": \"premium\"\n  },\n  \"products\": [\n    \"laptop\",\n    \"mouse\"\n  ]\n}\n\n\nJSON is flexible — you can add new fields without changing the schema. That’s why it dominates in NoSQL systems (MongoDB), REST APIs, and data streams (Kafka).\n\n\nUnstructured Data\nToday, most generated data is unstructured: text (emails, reviews, posts), images, audio, video. These require specialized tools — NLP models (BERT, GPT), convolutional networks (CNN), or multimodal models.\nWe won’t cover these in detail in this course, but it’s important to know that streaming systems (Kafka, Spark) can process all these data types.\n\n\nStreaming Data\nThis is the newest “type” of data — or rather, a way of thinking about it. Every transaction, page click, sensor reading is an event appearing in a continuous stream.\nThe key shift in perspective: data is always generated as a stream. We decide whether to process it on the fly (streaming) or collect and analyze it later (batch).\n\n\nCode\nimport time\nfrom datetime import datetime\n\n# Simulated event stream\nevents = [\n    {\"type\": \"purchase\", \"amount\": 150, \"store\": \"Warsaw\"},\n    {\"type\": \"return\", \"amount\": 50, \"store\": \"Krakow\"},\n    {\"type\": \"purchase\", \"amount\": 2200, \"store\": \"Warsaw\"},\n]\n\nfor e in events:\n    e[\"time\"] = datetime.now().strftime(\"%H:%M:%S\")\n    print(f\"[{e['time']}] {e['type'].upper()}: {e['amount']} PLN ({e['store']})\")\n    time.sleep(0.5)\n\n\n[13:18:32] PURCHASE: 150 PLN (Warsaw)\n[13:18:33] RETURN: 50 PLN (Krakow)\n[13:18:33] PURCHASE: 2200 PLN (Warsaw)",
     "crumbs": [
       "Home",
       "Lectures",
@@ -447,63 +447,108 @@
     "href": "labs/en_lab1.html",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "",
-    "text": "Your first hands-on experience with Apache Kafka:\n\nSend transaction events to Kafka (producer),\nRead and filter events in real time (stateless consumer),\nCount and aggregate events on the fly (stateful consumer).\n\nBusiness case: You work for an e-commerce company. Your task is to build a transaction monitoring system that processes purchase events as they happen.\nThis case will evolve over the next 9 labs into a complete real-time analytics platform."
+    "text": "Your first hands-on experience with Apache Kafka:\n\nSend transaction events to Kafka (producer),\nRead and filter events in real time (stateless consumer),\nCount and aggregate events on the fly (stateful consumer).\n\nBusiness case: You work for an e-commerce company. Your task is to build a transaction monitoring system that processes purchase events as they happen.\nThis case will evolve over the next 9 labs into a complete real-time analytics platform.",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab1.html#goal",
     "href": "labs/en_lab1.html#goal",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "",
-    "text": "Your first hands-on experience with Apache Kafka:\n\nSend transaction events to Kafka (producer),\nRead and filter events in real time (stateless consumer),\nCount and aggregate events on the fly (stateful consumer).\n\nBusiness case: You work for an e-commerce company. Your task is to build a transaction monitoring system that processes purchase events as they happen.\nThis case will evolve over the next 9 labs into a complete real-time analytics platform."
+    "text": "Your first hands-on experience with Apache Kafka:\n\nSend transaction events to Kafka (producer),\nRead and filter events in real time (stateless consumer),\nCount and aggregate events on the fly (stateful consumer).\n\nBusiness case: You work for an e-commerce company. Your task is to build a transaction monitoring system that processes purchase events as they happen.\nThis case will evolve over the next 9 labs into a complete real-time analytics platform.",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab1.html#setup",
     "href": "labs/en_lab1.html#setup",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "Setup",
-    "text": "Setup\nMake sure your course environment is running:\ncd jupyterlab-project\ndocker compose up -d\nOpen JupyterLab at http://localhost:8888 and create this notebook there.\nAll code below runs inside JupyterLab in the Docker environment."
+    "text": "Setup\nMake sure your course environment is running:\ncd jupyterlab-project\ndocker compose up -d\nOpen JupyterLab at http://localhost:8888 and create this notebook there.\nAll code below runs inside JupyterLab in the Docker environment.",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab1.html#part-1-create-a-kafka-topic",
     "href": "labs/en_lab1.html#part-1-create-a-kafka-topic",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "Part 1: Create a Kafka Topic",
-    "text": "Part 1: Create a Kafka Topic\nOpen a terminal in JupyterLab (File &gt; New &gt; Terminal) and create a topic:\nkafka/bin/kafka-topics.sh --create \\\n  --topic transactions \\\n  --bootstrap-server broker:9092 \\\n  --partitions 3 \\\n  --replication-factor 1\nVerify:\nkafka/bin/kafka-topics.sh --list --bootstrap-server broker:9092\n\n# Paste the output of the --list command here as a comment:\n# YOUR RESULT"
+    "text": "Part 1: Create a Kafka Topic\nOpen a terminal in JupyterLab (File &gt; New &gt; Terminal) and create a topic:\nkafka/bin/kafka-topics.sh --create \\\n  --topic transactions \\\n  --bootstrap-server broker:9092 \\\n  --partitions 3 \\\n  --replication-factor 1\nVerify:\nkafka/bin/kafka-topics.sh --list --bootstrap-server broker:9092\n\n# Paste the output of the --list command here as a comment:\n# YOUR RESULT",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab1.html#part-2-producer-generating-transactions",
     "href": "labs/en_lab1.html#part-2-producer-generating-transactions",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "Part 2: Producer – Generating Transactions",
-    "text": "Part 2: Producer – Generating Transactions\n\nTask 2.1 – Write a transaction producer\nCreate a file producer.py that sends simulated e-commerce transactions to the transactions topic.\nEach transaction should be a JSON with fields: - tx_id (e.g., “TX0001”) - user_id (random from “u01” to “u20”) - amount (random float 5.0 – 5000.0) - store (random from: “Warsaw”, “Krakow”, “Gdansk”, “Wroclaw”) - category (random from: “electronics”, “clothing”, “food”, “books”) - timestamp (current time in ISO format)\nSend one transaction per second. Print each one as it’s sent.\n\n%%file producer.py\nfrom kafka import KafkaProducer\nimport json, random, time\nfrom datetime import datetime\n\nproducer = KafkaProducer(\n    bootstrap_servers='broker:9092',\n    value_serializer=lambda v: json.dumps(v).encode('utf-8')\n)\n\ndef generate_transaction():\n    # YOUR CODE\n    # Return a dict with: tx_id, user_id, amount, store, category, timestamp\n    pass\n\n# YOUR CODE\n# Loop: generate transaction, send to topic 'transactions', print, sleep 1s\n# Send 50 transactions total\n\nRun the producer in a JupyterLab terminal:\npython producer.py\nLeave it running and continue to the next task."
+    "text": "Part 2: Producer – Generating Transactions\n\nTask 2.1 – Write a transaction producer\nCreate a file producer.py that sends simulated e-commerce transactions to the transactions topic.\nEach transaction should be a JSON with fields: - tx_id (e.g., “TX0001”) - user_id (random from “u01” to “u20”) - amount (random float 5.0 – 5000.0) - store (random from: “Warsaw”, “Krakow”, “Gdansk”, “Wroclaw”) - category (random from: “electronics”, “clothing”, “food”, “books”) - timestamp (current time in ISO format)\nSend one transaction per second. Print each one as it’s sent.\n\n%%file producer.py\nfrom kafka import KafkaProducer\nimport json, random, time\nfrom datetime import datetime\n\nproducer = KafkaProducer(\n    bootstrap_servers='broker:9092',\n    value_serializer=lambda v: json.dumps(v).encode('utf-8')\n)\n\ndef generate_transaction():\n    # YOUR CODE\n    # Return a dict with: tx_id, user_id, amount, store, category, timestamp\n    pass\n\n# YOUR CODE\n# Loop: generate transaction, send to topic 'transactions', print, sleep 1s\n# Send 50 transactions total\n\nRun the producer in a JupyterLab terminal:\npython producer.py\nLeave it running and continue to the next task.",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab1.html#part-3-stateless-consumer-filtering",
     "href": "labs/en_lab1.html#part-3-stateless-consumer-filtering",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "Part 3: Stateless Consumer – Filtering",
-    "text": "Part 3: Stateless Consumer – Filtering\nStateless processing means each event is processed independently, without remembering previous events.\n\nTask 3.1 – Filter large transactions\nWrite a consumer that reads from transactions and prints only transactions with amount &gt; 1000.\n\n%%file consumer_filter.py\nfrom kafka import KafkaConsumer\nimport json\n\nconsumer = KafkaConsumer(\n    'transactions',\n    bootstrap_servers='broker:9092',\n    auto_offset_reset='earliest',\n    group_id='filter-group',\n    value_deserializer=lambda x: json.loads(x.decode('utf-8'))\n)\n\nprint(\"Listening for large transactions (amount &gt; 1000)...\")\n\n# YOUR CODE\n# For each message: check if amount &gt; 1000, if so print an alert\n# Format: ALERT: TX0042 | 2345.67 PLN | Warsaw | electronics\n\n\n\nTask 3.2 – Transform and enrich\nWrite a consumer that adds a risk_level field to each transaction: - amount &gt; 3000 -&gt; “HIGH” - amount &gt; 1000 -&gt; “MEDIUM” - otherwise -&gt; “LOW”\nPrint each enriched transaction.\n\n%%file consumer_enrich.py\nfrom kafka import KafkaConsumer\nimport json\n\n# YOUR CODE\n# Read from 'transactions' (use a DIFFERENT group_id!)\n# Add risk_level field based on amount\n# Print enriched transaction"
+    "text": "Part 3: Stateless Consumer – Filtering\nStateless processing means each event is processed independently, without remembering previous events.\n\nTask 3.1 – Filter large transactions\nWrite a consumer that reads from transactions and prints only transactions with amount &gt; 1000.\n\n%%file consumer_filter.py\nfrom kafka import KafkaConsumer\nimport json\n\nconsumer = KafkaConsumer(\n    'transactions',\n    bootstrap_servers='broker:9092',\n    auto_offset_reset='earliest',\n    group_id='filter-group',\n    value_deserializer=lambda x: json.loads(x.decode('utf-8'))\n)\n\nprint(\"Listening for large transactions (amount &gt; 1000)...\")\n\n# YOUR CODE\n# For each message: check if amount &gt; 1000, if so print an alert\n# Format: ALERT: TX0042 | 2345.67 PLN | Warsaw | electronics\n\n\n\nTask 3.2 – Transform and enrich\nWrite a consumer that adds a risk_level field to each transaction: - amount &gt; 3000 -&gt; “HIGH” - amount &gt; 1000 -&gt; “MEDIUM” - otherwise -&gt; “LOW”\nPrint each enriched transaction.\n\n%%file consumer_enrich.py\nfrom kafka import KafkaConsumer\nimport json\n\n# YOUR CODE\n# Read from 'transactions' (use a DIFFERENT group_id!)\n# Add risk_level field based on amount\n# Print enriched transaction",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab1.html#part-4-stateful-consumer-aggregating",
     "href": "labs/en_lab1.html#part-4-stateful-consumer-aggregating",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "Part 4: Stateful Consumer – Aggregating",
-    "text": "Part 4: Stateful Consumer – Aggregating\nStateful processing means we maintain state (counters, accumulators) across events.\n\nTask 4.1 – Count transactions per store\nWrite a consumer that keeps a running count of transactions per store and prints updated totals every 10 messages.\n\n%%file consumer_count.py\nfrom kafka import KafkaConsumer\nfrom collections import Counter\nimport json\n\nconsumer = KafkaConsumer(\n    'transactions',\n    bootstrap_servers='broker:9092',\n    auto_offset_reset='earliest',\n    group_id='count-group',\n    value_deserializer=lambda x: json.loads(x.decode('utf-8'))\n)\n\nstore_counts = Counter()\ntotal_amount = {}\nmsg_count = 0\n\n# YOUR CODE\n# For each message:\n#   1. Increment store_counts[store]\n#   2. Add amount to total_amount[store]\n#   3. Every 10 messages, print a summary table:\n#      Store | Count | Total Amount | Avg Amount\n\n\n\nTask 4.2 – Running statistics per category\nWrite a consumer that tracks per category: - number of transactions - total revenue - min and max transaction amount\nPrint updated stats every 10 messages.\n\n%%file consumer_stats.py\nfrom kafka import KafkaConsumer\nfrom collections import defaultdict\nimport json\n\n# YOUR CODE"
+    "text": "Part 4: Stateful Consumer – Aggregating\nStateful processing means we maintain state (counters, accumulators) across events.\n\nTask 4.1 – Count transactions per store\nWrite a consumer that keeps a running count of transactions per store and prints updated totals every 10 messages.\n\n%%file consumer_count.py\nfrom kafka import KafkaConsumer\nfrom collections import Counter\nimport json\n\nconsumer = KafkaConsumer(\n    'transactions',\n    bootstrap_servers='broker:9092',\n    auto_offset_reset='earliest',\n    group_id='count-group',\n    value_deserializer=lambda x: json.loads(x.decode('utf-8'))\n)\n\nstore_counts = Counter()\ntotal_amount = {}\nmsg_count = 0\n\n# YOUR CODE\n# For each message:\n#   1. Increment store_counts[store]\n#   2. Add amount to total_amount[store]\n#   3. Every 10 messages, print a summary table:\n#      Store | Count | Total Amount | Avg Amount\n\n\n\nTask 4.2 – Running statistics per category\nWrite a consumer that tracks per category: - number of transactions - total revenue - min and max transaction amount\nPrint updated stats every 10 messages.\n\n%%file consumer_stats.py\nfrom kafka import KafkaConsumer\nfrom collections import defaultdict\nimport json\n\n# YOUR CODE",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab1.html#part-5-multiple-consumers",
     "href": "labs/en_lab1.html#part-5-multiple-consumers",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "Part 5: Multiple Consumers",
-    "text": "Part 5: Multiple Consumers\n\nTask 5.1 – Run everything together\nOpen 3 terminals in JupyterLab and run simultaneously:\n\npython producer.py (generates events)\npython consumer_filter.py (filters large transactions)\npython consumer_count.py (counts per store)\n\nObserve how both consumers process the same stream independently.\n\n\nTask 5.2 – Questions\n\n# Answer these questions:\n# 1. What happens if you start consumer_filter.py AFTER the producer has finished?\n#    (Hint: check auto_offset_reset)\n#\n# 2. What happens if two consumers have the SAME group_id?\n#\n# 3. What is the difference between stateless and stateful processing?\n#    Give one example of each from this lab.\n\n# YOUR ANSWERS"
+    "text": "Part 5: Multiple Consumers\n\nTask 5.1 – Run everything together\nOpen 3 terminals in JupyterLab and run simultaneously:\n\npython producer.py (generates events)\npython consumer_filter.py (filters large transactions)\npython consumer_count.py (counts per store)\n\nObserve how both consumers process the same stream independently.\n\n\nTask 5.2 – Questions\n\n# Answer these questions:\n# 1. What happens if you start consumer_filter.py AFTER the producer has finished?\n#    (Hint: check auto_offset_reset)\n#\n# 2. What happens if two consumers have the SAME group_id?\n#\n# 3. What is the difference between stateless and stateful processing?\n#    Give one example of each from this lab.\n\n# YOUR ANSWERS",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab1.html#homework",
     "href": "labs/en_lab1.html#homework",
     "title": "Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL",
     "section": "Homework",
-    "text": "Homework\n\nWrite a consumer that detects velocity anomalies: alert if the same user_id makes more than 3 transactions within 60 seconds. (Hint: keep a dict of {user_id: [timestamps]})\nPush all your code to your Git repository.\n\nNext lab: We’ll process the same Kafka stream with Apache Spark – windowed aggregations and more powerful analytics."
+    "text": "Homework\n\nWrite a consumer that detects velocity anomalies: alert if the same user_id makes more than 3 transactions within 60 seconds. (Hint: keep a dict of {user_id: [timestamps]})\nPush all your code to your Git repository.\n\nNext lab: We’ll process the same Kafka stream with Apache Spark – windowed aggregations and more powerful analytics.",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 1: Kafka in Python -- Producers, Consumers, and Real-Time ETL"
+    ]
   },
   {
     "objectID": "labs/en_lab7.html",
@@ -868,7 +913,7 @@
     "href": "index.html#schedule",
     "title": "Info",
     "section": "Schedule",
-    "text": "Schedule\n\nLectures\nLectures are conducted in a hybrid format. Attendance is optional, with in-person sessions held in Aula VI, Building G.\n\n23.02.2026 Lecture 1 – 11:40–13:20\n02.03.2026 Lecture 2 – 11:40–13:20\n09.03.2026 Lecture 3 – 11:40–13:20\n16.03.2026 Lecture 4 – 11:40–13:20\n23.03.2026 Lecture 5 – 11:40–13:20\n\n\n\nTest\nLectures conclude with a test during the final lecture (Lecture 5).\n\nFormat: 20 questions, 30 minutes\nPlatform: MS Teams\nPassing threshold: more than 13 points – this is a prerequisite for participating in the labs.\n\n\n\nLabs and Assessment\nAfter completing the exercises, homework assignments must be submitted via MS Teams. Each missing homework lowers the final grade by 0.5.\n\nProject\nProjects must be completed in groups of no more than 5 people.\nProject requirements:\n\nThe project should address a real business problem that can be solved using data processed in real time (batch processing for model training is also acceptable).\nData should be ingested into Apache Kafka for further processing and analysis.\nAny programming language may be used for each component of the project.\nBusiness Intelligence (BI) tools may be utilized.\nData sources may include any API, synthetically generated data, IoT devices, etc.",
+    "text": "Schedule\n\nLectures\nLectures are conducted in a hybrid format. Attendance is optional, with in-person sessions held in Aula VI, Building G.\n\n23.02.2026 Lecture 1 – 11:40–13:20\n02.03.2026 Lecture 2 – 11:40–13:20\n09.03.2026 Lecture 3 – 11:40–13:20\n\n16.03.2026 Lecture 4 – 11:40–13:20\n\n\n23.03.2026 Lecture 5 – 11:40–13:20\n\n\n\n\nTest\nLectures conclude with a test during the final lecture (Lecture 5).\n\nFormat: 20 questions, 30 minutes\nPlatform: MS Teams\nPassing threshold: more than 13 points – this is a prerequisite for participating in the labs.\n\n\n\nLabs and Assessment\nAfter completing the exercises, homework assignments must be submitted via MS Teams. Each missing homework lowers the final grade by 0.5.\n\nProject\nProjects must be completed in groups of no more than 5 people.\nProject requirements:\n\nThe project should address a real business problem that can be solved using data processed in real time (batch processing for model training is also acceptable).\nData should be ingested into Apache Kafka for further processing and analysis.\nAny programming language may be used for each component of the project.\nBusiness Intelligence (BI) tools may be utilized.\nData sources may include any API, synthetically generated data, IoT devices, etc.",
     "crumbs": [
       "Home",
       "Info"
