@@ -21,7 +21,7 @@ website:
       - section: "Labs"
         contents:
         - href: labs/en_lab1.ipynb
-      #   - href: labs/en_lab2.ipynb
+        - href: labs/en_lab2.ipynb
       #   - href: labs/en_lab3.ipynb
       #   - href: labs/en_lab4.ipynb
       #   - href: labs/en_lab5.ipynb
@@ -43,15 +43,17 @@ website:
       - href: books.qmd
         text: Books
     
-  page-footer: "Copyright 2026, Sebastian Zajac"      
+  page-footer: "Copyright 2026, Sebastian Zajac"
+
 format:
   html:
     page-layout: article
-    theme: minty
+    theme: flatly        # Zmienione z minty na flatly, żeby pasowało do wykładu
+    highlight-style: github # Dodane, żeby kod wyglądał tak samo
     css: style.css
     toc: true
     toc-depth: 2
-    toc-title: "Sections"
+    toc-title: "**Sections**"
     self-contained-math: true
     code-overflow: wrap
     code-block-background: true

@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Lecture 5: Machine Learning in Real Time – Real-Time Analytics</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -67,15 +70,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a06763021a52c43c40a351ac8b799b8f.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-8843a38191b55497cd032d3fc2c3d839.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-32453a28a3092dd2068a885cb311269d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,7 +107,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -261,6 +263,12 @@ window.Quarto = {
  <span class="menu-text">Lab 1: Kafka in Python – Producers, Consumers, and Real-Time ETL</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/en_lab2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab 2: Apache Spark — Batch Analytics on Transaction Data</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -270,7 +278,7 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Sections</h2>
+    <h2 id="toc-title"><strong>Sections</strong></h2>
    
   <ul class="collapse">
   <li><a href="#offline-learning-vs-online-learning" id="toc-offline-learning-vs-online-learning" class="nav-link active" data-scroll-target="#offline-learning-vs-online-learning">Offline Learning vs Online Learning</a></li>
@@ -312,7 +320,7 @@ window.Quarto = {
 <section id="offline-learning-batch-learning" class="level3">
 <h3 class="anchored" data-anchor-id="offline-learning-batch-learning">Offline Learning (Batch Learning)</h3>
 <p>The classical approach: collect historical data, train a model, deploy it — and the model doesn’t change until you retrain it on new data.</p>
-<div id="a964a658" class="cell" data-execution_count="1">
+<div id="eaee6599" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -340,7 +348,7 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="online-learning-incremental-learning">Online Learning (Incremental Learning)</h3>
 <p>An alternative approach: the model learns <strong>continuously</strong>, updating its parameters with each new observation (or small batch).</p>
 <p>Key algorithm: <strong>Stochastic Gradient Descent (SGD)</strong> — instead of computing the gradient on the entire dataset, we update weights after each observation.</p>
-<div id="1b830270" class="cell" data-execution_count="2">
+<div id="86f88a86" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> SGDRegressor</span>
@@ -431,7 +439,7 @@ window.Quarto = {
 <p>The simplest method: an observation is an anomaly if it lies far from the median. Formally, a value is an outlier when:</p>
 <p><span class="math display">\[x_{out} &lt; Q_1 - 1.5 \times IQR \quad \text{or} \quad x_{out} &gt; Q_3 + 1.5 \times IQR\]</span></p>
 <p>where <span class="math inline">\(IQR = Q_3 - Q_1\)</span> (interquartile range).</p>
-<div id="83d2dabd" class="cell" data-execution_count="3">
+<div id="8c75bc94" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -479,7 +487,7 @@ Anomalies: [4500, 8200]</code></pre>
 <h3 class="anchored" data-anchor-id="isolation-forest">Isolation Forest</h3>
 <p><strong>Isolation Forest</strong> is a tree-based algorithm designed specifically for anomaly detection (Liu, Ting, Zhou, 2008). It works on a simple intuition: <strong>anomalies are easier to isolate</strong> than normal observations.</p>
 <p>The algorithm randomly selects a feature and a split point. Outliers — being far from the rest — get isolated after fewer splits (closer to the tree root). Normal observations require many splits.</p>
-<div id="47668c53" class="cell" data-execution_count="4">
+<div id="4940bbcd" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -572,7 +580,7 @@ Anomalies: [4500, 8200]</code></pre>
 <li>Checks how the model reacts to those changes.</li>
 <li>Builds a simple, interpretable local model (e.g., linear regression) that approximates the complex model’s behavior in the neighborhood of that observation.</li>
 </ol>
-<div id="4fe3669e" class="cell" data-execution_count="5">
+<div id="c160020f" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>

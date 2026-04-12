@@ -88,7 +88,7 @@
     "href": "lectures/lecture2.html#evolution-of-data",
     "title": "Lecture 2: Evolution of Data and Processing Models",
     "section": "Evolution of Data",
-    "text": "Evolution of Data\nData hasn’t always looked the same. The way we store and process it has changed with technology and business needs.\n\nStructured Data — SQL Tables\nFor decades, business data was stored in relational databases — tables with columns following a strict schema. This remains the foundation of most transactional systems.\n\n\nCode\nimport sqlite3\n\nconn = sqlite3.connect(':memory:')\ncursor = conn.cursor()\ncursor.execute(\"\"\"\n    CREATE TABLE customers (\n        id INTEGER PRIMARY KEY,\n        name TEXT,\n        city TEXT,\n        revenue REAL\n    )\n\"\"\")\ncursor.executemany(\"INSERT INTO customers VALUES (?, ?, ?, ?)\", [\n    (1, 'Anna', 'Warsaw', 125000),\n    (2, 'Piotr', 'Krakow', 89000),\n    (3, 'Kasia', 'Gdansk', 210000),\n])\ncursor.execute(\"SELECT city, SUM(revenue) FROM customers GROUP BY city\")\nfor row in cursor.fetchall():\n    print(f\"{row[0]}: {row[1]:,.0f} PLN\")\nconn.close()\n\n\nGdansk: 210,000 PLN\nKrakow: 89,000 PLN\nWarsaw: 125,000 PLN\n\n\nAdvantages: consistency, normalization, ACID. Drawbacks: rigid schema, difficulty handling unstructured data.\n\n\nSemi-Structured Data — JSON, XML\nWith the rise of APIs and web applications, data emerged that has some structure but isn’t strictly tabular. JSON became the lingua franca of data exchange between services.\n\n\nCode\nimport json\n\ntransaction = {\n    \"id\": \"TX4521\",\n    \"amount\": 1250.00,\n    \"currency\": \"PLN\",\n    \"customer\": {\n        \"name\": \"Anna\",\n        \"segment\": \"premium\"\n    },\n    \"products\": [\"laptop\", \"mouse\"]\n}\n\nprint(json.dumps(transaction, indent=2, ensure_ascii=False))\n\n\n{\n  \"id\": \"TX4521\",\n  \"amount\": 1250.0,\n  \"currency\": \"PLN\",\n  \"customer\": {\n    \"name\": \"Anna\",\n    \"segment\": \"premium\"\n  },\n  \"products\": [\n    \"laptop\",\n    \"mouse\"\n  ]\n}\n\n\nJSON is flexible — you can add new fields without changing the schema. That’s why it dominates in NoSQL systems (MongoDB), REST APIs, and data streams (Kafka).\n\n\nUnstructured Data\nToday, most generated data is unstructured: text (emails, reviews, posts), images, audio, video. These require specialized tools — NLP models (BERT, GPT), convolutional networks (CNN), or multimodal models.\nWe won’t cover these in detail in this course, but it’s important to know that streaming systems (Kafka, Spark) can process all these data types.\n\n\nStreaming Data\nThis is the newest “type” of data — or rather, a way of thinking about it. Every transaction, page click, sensor reading is an event appearing in a continuous stream.\nThe key shift in perspective: data is always generated as a stream. We decide whether to process it on the fly (streaming) or collect and analyze it later (batch).\n\n\nCode\nimport time\nfrom datetime import datetime\n\n# Simulated event stream\nevents = [\n    {\"type\": \"purchase\", \"amount\": 150, \"store\": \"Warsaw\"},\n    {\"type\": \"return\", \"amount\": 50, \"store\": \"Krakow\"},\n    {\"type\": \"purchase\", \"amount\": 2200, \"store\": \"Warsaw\"},\n]\n\nfor e in events:\n    e[\"time\"] = datetime.now().strftime(\"%H:%M:%S\")\n    print(f\"[{e['time']}] {e['type'].upper()}: {e['amount']} PLN ({e['store']})\")\n    time.sleep(0.5)\n\n\n[13:18:32] PURCHASE: 150 PLN (Warsaw)\n[13:18:33] RETURN: 50 PLN (Krakow)\n[13:18:33] PURCHASE: 2200 PLN (Warsaw)",
+    "text": "Evolution of Data\nData hasn’t always looked the same. The way we store and process it has changed with technology and business needs.\n\nStructured Data — SQL Tables\nFor decades, business data was stored in relational databases — tables with columns following a strict schema. This remains the foundation of most transactional systems.\n\n\nCode\nimport sqlite3\n\nconn = sqlite3.connect(':memory:')\ncursor = conn.cursor()\ncursor.execute(\"\"\"\n    CREATE TABLE customers (\n        id INTEGER PRIMARY KEY,\n        name TEXT,\n        city TEXT,\n        revenue REAL\n    )\n\"\"\")\ncursor.executemany(\"INSERT INTO customers VALUES (?, ?, ?, ?)\", [\n    (1, 'Anna', 'Warsaw', 125000),\n    (2, 'Piotr', 'Krakow', 89000),\n    (3, 'Kasia', 'Gdansk', 210000),\n])\ncursor.execute(\"SELECT city, SUM(revenue) FROM customers GROUP BY city\")\nfor row in cursor.fetchall():\n    print(f\"{row[0]}: {row[1]:,.0f} PLN\")\nconn.close()\n\n\nGdansk: 210,000 PLN\nKrakow: 89,000 PLN\nWarsaw: 125,000 PLN\n\n\nAdvantages: consistency, normalization, ACID. Drawbacks: rigid schema, difficulty handling unstructured data.\n\n\nSemi-Structured Data — JSON, XML\nWith the rise of APIs and web applications, data emerged that has some structure but isn’t strictly tabular. JSON became the lingua franca of data exchange between services.\n\n\nCode\nimport json\n\ntransaction = {\n    \"id\": \"TX4521\",\n    \"amount\": 1250.00,\n    \"currency\": \"PLN\",\n    \"customer\": {\n        \"name\": \"Anna\",\n        \"segment\": \"premium\"\n    },\n    \"products\": [\"laptop\", \"mouse\"]\n}\n\nprint(json.dumps(transaction, indent=2, ensure_ascii=False))\n\n\n{\n  \"id\": \"TX4521\",\n  \"amount\": 1250.0,\n  \"currency\": \"PLN\",\n  \"customer\": {\n    \"name\": \"Anna\",\n    \"segment\": \"premium\"\n  },\n  \"products\": [\n    \"laptop\",\n    \"mouse\"\n  ]\n}\n\n\nJSON is flexible — you can add new fields without changing the schema. That’s why it dominates in NoSQL systems (MongoDB), REST APIs, and data streams (Kafka).\n\n\nUnstructured Data\nToday, most generated data is unstructured: text (emails, reviews, posts), images, audio, video. These require specialized tools — NLP models (BERT, GPT), convolutional networks (CNN), or multimodal models.\nWe won’t cover these in detail in this course, but it’s important to know that streaming systems (Kafka, Spark) can process all these data types.\n\n\nStreaming Data\nThis is the newest “type” of data — or rather, a way of thinking about it. Every transaction, page click, sensor reading is an event appearing in a continuous stream.\nThe key shift in perspective: data is always generated as a stream. We decide whether to process it on the fly (streaming) or collect and analyze it later (batch).\n\n\nCode\nimport time\nfrom datetime import datetime\n\n# Simulated event stream\nevents = [\n    {\"type\": \"purchase\", \"amount\": 150, \"store\": \"Warsaw\"},\n    {\"type\": \"return\", \"amount\": 50, \"store\": \"Krakow\"},\n    {\"type\": \"purchase\", \"amount\": 2200, \"store\": \"Warsaw\"},\n]\n\nfor e in events:\n    e[\"time\"] = datetime.now().strftime(\"%H:%M:%S\")\n    print(f\"[{e['time']}] {e['type'].upper()}: {e['amount']} PLN ({e['store']})\")\n    time.sleep(0.5)\n\n\n[01:17:54] PURCHASE: 150 PLN (Warsaw)\n[01:17:55] RETURN: 50 PLN (Krakow)\n[01:17:55] PURCHASE: 2200 PLN (Warsaw)",
     "crumbs": [
       "Home",
       "Lectures",
@@ -354,51 +354,122 @@
   {
     "objectID": "labs/en_lab2.html",
     "href": "labs/en_lab2.html",
-    "title": "Lab 2: Kafka + Spark Structured Streaming",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
     "section": "",
-    "text": "Process the same transaction stream from Lab 1, but now using Apache Spark:\n\nConnect Spark to Kafka,\nApply tumbling and sliding windows,\nStateless and stateful transformations at scale.\n\nBusiness case (continued): Your e-commerce monitoring system needs to produce windowed reports – e.g., total revenue per store every 5 minutes."
+    "text": "In Lab 1 you built a consumer that counts transactions per store. It works — but imagine:\n\nYou need to know how many transactions happened per hour (not all-time totals)\nYou have not 50, but 10 million transactions per day\nYour consumer crashes — you lose all state (counters), and have to start over\n\nFor tasks like these we use Apache Spark — a distributed computation engine that: - processes data in parallel (across multiple cores / machines) - has built-in time windows (window) - works on both files (batch) and live streams (streaming)",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
   },
   {
-    "objectID": "labs/en_lab2.html#goal",
-    "href": "labs/en_lab2.html#goal",
-    "title": "Lab 2: Kafka + Spark Structured Streaming",
+    "objectID": "labs/en_lab2.html#why-spark",
+    "href": "labs/en_lab2.html#why-spark",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
     "section": "",
-    "text": "Process the same transaction stream from Lab 1, but now using Apache Spark:\n\nConnect Spark to Kafka,\nApply tumbling and sliding windows,\nStateless and stateful transformations at scale.\n\nBusiness case (continued): Your e-commerce monitoring system needs to produce windowed reports – e.g., total revenue per store every 5 minutes."
+    "text": "In Lab 1 you built a consumer that counts transactions per store. It works — but imagine:\n\nYou need to know how many transactions happened per hour (not all-time totals)\nYou have not 50, but 10 million transactions per day\nYour consumer crashes — you lose all state (counters), and have to start over\n\nFor tasks like these we use Apache Spark — a distributed computation engine that: - processes data in parallel (across multiple cores / machines) - has built-in time windows (window) - works on both files (batch) and live streams (streaming)",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
   },
   {
-    "objectID": "labs/en_lab2.html#setup",
-    "href": "labs/en_lab2.html#setup",
-    "title": "Lab 2: Kafka + Spark Structured Streaming",
-    "section": "Setup",
-    "text": "Setup\nStart the environment and make sure Kafka has the transactions topic from Lab 1. Open your producer from Lab 1 in a terminal – we’ll need it generating data."
+    "objectID": "labs/en_lab2.html#plan",
+    "href": "labs/en_lab2.html#plan",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
+    "section": "Plan",
+    "text": "Plan\n\nLoad 10,000 transactions from a file\nBasic aggregations — familiar groupBy\nTumbling windows — counts per hour / per 30 minutes\nSliding windows — overlapping intervals\nPreview: the same queries on a live Kafka stream",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
   },
   {
-    "objectID": "labs/en_lab2.html#part-1-spark-basics-batch-mode",
-    "href": "labs/en_lab2.html#part-1-spark-basics-batch-mode",
-    "title": "Lab 2: Kafka + Spark Structured Streaming",
-    "section": "Part 1: Spark Basics (Batch Mode)",
-    "text": "Part 1: Spark Basics (Batch Mode)\nBefore streaming, let’s verify Spark works.\n\nTask 1.1 – Create a SparkSession\n\nfrom pyspark.sql import SparkSession\n\nspark = (SparkSession.builder\n    .appName(\"Lab2\")\n    .getOrCreate()\n)\nspark.sparkContext.setLogLevel(\"WARN\")\nprint(f\"Spark version: {spark.version}\")\n\n\n\nTask 1.2 – Create a DataFrame from sample data\nCreate a Spark DataFrame with the same structure as our Kafka transactions. Use StructType to define the schema.\n\nfrom pyspark.sql.types import StructType, StructField, StringType, DoubleType, TimestampType\nfrom pyspark.sql.functions import to_timestamp\n\ndata = [\n    (\"TX001\", \"u05\", 150.0, \"Warsaw\", \"electronics\", \"2026-04-01 10:00:00\"),\n    (\"TX002\", \"u12\", 4500.0, \"Krakow\", \"clothing\", \"2026-04-01 10:01:00\"),\n    (\"TX003\", \"u05\", 89.0, \"Warsaw\", \"food\", \"2026-04-01 10:02:30\"),\n    (\"TX004\", \"u08\", 7800.0, \"Gdansk\", \"electronics\", \"2026-04-01 10:03:00\"),\n    (\"TX005\", \"u12\", 55.0, \"Krakow\", \"books\", \"2026-04-01 10:05:00\"),\n    (\"TX006\", \"u03\", 1200.0, \"Wroclaw\", \"electronics\", \"2026-04-01 10:06:30\"),\n]\n\n# YOUR CODE\n# 1. Define schema with StructType\n# 2. Create DataFrame\n# 3. Convert timestamp column from string to TimestampType\n# 4. Show the DataFrame and print its schema\n\n\n\nTask 1.3 – Tumbling window on batch data\nGroup transactions into 3-minute tumbling windows. Count transactions and sum amounts per window.\n\nimport pyspark.sql.functions as F\n\n# YOUR CODE\n# Use F.window(\"timestamp_col\", \"3 minutes\")\n# Group by window, aggregate: count, sum(amount)"
+    "objectID": "labs/en_lab2.html#part-1-load-the-data",
+    "href": "labs/en_lab2.html#part-1-load-the-data",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
+    "section": "Part 1: Load the Data",
+    "text": "Part 1: Load the Data\n\nSparkSession — the entry point\nBefore anything else, create a SparkSession. Think of it as a database connection — one object for the entire session.\n\nfrom pyspark.sql import SparkSession\n\nspark = (\n    SparkSession.builder\n    .appName(\"Lab2-Transactions\")\n    .getOrCreate()\n)\nspark.sparkContext.setLogLevel(\"WARN\")\nprint(f\"Spark {spark.version} — ready\")\n\n\n\nLoad the JSON file\nThe data is in data/transactions_10k.jsonl — 10,000 e-commerce transactions from 08:00–11:00. Each line is one JSON record — the same format as Kafka events in Lab 1.\n\ndf = spark.read.json(\"data/transactions_10k.jsonl\")\n\nprint(f\"Record count: {df.count()}\")\ndf.printSchema()\n\n\ndf.show(10, truncate=False)\n\n\n\nConvert the timestamp column\nSpark loaded timestamp as a string. To use time windows we need to convert it to TimestampType.\nThink of it as changing a cell format in Excel from “text” to “date”.\n\nfrom pyspark.sql.functions import to_timestamp, col\n\ndf = df.withColumn(\"timestamp\", to_timestamp(col(\"timestamp\"), \"yyyy-MM-dd HH:mm:ss\"))\n\ndf.printSchema()  # timestamp should now be 'timestamp (nullable = true)'",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
   },
   {
-    "objectID": "labs/en_lab2.html#part-2-streaming-from-rate-source",
-    "href": "labs/en_lab2.html#part-2-streaming-from-rate-source",
-    "title": "Lab 2: Kafka + Spark Structured Streaming",
-    "section": "Part 2: Streaming from rate Source",
-    "text": "Part 2: Streaming from rate Source\nBefore connecting to Kafka, let’s practice with the built-in rate source.\n\nTask 2.1 – First stream\n\nbatch_counter = {\"count\": 0}\n\ndef process_batch(df, batch_id, max_batches=5):\n    batch_counter[\"count\"] += 1\n    print(f\"--- Batch {batch_id} ---\")\n    df.show(truncate=False)\n    if batch_counter[\"count\"] &gt;= max_batches:\n        raise Exception(\"Stop\")\n\n# Create a rate stream (2 rows/second)\nrate_df = (spark.readStream\n    .format(\"rate\")\n    .option(\"rowsPerSecond\", 2)\n    .load()\n)\n\nrate_df.printSchema()\n\nquery = (rate_df.writeStream\n    .format(\"console\")\n    .outputMode(\"append\")\n    .foreachBatch(process_batch)\n    .start())\n\ntry:\n    query.awaitTermination()\nexcept:\n    query.stop()\n\n\n\nTask 2.2 – Enrich and filter the stream\nAdd columns to the rate stream: - user_id: expr(\"concat('u', cast(rand()*20 as int))\") - amount: expr(\"round(rand() * 5000, 2)\") - store: expr(\"case when rand() &gt; 0.5 then 'Warsaw' else 'Krakow' end\")\nThen filter only rows where amount &gt; 2000 (stateless, append mode).\n\nfrom pyspark.sql.functions import expr\n\nbatch_counter[\"count\"] = 0\n\n# YOUR CODE\n# 1. Enrich rate_df with withColumn\n# 2. Filter amount &gt; 2000\n# 3. Run stream in append mode\n\n\n\nTask 2.3 – Tumbling window aggregation on stream\nGroup the enriched stream into 10-second tumbling windows. Count events and sum amounts per window per store. Use watermark of 5 seconds.\n\nbatch_counter[\"count\"] = 0\n\n# YOUR CODE\n# 1. Add watermark: .withWatermark(\"timestamp\", \"5 seconds\")\n# 2. Group by: window(\"timestamp\", \"10 seconds\"), \"store\"\n# 3. Aggregate: count, sum(amount)\n# 4. Run in append mode (works with watermark)"
+    "objectID": "labs/en_lab2.html#part-2-basic-aggregations",
+    "href": "labs/en_lab2.html#part-2-basic-aggregations",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
+    "section": "Part 2: Basic Aggregations",
+    "text": "Part 2: Basic Aggregations\nBefore we get to windows, let’s warm up with groupBy — works just like SQL GROUP BY and Pandas.\n\nTask 2.1 — Transaction count and total revenue per store\n\nfrom pyspark.sql.functions import count, sum as _sum, avg, round as _round\n\nstore_summary = (\n    df.groupBy(\"store\")\n    .agg(\n        count(\"tx_id\").alias(\"tx_count\"),\n        _round(_sum(\"amount\"), 2).alias(\"total_PLN\"),\n        _round(avg(\"amount\"), 2).alias(\"avg_PLN\"),\n    )\n    .orderBy(\"store\")\n)\nstore_summary.show()\n\n\n\nTask 2.2 — Stats per category\nCount transactions, total revenue, min and max amount for each category.\n\nfrom pyspark.sql.functions import min as _min, max as _max\n\n# YOUR CODE\n# df.groupBy(\"category\").agg(...).orderBy(\"category\").show()",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
   },
   {
-    "objectID": "labs/en_lab2.html#part-3-reading-from-kafka",
-    "href": "labs/en_lab2.html#part-3-reading-from-kafka",
-    "title": "Lab 2: Kafka + Spark Structured Streaming",
-    "section": "Part 3: Reading from Kafka",
-    "text": "Part 3: Reading from Kafka\n\nTask 3.1 – Connect Spark to Kafka\nStart your producer from Lab 1 in a terminal, then read the stream in Spark.\n\n# Read from Kafka\nkafka_df = (spark.readStream\n    .format(\"kafka\")\n    .option(\"kafka.bootstrap.servers\", \"broker:9092\")\n    .option(\"subscribe\", \"transactions\")\n    .option(\"startingOffsets\", \"earliest\")\n    .load()\n)\n\nkafka_df.printSchema()\n# Note: value is binary -- we need to decode it\n\n\n\nTask 3.2 – Parse JSON from Kafka\nDecode the value column (binary -&gt; string -&gt; JSON fields).\n\nfrom pyspark.sql.functions import col, from_json\nfrom pyspark.sql.types import StructType, StructField, StringType, DoubleType\n\ntx_schema = StructType([\n    StructField(\"tx_id\", StringType()),\n    StructField(\"user_id\", StringType()),\n    StructField(\"amount\", DoubleType()),\n    StructField(\"store\", StringType()),\n    StructField(\"category\", StringType()),\n    StructField(\"timestamp\", StringType()),\n])\n\n# YOUR CODE\n# 1. Cast value to string: col(\"value\").cast(\"string\")\n# 2. Parse JSON: from_json(..., tx_schema)\n# 3. Select individual fields\n# 4. Convert timestamp to TimestampType\n# 5. Show the stream\n\n\n\nTask 3.3 – Windowed aggregation on Kafka stream\nOn the parsed Kafka stream, compute per 1-minute tumbling window per store: - number of transactions - total revenue - average transaction amount\nUse a watermark of 30 seconds.\n\n# YOUR CODE"
+    "objectID": "labs/en_lab2.html#part-3-tumbling-windows",
+    "href": "labs/en_lab2.html#part-3-tumbling-windows",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
+    "section": "Part 3: Tumbling Windows",
+    "text": "Part 3: Tumbling Windows\n\nWhat is a window?\nThe groupBy(\"store\") above counted all records together — regardless of when a transaction occurred.\nA window splits the time axis into intervals and groups data separately within each.\nTumbling window — non-overlapping, back-to-back intervals:\n08:00 ──────── 09:00 ──────── 10:00 ──────── 11:00\n  [ window 1 ]  [ window 2 ]  [ window 3 ]\nEach transaction falls into exactly one window.\n\n\nTask 3.1 — Transaction count per hour (tumbling 1h)\n\nfrom pyspark.sql.functions import window\n\nhourly = (\n    df.groupBy(window(\"timestamp\", \"1 hour\"))    # 1-hour tumbling window\n    .agg(\n        count(\"tx_id\").alias(\"tx_count\"),\n        _round(_sum(\"amount\"), 2).alias(\"total_PLN\"),\n    )\n    .orderBy(\"window\")\n)\nhourly.show(truncate=False)\n\nThe window column is a struct with start and end fields. We can extract them for cleaner output:\n\n(\n    hourly\n    .select(\n        col(\"window.start\").alias(\"from\"),\n        col(\"window.end\").alias(\"to\"),\n        \"tx_count\",\n        \"total_PLN\",\n    )\n    .show(truncate=False)\n)\n\n\n\nTask 3.2 — 30-minute windows per store\nCount transactions and total revenue per store in each 30-minute window. Sort by window, then by store within each window.\n\n# YOUR CODE\n# df.groupBy(window(\"timestamp\", \"30 minutes\"), \"store\").agg(...).orderBy(...).show()\n\n\n\nTask 3.3 — Which hour had the highest revenue for store “Kraków”?\nFilter by store first, then apply an hourly window, sort descending by total.\n\nfrom pyspark.sql.functions import desc\n\n# YOUR CODE",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
+  },
+  {
+    "objectID": "labs/en_lab2.html#part-4-sliding-windows",
+    "href": "labs/en_lab2.html#part-4-sliding-windows",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
+    "section": "Part 4: Sliding Windows",
+    "text": "Part 4: Sliding Windows\nSliding window — intervals overlap:\n08:00 ────────────────────────────────── 11:00\n  [──── 1h ────]\n       [──── 1h ────]\n            [──── 1h ────]\nTwo parameters: windowDuration (width) and slideDuration (step size).\nNote: one transaction can appear in multiple windows — that is expected.\n\nTask 4.1 — 1h window, 30-minute step\n\nsliding = (\n    df.groupBy(window(\"timestamp\", \"1 hour\", \"30 minutes\"))  # 1h width, 30min step\n    .agg(\n        count(\"tx_id\").alias(\"tx_count\"),\n        _round(_sum(\"amount\"), 2).alias(\"total_PLN\"),\n    )\n    .select(\n        col(\"window.start\").alias(\"from\"),\n        col(\"window.end\").alias(\"to\"),\n        \"tx_count\",\n        \"total_PLN\",\n    )\n    .orderBy(\"from\")\n)\nsliding.show(truncate=False)\n\n\n\nTask 4.2 — Compare tumbling vs sliding\nCount the total number of result rows in both approaches. Why does sliding produce more rows?\n\ntumbling_rows = (\n    df.groupBy(window(\"timestamp\", \"1 hour\"))\n    .agg(count(\"tx_id\"))\n    .count()\n)\nsliding_rows = (\n    df.groupBy(window(\"timestamp\", \"1 hour\", \"30 minutes\"))\n    .agg(count(\"tx_id\"))\n    .count()\n)\nprint(f\"Tumbling (1h):         {tumbling_rows} windows\")\nprint(f\"Sliding  (1h / 30min): {sliding_rows} windows\")\n\n# Answer in a comment: why does sliding produce more rows?\n# YOUR ANSWER:",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
+  },
+  {
+    "objectID": "labs/en_lab2.html#part-5-review-questions",
+    "href": "labs/en_lab2.html#part-5-review-questions",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
+    "section": "Part 5: Review Questions",
+    "text": "Part 5: Review Questions\n\n# Answer in comments:\n\n# 1. How many transactions are in the 09:00–10:00 window?\n#    Check the result from Task 3.1.\n#    ANSWER:\n\n# 2. What is the difference between groupBy(\"store\") and groupBy(window(...), \"store\")?\n#    ANSWER:\n\n# 3. In the sliding window (1h / 30min), how many windows contain transactions from 09:30?\n#    Hint: draw a timeline.\n#    ANSWER:",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
+  },
+  {
+    "objectID": "labs/en_lab2.html#preview-lab-3",
+    "href": "labs/en_lab2.html#preview-lab-3",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
+    "section": "Preview: Lab 3",
+    "text": "Preview: Lab 3\nToday you applied windows to a file (historical batch data).\nIn the next lab the same code will work on a live Kafka stream — the only change is one line:\n# Batch (today):\ndf = spark.read.json(\"data/transactions_10k.jsonl\")\n\n# Streaming (Lab 3):\ndf = spark.readStream.format(\"kafka\").option(...).load()\nThe window() aggregations stay exactly the same.",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
   },
   {
     "objectID": "labs/en_lab2.html#homework",
     "href": "labs/en_lab2.html#homework",
-    "title": "Lab 2: Kafka + Spark Structured Streaming",
+    "title": "Lab 2: Apache Spark — Batch Analytics on Transaction Data",
     "section": "Homework",
-    "text": "Homework\n\nAdd a sliding window analysis: 5-minute window, sliding every 1 minute, per category.\nWrite the filtered alerts (amount &gt; 3000) back to a new Kafka topic alerts. (Hint: use .writeStream.format(\"kafka\"))\nPush code to your Git repository.\n\nNext lab: Decision rules and scoring on streaming data.\n\nspark.stop()"
+    "text": "Homework\n\nFind the hour in which store Gdańsk had the lowest average transaction amount.\nCount how many transactions per category occurred in the 09:00–09:30 window.\nUse a 15-minute window and find which quarter-hour had the peak transaction volume (all stores combined).\n\nNext lab: The same window() on a live Kafka stream — watermarks and handling late-arriving events.\n\nspark.stop()",
+    "crumbs": [
+      "Home",
+      "Labs",
+      "Lab 2: Apache Spark — Batch Analytics on Transaction Data"
+    ]
   },
   {
     "objectID": "labs/en_lab6.html",
