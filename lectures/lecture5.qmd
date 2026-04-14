@@ -1,288 +1,455 @@
 ---
-title: "Lecture 5: Machine Learning in Real Time"
+title: "Lecture 5 — Apache Spark and Structured Streaming"
+subtitle: "Real-Time Data Analytics"
+description: "Apache Spark as a distributed processing engine, Structured Streaming, Spark–Kafka integration, complete real-time analytics pipeline."
 format:
   html:
     code-fold: true
+    code-tools: true
+    code-summary: "Show code"
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    smooth-scroll: true
+    theme:
+      light: flatly
+    highlight-style: github
+    fig-align: center
+    fig-cap-location: bottom
 jupyter: python3
 ---
 
-*Duration: 1.5h*
-
-**Goal:** Understand the differences between offline and online learning, anomaly detection in real time, and algorithm explainability — from a business perspective.
+::: {.callout-note appearance="minimal"}
+## {{< fa clock >}} Duration: 1.5h
+**Goal:** Learn Apache Spark as an engine for distributed data processing. Introduction to Structured Streaming and Spark–Kafka integration. Overview of the complete real-time analytics pipeline.
+:::
 
 ---
 
-## Offline Learning vs Online Learning
+## Why Spark?
 
-In previous lectures we learned the difference between batch and stream processing. The same dichotomy applies to machine learning.
+In previous lectures we learned about Kafka — a system that **transports** data streams. But Kafka itself doesn't perform complex analytics. For that we need a processing engine — and that's where **Apache Spark** comes in.
 
-### Offline Learning (Batch Learning)
+Spark is an engine for **distributed data processing** that supports both batch and streaming modes. It was created at UC Berkeley in 2009 as a response to the limitations of Hadoop MapReduce — mainly its slowness due to constant writes to disk.
 
-The classical approach: collect historical data, train a model, deploy it — and the model doesn't change until you retrain it on new data.
+:::: {.columns}
 
-```{python}
-from sklearn.linear_model import LinearRegression
-import numpy as np
+::: {.column width="50%"}
+::: {.callout-tip appearance="simple"}
+## {{< fa memory >}} In-memory processing
+Data kept in RAM, not on disk. Up to **100x faster** than MapReduce.
+:::
+::: {.callout-tip appearance="simple"}
+## {{< fa cubes >}} One engine, many modes
+Batch, streaming, SQL, ML, graphs — all in one framework.
+:::
+:::
 
-# Historical data — area (sqm) vs price (thousands PLN)
-X = np.array([[30], [45], [55], [70], [85], [100], [120]])
-y = np.array([250, 370, 430, 560, 680, 790, 950])
+::: {.column width="50%"}
+::: {.callout-tip appearance="simple"}
+## {{< fa python >}} Multi-language API
+PySpark, Scala, Java, R.
+:::
+::: {.callout-tip appearance="simple"}
+## {{< fa wand-magic-sparkles >}} Lazy evaluation
+Spark builds an execution plan and optimizes it **before** computing anything.
+:::
+:::
 
-model = LinearRegression()
-model.fit(X, y)
+::::
 
-# Model is "frozen" — it doesn't learn from new data
-new = np.array([[65], [90]])
-print("Predictions:", model.predict(new).round(0))
+```{mermaid}
+%%| fig-cap: "Apache Spark ecosystem"
+flowchart TB
+    subgraph "Apache Spark"
+        CORE["Spark Core\n(RDD, memory management)"]
+        SQL["Spark SQL\n& DataFrames"]
+        SS["Structured\nStreaming"]
+        ML["MLlib\n(Machine Learning)"]
+        GR["GraphX\n(Graphs)"]
+    end
+    SQL --> CORE
+    SS --> CORE
+    ML --> CORE
+    GR --> CORE
+
+    style CORE fill:#FF9800,color:#fff
+    style SQL fill:#2196F3,color:#fff
+    style SS fill:#F44336,color:#fff
+    style ML fill:#4CAF50,color:#fff
+    style GR fill:#9C27B0,color:#fff
 ```
 
-Problem: the world changes. Property prices rise, customer preferences evolve, new fraud patterns emerge. A model trained on last year's data may be outdated.
+---
 
-Brute-force solution: retrain the model periodically (e.g., weekly) on new data. This works, but it's expensive and delayed.
+## PySpark — basics
 
+### SparkSession — the entry point
 
-### Online Learning (Incremental Learning)
-
-An alternative approach: the model learns **continuously**, updating its parameters with each new observation (or small batch).
-
-Key algorithm: **Stochastic Gradient Descent (SGD)** — instead of computing the gradient on the entire dataset, we update weights after each observation.
-
-```{python}
-from sklearn.linear_model import SGDRegressor
-import numpy as np
-
-# Data arrives as a stream — one observation at a time
-np.random.seed(42)
-model = SGDRegressor(max_iter=1, warm_start=True, learning_rate='constant', eta0=0.0001)
-
-# Simulated data stream
-print("Online learning — model learns with each new observation:")
-for i in range(50):
-    X_new = np.array([[30 + i * 2]])
-    y_new = np.array([250 + i * 15 + np.random.normal(0, 20)])
-    model.partial_fit(X_new, y_new)
-
-    if i % 10 == 0:
-        pred = model.predict(np.array([[75]]))[0]
-        print(f"  After {i+1} observations -> prediction for 75sqm: {pred:.0f}k PLN")
-```
-
-The `partial_fit()` method is the heart of online learning — the model updates its parameters without needing to store the entire dataset.
-
-### When to Use Which?
-
-| Feature | Offline learning | Online learning |
-|---|---|---|
-| **Data** | Historical, collected | Streaming, incremental |
-| **Model update** | Periodic (retrain) | Continuous (partial_fit) |
-| **Compute cost** | High one-time | Low per observation |
-| **Reaction to change** | Delayed | Immediate |
-| **Risk** | Stale model | Instability, concept drift |
-| **Use case** | Reports, predictive models | Fraud detection, live recommendations |
-
-In practice, a **hybrid** approach is often used: a base model trained offline, updated online with current data.
-
-
-## Anomaly Detection
-
-Anomaly detection is one of the most important applications of real-time analytics. An anomaly (outlier) is an observation that significantly deviates from the rest — a suspicious transaction, unusual sensor reading, unexpected traffic spike.
-
-### Statistical Method — IQR
-
-The simplest method: an observation is an anomaly if it lies far from the median. Formally, a value is an outlier when:
-
-$$x_{out} < Q_1 - 1.5 \times IQR \quad \text{or} \quad x_{out} > Q_3 + 1.5 \times IQR$$
-
-where $IQR = Q_3 - Q_1$ (interquartile range).
-
-```{python}
-import numpy as np
-import matplotlib.pyplot as plt
-
-# Credit card transactions (amounts in PLN)
-transactions = [85, 92, 78, 110, 95, 88, 102, 91, 87, 99,
-                105, 82, 97, 4500, 89, 94, 101, 86, 93, 8200]
-
-Q1 = np.percentile(transactions, 25)
-Q3 = np.percentile(transactions, 75)
-IQR = Q3 - Q1
-
-lower_bound = Q1 - 1.5 * IQR
-upper_bound = Q3 + 1.5 * IQR
-
-anomalies = [x for x in transactions if x < lower_bound or x > upper_bound]
-print(f"Q1={Q1}, Q3={Q3}, IQR={IQR}")
-print(f"Bounds: [{lower_bound:.0f}, {upper_bound:.0f}]")
-print(f"Anomalies: {anomalies}")
-
-fig, ax = plt.subplots(figsize=(8, 2))
-ax.boxplot(transactions, vert=False)
-ax.set_xlabel('Transaction amount (PLN)')
-ax.set_title('Anomaly detection with IQR')
-plt.tight_layout()
-plt.show()
-```
-
-The IQR method is simple but works only for a single variable. For multidimensional data we need something more sophisticated.
-
-
-### Isolation Forest
-
-**Isolation Forest** is a tree-based algorithm designed specifically for anomaly detection (Liu, Ting, Zhou, 2008). It works on a simple intuition: **anomalies are easier to isolate** than normal observations.
-
-The algorithm randomly selects a feature and a split point. Outliers — being far from the rest — get isolated after fewer splits (closer to the tree root). Normal observations require many splits.
-
-```{python}
-import numpy as np
-import pandas as pd
-from sklearn.ensemble import IsolationForest
-
-# Transaction data: amount, weekly frequency, hours since last transaction
-np.random.seed(42)
-normal = np.column_stack([
-    np.random.normal(200, 50, 50),
-    np.random.normal(10, 3, 50),
-    np.random.normal(24, 8, 50),
-])
-
-anomalies = np.array([
-    [5000, 1, 720],
-    [4200, 2, 480],
-    [50, 45, 0.5],
-])
-
-data = np.vstack([normal, anomalies])
-
-model = IsolationForest(contamination=0.05, random_state=42)
-labels = model.fit_predict(data)
-
-df = pd.DataFrame(data, columns=["amount", "weekly_freq", "hours_since_last"])
-df["anomaly"] = ["YES" if l == -1 else "no" for l in labels]
-
-print("Detected anomalies:")
-print(df[df["anomaly"] == "YES"].to_string(index=False))
-```
-
-Isolation Forest advantages: fast on large datasets, handles multidimensional data, doesn't require labeled data (unsupervised method).
-
-
-### Anomaly Detection in a Stream
-
-In a real-time context, anomaly detection works in a loop:
-
-1. A Kafka consumer receives a new transaction.
-2. A model (e.g., Isolation Forest, trained offline) evaluates whether it's an anomaly.
-3. If so — generates an alert.
-4. Optionally: the model updates itself on new data (online learning).
+Every PySpark program starts by creating a `SparkSession`:
 
 ```python
-from kafka import KafkaConsumer
-from sklearn.ensemble import IsolationForest
-import json, numpy as np
+from pyspark.sql import SparkSession
 
-# Assume model is pre-trained
-model = IsolationForest(contamination=0.05)
-# model.fit(historical_data)
-
-consumer = KafkaConsumer(
-    "transactions",
-    bootstrap_servers="localhost:9092",
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-)
-
-for msg in consumer:
-    t = msg.value
-    features = np.array([[t["amount"], t["weekly_freq"], t["hours_since_last"]]])
-    pred = model.predict(features)[0]
-
-    if pred == -1:
-        print(f"ALERT: Suspicious transaction {t['id']}: {t['amount']} PLN")
+spark = SparkSession.builder \
+    .appName("MyFirstApplication") \
+    .master("local[*]") \
+    .getOrCreate()
 ```
 
+::: {.callout-note appearance="simple"}
+`local[*]` means: run Spark locally, using all available CPU cores. In production, a cluster address is provided instead.
+:::
 
-## Algorithm Explainability
+### DataFrame API
 
-An ML model may be highly accurate, but if we can't explain **why** it made a particular decision, its usefulness in many industries is limited.
-
-This is especially important in regulated sectors:
-
-- **Banking** — a bank must explain to a customer why their loan was denied.
-- **Healthcare** — a diagnostic algorithm must indicate what its recommendation is based on.
-- **Insurance** — a claim denial decision must be justified.
-- **Regulation** — the EU AI Act requires transparency for high-risk AI systems.
-
-
-### LIME — Local Interpretable Model-Agnostic Explanations
-
-LIME (Ribeiro et al., 2016) explains individual predictions of any ML model. It works as follows:
-
-1. Takes a specific observation we want explained.
-2. Generates perturbations — slightly modified versions of that observation.
-3. Checks how the model reacts to those changes.
-4. Builds a simple, interpretable local model (e.g., linear regression) that approximates the complex model's behavior in the neighborhood of that observation.
-
-```{python}
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-import numpy as np
-
-# Train model on Iris data
-iris = load_iris()
-X_train, X_test, y_train, y_test = train_test_split(
-    iris.data, iris.target, test_size=0.2, random_state=42
-)
-
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X_train, y_train)
-
-# Pick one observation
-i = 7
-obs = X_test[i]
-pred = model.predict([obs])[0]
-proba = model.predict_proba([obs])[0]
-
-print(f"Observation: {obs}")
-print(f"Prediction: {iris.target_names[pred]} (probabilities: {proba.round(3)})")
-
-# Feature importance for this model
-importances = model.feature_importances_
-print(f"\nFeature importance (global):")
-for name, imp in sorted(zip(iris.feature_names, importances), key=lambda x: -x[1]):
-    print(f"  {name}: {imp:.3f}")
-```
+A Spark DataFrame is the equivalent of a SQL table or a Pandas DataFrame — but **distributed** across multiple machines.
 
 ```python
-# To use LIME (requires: pip install lime):
-from lime.lime_tabular import LimeTabularExplainer
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, avg, sum, count
 
-explainer = LimeTabularExplainer(
-    X_train,
-    feature_names=iris.feature_names,
-    class_names=iris.target_names,
-    discretize_continuous=True
-)
+spark = SparkSession.builder.appName("Demo").master("local[*]").getOrCreate()
 
-exp = explainer.explain_instance(X_test[i], model.predict_proba)
-exp.show_in_notebook()
+# Creating a DataFrame
+data = [
+    ("Warsaw", "Electronics", 4299.00),
+    ("Krakow", "Clothing", 189.99),
+    ("Warsaw", "Food", 87.50),
+    ("Gdansk", "Electronics", 2599.00),
+    ("Krakow", "Electronics", 1299.00),
+    ("Warsaw", "Clothing", 349.99),
+    ("Gdansk", "Food", 156.00),
+]
+
+df = spark.createDataFrame(data, ["city", "category", "amount"])
+df.show()
 ```
 
-LIME will show which features (e.g., petal length > 4.5, petal width > 1.6) influenced the classification of a given flower as *Virginica*. The same approach works for any model — from logistic regression to deep neural networks.
+### Transformations and actions
 
+Spark distinguishes two types of operations:
 
-## Course Summary — What's Next?
+::: {.panel-tabset}
 
-Over 5 lectures we followed this path:
+#### {{< fa wand-magic-sparkles >}} Transformations (lazy)
 
-1. **L1:** What is real-time analytics and when is it needed (batch vs NRT vs RT).
-2. **L2:** Evolution of data and processing models (OLTP -> OLAP -> Data Lake -> Big Data).
-3. **L3:** Stream processing — time, watermarking, time windows.
-4. **L4:** Apache Kafka and microservices — real-time system architecture.
-5. **L5:** Machine learning in streaming context — online learning, anomalies, explainability.
+Define *what* you want to do, but **don't execute** computations. They are **lazy**.
 
-In the **labs**, you'll translate this knowledge into practice: set up an environment in Docker, write Kafka producers and consumers, build a Spark Streaming + Kafka pipeline, deploy an ML model as a FastAPI microservice, and build a complete real-time anomaly detection system.
+Examples: `filter`, `groupBy`, `select`, `join`.
 
+```python
+# Transformations (lazy — nothing is computed yet)
+result = df \
+    .filter(col("amount") > 100) \
+    .groupBy("city") \
+    .agg(
+        sum("amount").alias("total"),
+        count("amount").alias("count"),
+        avg("amount").alias("average")
+    )
+```
 
-## Business Impact
+#### {{< fa play >}} Actions (eager)
 
-Anomaly detection is the foundation of modern risk management — from detecting financial fraud to predicting machine failures (predictive maintenance). Algorithm explainability is a necessity in regulated sectors — understanding "why the system said NO" protects a company from reputational and legal damage and ensures compliance with regulations (AI Act, GDPR). Companies that combine real-time analytics with interpretable ML gain a competitive advantage not only in speed, but also in customer trust.
+**Trigger** actual computation.
+
+Examples: `show`, `count`, `collect`, `write`.
+
+```python
+# Action (here Spark actually performs the computation)
+result.show()
+
+spark.stop()
+```
+
+:::
+
+::: {.callout-tip collapse="true"}
+## {{< fa database >}} Spark SQL — an alternative
+You can also use plain SQL:
+
+```python
+df.createOrReplaceTempView("sales")
+
+spark.sql("""
+    SELECT city,
+           SUM(amount) as total,
+           COUNT(*) as count
+    FROM sales
+    WHERE amount > 100
+    GROUP BY city
+    ORDER BY total DESC
+""").show()
+```
+:::
+
+---
+
+## Structured Streaming — streams as tables
+
+::: {.callout-important}
+## Key concept
+Structured Streaming treats a **data stream as a table to which new rows are continuously appended**. This lets you write streaming code almost identically to batch — using the same DataFrame API.
+:::
+
+```{mermaid}
+%%| fig-cap: "Structured Streaming: stream as an unbounded table"
+flowchart TB
+    subgraph "Input stream"
+        T1["Batch t1"] --> TAB["Unbounded\ninput table\n(new rows\nappended continuously)"]
+        T2["Batch t2"] --> TAB
+        T3["Batch t3"] --> TAB
+        T4["Batch t4..."] --> TAB
+    end
+    TAB -->|"Query"| RES["Result table\n(updated\nwith each trigger)"]
+    RES --> OUT["Output:\nconsole / Kafka / files / database"]
+
+    style TAB fill:#2196F3,color:#fff
+    style RES fill:#4CAF50,color:#fff
+    style OUT fill:#FF9800,color:#fff
+```
+
+### Output modes
+
+:::: {.columns}
+
+::: {.column width="33%"}
+::: {.callout-note appearance="simple"}
+## {{< fa plus >}} Append
+Only **new** rows are added to the output. Default mode.
+:::
+:::
+
+::: {.column width="33%"}
+::: {.callout-warning appearance="simple"}
+## {{< fa arrows-rotate >}} Complete
+The entire result table is **overwritten** (e.g., after aggregation).
+:::
+:::
+
+::: {.column width="33%"}
+::: {.callout-tip appearance="simple"}
+## {{< fa pen >}} Update
+Only **changed** rows are written.
+:::
+:::
+
+::::
+
+### Example: streaming from CSV files
+
+The simplest example — Spark monitors a directory and processes new CSV files as they appear:
+
+```python
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, window, sum
+from pyspark.sql.types import StructType, StringType, DoubleType, TimestampType
+
+spark = SparkSession.builder.appName("StreamingDemo").master("local[*]").getOrCreate()
+
+# Data schema
+schema = StructType() \
+    .add("transaction_id", StringType()) \
+    .add("amount", DoubleType()) \
+    .add("store", StringType()) \
+    .add("timestamp", TimestampType())
+
+# Reading stream from CSV directory
+streaming_df = spark.readStream \
+    .schema(schema) \
+    .option("header", True) \
+    .csv("/data/incoming/")
+
+# Aggregation in 5-minute windows
+result = streaming_df \
+    .groupBy(
+        window(col("timestamp"), "5 minutes"),
+        col("store")
+    ) \
+    .agg(sum("amount").alias("total"))
+
+# Write result to console
+query = result.writeStream \
+    .outputMode("complete") \
+    .format("console") \
+    .trigger(processingTime="10 seconds") \
+    .start()
+
+# query.awaitTermination()
+```
+
+---
+
+## Spark + Kafka integration
+
+::: {.callout-important appearance="simple"}
+## The heart of the course
+**Kafka transports data, Spark processes it.** This is the fundamental pair in real-time analytics architecture.
+:::
+
+::: {.panel-tabset}
+
+### Reading from Kafka
+
+```python
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import from_json, col, window, avg, count
+from pyspark.sql.types import StructType, StringType, DoubleType, TimestampType
+
+spark = SparkSession.builder \
+    .appName("KafkaStreaming") \
+    .master("local[*]") \
+    .getOrCreate()
+
+# Read stream from Kafka
+kafka_df = spark.readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "localhost:9092") \
+    .option("subscribe", "transactions") \
+    .option("startingOffsets", "latest") \
+    .load()
+
+# Kafka returns data as bytes — needs to be parsed
+schema = StructType() \
+    .add("id", StringType()) \
+    .add("amount", DoubleType()) \
+    .add("store", StringType()) \
+    .add("time", TimestampType())
+
+parsed_df = kafka_df \
+    .selectExpr("CAST(value AS STRING) as json") \
+    .select(from_json(col("json"), schema).alias("data")) \
+    .select("data.*")
+```
+
+### Processing and writing
+
+```python
+# Aggregation: average amount and transaction count
+# in 5-minute windows per store
+result = parsed_df \
+    .withWatermark("time", "2 minutes") \
+    .groupBy(
+        window(col("time"), "5 minutes"),
+        col("store")
+    ) \
+    .agg(
+        avg("amount").alias("average_amount"),
+        count("*").alias("transaction_count")
+    )
+
+# Write to console (in labs: to database or dashboard)
+query = result.writeStream \
+    .outputMode("update") \
+    .format("console") \
+    .option("truncate", False) \
+    .trigger(processingTime="10 seconds") \
+    .start()
+
+# query.awaitTermination()
+```
+
+::: {.callout-note appearance="simple"}
+Note `.withWatermark("time", "2 minutes")` — this is the watermarking mechanism we discussed in Lecture 2. Spark tolerates event delays up to 2 minutes and automatically discards those that arrive later.
+:::
+
+:::
+
+---
+
+## Complete pipeline — course summary
+
+Putting together everything we've learned in the lectures:
+
+```{mermaid}
+%%| fig-cap: "Complete real-time analytics pipeline — course summary"
+flowchart LR
+    subgraph "Data sources"
+        WEB["Web\napplication"]
+        PAY["Payment\nsystem"]
+        IOT["IoT\nsensors"]
+    end
+    subgraph "Transport"
+        K["Apache Kafka\n(L4)"]
+    end
+    subgraph "Processing"
+        SS["Spark Streaming\n(L5)"]
+        ML["FastAPI + ML\n(L3)"]
+    end
+    subgraph "Results"
+        DASH["Dashboard\n(near RT)"]
+        ALERT["Alerts\n(real-time)"]
+        REP["Reports\n(batch)"]
+    end
+
+    WEB --> K
+    PAY --> K
+    IOT --> K
+    K --> SS --> DASH
+    K --> ML --> ALERT
+    SS --> REP
+
+    style K fill:#FF9800,color:#fff
+    style SS fill:#2196F3,color:#fff
+    style ML fill:#4CAF50,color:#fff
+    style DASH fill:#E3F2FD,stroke:#2196F3
+    style ALERT fill:#FFEBEE,stroke:#F44336
+    style REP fill:#F3E5F5,stroke:#9C27B0
+```
+
+| Component | Role | Lecture |
+|-----------|------|:------:|
+| Data types, OLTP/OLAP, Data Lake | Context and history | L1 |
+| Lambda/Kappa, time windows | Architecture | L2 |
+| ML batch vs online, SGD, anomalies | Models and algorithms | L3 |
+| Apache Kafka | Data transport | L4 |
+| Apache Spark + Structured Streaming | Processing | L5 |
+
+: Course map {.striped .hover}
+
+---
+
+## Algorithm complexity — a practical note
+
+::: {.callout-caution}
+## When designing a real-time pipeline, consider the computational dimension
+- **Large data, simple computation** — e.g., log filtering, aggregations. Spark handles this well.
+- **Small data, heavy computation** — e.g., training a deep learning model. Better offline on GPU.
+- **Large data, heavy computation** — e.g., real-time video analysis. Requires specialized architecture (GPU cluster, edge computing).
+
+For real-time systems the key is that the processing time of one event must be **shorter** than the interval between events. Otherwise the queue grows indefinitely.
+:::
+
+---
+
+## What's next — the labs
+
+In the labs you'll build a complete system step by step:
+
+| Lab | Topic |
+|:---:|-------|
+| 1–2 | Environment (Git, Docker, Python), exploratory data analysis |
+| 3–4 | ML model (scikit-learn), deployment preparation |
+| 5–6 | Kafka in Docker — producer and consumer in Python |
+| 7–8 | PySpark + Structured Streaming + Kafka |
+| 9–10 | Complete pipeline + group project |
+
+: Lab plan {.striped .hover}
+
+---
+
+## Summary
+
+Apache Spark is the engine that turns raw data streams into business value. Combined with Kafka it forms a powerful real-time analytics platform. Structured Streaming simplifies streaming programming — you write code as for batch, and Spark takes care of the rest.
+
+::: {.callout-important appearance="simple"}
+## {{< fa flag-checkered >}} This was the last lecture
+In the labs you'll translate this knowledge into practice — from the first `docker compose up` to a complete real-time data processing system.
+:::
+
+::: {.callout-tip appearance="simple"}
+## {{< fa laptop-code >}} Before Lab 1
+Make sure you have Docker and Git installed (see the [Tools](../info.qmd) page). Clone the course repository and run `docker compose up` — if it works, you're ready.
+:::

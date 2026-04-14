@@ -1,186 +1,358 @@
 ---
-title: "Lecture 1: Introduction to Real-Time Data Analytics"
+title: "Lecture 1 — From Flat Files to Data Lake"
+subtitle: "Real-Time Data Analytics"
+description: "Evolution of data processing models — from simple files, through relational databases and data warehouses, to Data Lake and stream processing."
 format:
   html:
     code-fold: true
+    code-tools: true
+    code-summary: "Show code"
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    smooth-scroll: true
+    theme:
+      light: flatly
+    highlight-style: github
+    fig-align: center
+    fig-cap-location: bottom
 jupyter: python3
 ---
 
-*Duration: 1.5h*
-
-**Goal:** Understand what real-time data analytics is, the differences between data processing modes, and where businesses apply these approaches.
+::: {.callout-note appearance="minimal"}
+## Duration: 1.5h
+**Goal:** Understand how data processing models evolved — from simple files, through relational databases and data warehouses, to Data Lake and stream processing. Introduction to real-time data analytics.
+:::
 
 ---
 
-## What Is Real-Time Data Analytics?
+## Why do we need real-time data analytics?
 
-Real-Time Data Analytics is the process of analyzing data immediately after it is generated — without collecting it into files and waiting for later processing.
+Imagine you run an online store. At the end of the month you generate a sales report — and discover that two weeks ago an advertising campaign stopped working. You wasted two weeks of budget.
 
-Key characteristics:
+Now imagine seeing this **within a minute** of the conversion rate dropping. You react immediately — pause the campaign, change the creative, save the budget.
 
-- **Low latency** — data is analyzed within milliseconds or seconds of being generated.
-- **Continuity** — processing runs non-stop as new data arrives.
-- **Reactivity** — the system makes decisions or triggers alerts in real time.
+::: {.callout-important}
+## The key difference
+This is the difference between **batch processing** and **real-time analytics**.
 
-Consider the contrast: an accountant generating a monthly sales report works in *batch* mode. A bank's anti-fraud system blocking a suspicious transaction in a fraction of a second — that's *real-time*.
+Real-time data analytics is the process of processing data immediately (or nearly immediately) after it is generated — without waiting to collect it into a file or data warehouse.
+:::
 
+### Where does it matter?
 
-## Three Data Processing Modes
+| Industry | Example | Reaction time |
+|--------|----------|:------------:|
+| {{< fa building-columns >}} Banking | Blocking a suspicious card transaction | Milliseconds |
+| {{< fa cart-shopping >}} E-commerce | Personalizing an offer during a session | Seconds |
+| {{< fa truck >}} Logistics | Rerouting a shipment after detecting a delay | Minutes |
+| {{< fa tower-cell >}} Telecom | Detecting a network failure before a customer reports it | Seconds |
+| {{< fa heart-pulse >}} Healthcare | Alert from an ICU patient monitor | Milliseconds |
 
-In practice, there are three approaches to processing information. Each has different use cases, costs, and trade-offs.
+: Examples of real-time analytics use cases {.striped .hover}
 
-### Batch Processing
+Not every problem requires millisecond reactions. The key question is: **what reaction time does your business problem require?**
 
-Data is collected and processed at predefined intervals (hourly, daily, etc.).
+---
 
-Typical use cases:
+## Evolution of data processing models
 
-- end-of-day financial reports,
-- training machine learning models on historical data,
-- sales trend analysis.
+```{mermaid}
+%%| fig-cap: "Evolution of data processing models"
+timeline
+    title From flat files to streaming
+    1960s-70s : Flat files
+              : Hierarchical databases
+    1970s-80s : Relational model (OLTP)
+              : SQL, ACID, CRUD
+    1990s : Data warehouses (OLAP)
+          : ETL, cubes, reports
+    2000s : Big Data
+          : Hadoop, MapReduce
+    2010s : Data Lake
+          : Schema-on-read, S3/HDFS
+    2020s : Streaming + Lakehouse
+          : Kafka, Spark, Flink
+```
 
-Technologies: Apache Spark (batch mode), SQL, pandas.
+### Flat files — the starting point
+
+Before databases existed, information was stored in text files — CSV, TSV, fixed-width column files. Each program read the file from beginning to end, processed the data, and wrote the result to a new file.
 
 ```{python}
 import pandas as pd
 import numpy as np
 
-# Simulated transaction data
 np.random.seed(42)
-df = pd.DataFrame({
-    'date': pd.date_range("2025-01-01", periods=1000, freq='h'),
-    'amount': np.random.uniform(10, 5000, 1000).round(2),
-    'store': np.random.choice(['Warsaw', 'Krakow', 'Gdansk', 'Wroclaw'], 1000)
+transactions = pd.DataFrame({
+    'date': pd.date_range('2026-01-01', periods=100, freq='h'),
+    'amount': np.random.uniform(10, 5000, 100).round(2),
+    'store': np.random.choice(['Warsaw', 'Krakow', 'Gdansk'], 100)
 })
 
-# Typical batch analysis — monthly report
-report = df.groupby([df['date'].dt.to_period('M'), 'store'])['amount'].sum().unstack()
-print(report.round(0))
+# Typical batch analysis: load → process → save
+monthly = transactions.groupby('store')['amount'].agg(['sum', 'mean', 'count'])
+monthly.columns = ['total', 'average', 'count']
+print(monthly.round(2))
 ```
 
-We collect data, store it, then analyze it. Results come with a delay — but for many use cases that's perfectly fine.
+This approach works well for small data. Problems arise when data grows, multiple users want to access it simultaneously, or we need consistency and security.
 
+### OLTP — relational databases
 
-### Near Real-Time Analytics
+In the 1970s Edgar Codd proposed the relational model, which became the foundation of transactional systems. **OLTP** (On-Line Transaction Processing) is a model optimized for fast reads and writes of individual records.
 
-Data is processed with a small delay — from a few seconds to a few minutes. A compromise between cost and speed.
+::: {.callout-tip}
+## OLTP characteristics
+**CRUD** operations, **ACID** guarantees, short transactions. Used in ERP, CRM, banking, and e-commerce systems.
+:::
 
-Typical use cases:
+```{python}
+import sqlite3
 
-- monitoring bank transactions (analysis within seconds),
-- dynamically adjusting online ads,
-- server log analysis and anomaly detection.
+conn = sqlite3.connect(':memory:')
+cursor = conn.cursor()
+cursor.execute('''
+    CREATE TABLE transactions (
+        id INTEGER PRIMARY KEY, date TEXT, amount REAL, store TEXT
+    )
+''')
+cursor.execute(
+    "INSERT INTO transactions (date, amount, store) VALUES (?, ?, ?)",
+    ('2026-03-12 10:30:00', 299.99, 'Warsaw')
+)
+cursor.execute("SELECT * FROM transactions WHERE id = 1")
+print(cursor.fetchone())
+conn.close()
+```
 
-Technologies: Apache Kafka + Spark Streaming, Elasticsearch.
+OLTP handles day-to-day operations well. But the question *"What was total sales by region over the last 12 months?"* run against a production database can bring the system to a halt.
 
-```python
-from kafka import KafkaProducer
-import json, random, time
+### OLAP — data warehouses
+
+The need for analytics led to **OLAP** (On-Line Analytical Processing) and **data warehouses**. Data from multiple OLTP systems is loaded through an **ETL** (Extract–Transform–Load) process, where it can be analyzed without affecting production systems.
+
+::: {.callout-tip}
+## OLAP characteristics
+Multi-dimensional aggregations (time, location, product), historical data, reports and dashboards.
+:::
+
+```{python}
+np.random.seed(42)
+sales = pd.DataFrame({
+    'date': pd.date_range('2025-01-01', periods=365, freq='D'),
+    'amount': np.random.uniform(1000, 50000, 365).round(2),
+    'region': np.random.choice(['Mazovia', 'Lesser Poland', 'Pomerania'], 365),
+    'category': np.random.choice(['Electronics', 'Clothing', 'Food'], 365)
+})
+sales['quarter'] = sales['date'].dt.to_period('Q')
+pivot = sales.pivot_table(values='amount', index='region', columns='quarter', aggfunc='sum')
+print("Sales by region and quarter (thousands PLN):")
+print((pivot / 1000).round(1))
+```
+
+### Data Lake — everything in one place
+
+A data warehouse requires data to have a structure **before** loading (schema-on-write). It can't handle logs, images, JSON files from APIs, or IoT data.
+
+**Data Lake** is the opposite approach — we store raw data in any format (schema-on-read) and give it structure only at analysis time.
+
+::: {.panel-tabset}
+
+#### Data Warehouse
+
+| Feature | Value |
+|-------|---------|
+| Data structure | Structured |
+| Schema | Before loading (schema-on-write) |
+| Users | Business analysts |
+| Storage cost | High |
+| Technologies | SQL Server, Oracle, Teradata |
+
+#### Data Lake
+
+| Feature | Value |
+|-------|---------|
+| Data structure | Any (raw) |
+| Schema | At read time (schema-on-read) |
+| Users | Data scientists, engineers |
+| Storage cost | Low |
+| Technologies | Hadoop HDFS, S3, Azure Data Lake |
+
+:::
+
+---
+
+## Data is always generated as a stream
+
+All of the models above assume data is **at rest** — sitting in a file, database, or warehouse. But in reality, data **is always generated as a stream of events** — every transaction, every click, every sensor reading is an event that occurs at a specific moment in time.
+
+::: {.callout-warning}
+## Shift in perspective
+Batch processing is just a **simplification** — we collect a stream of events into a file and analyze it with a delay.
+:::
+
+```{python}
+import time
 from datetime import datetime
 
-producer = KafkaProducer(
-    bootstrap_servers='localhost:9092',
-    value_serializer=lambda v: json.dumps(v).encode('utf-8')
-)
+def generate_transactions(n=5):
+    stores = ['Warsaw', 'Krakow', 'Gdansk']
+    for i in range(n):
+        yield {
+            'id': f'TX{i+1:04d}',
+            'time': datetime.now().strftime('%H:%M:%S'),
+            'amount': round(np.random.uniform(10, 2000), 2),
+            'store': np.random.choice(stores)
+        }
+        time.sleep(0.3)
 
-# Producer sends transactions every second
-for _ in range(10):
-    transaction = {
-        'id': f'TX{random.randint(1000,9999)}',
-        'amount': round(random.uniform(10, 10000), 2),
-        'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'store': random.choice(['Warsaw', 'Krakow', 'Gdansk']),
-    }
-    producer.send('transactions', value=transaction)
-    print(f"Sent: {transaction}")
-    time.sleep(1)
-
-producer.flush()
-producer.close()
+total = 0
+for tx in generate_transactions():
+    total += tx['amount']
+    alert = " << LARGE TRANSACTION" if tx['amount'] > 1500 else ""
+    print(f"[{tx['time']}] {tx['id']}: {tx['amount']:>8.2f} PLN ({tx['store']}){alert}")
+print(f"\nRunning total: {total:.2f} PLN")
 ```
 
-```python
-from kafka import KafkaConsumer
+Systems that handle data streams include: transactional systems, data warehouses, IoT systems, web analytics platforms, advertising platforms, social media, logging systems.
+
+> **A company is an organization that generates and responds to a continuous stream of events.**
+
+---
+
+## Three processing modes — comparison
+
+::: {.panel-tabset}
+
+#### Comparison table
+
+| Feature | {{< fa clock >}} Batch | {{< fa gauge >}} Near Real-Time | {{< fa bolt >}} Real-Time |
+|-------|-------|----------------|-----------|
+| Latency | Minutes–hours–days | Seconds–minutes | Milliseconds–seconds |
+| Example | Monthly report | Sales dashboard (30s) | Card blocking |
+| Cost | Low | Medium | High |
+| Technologies | Pandas, Spark (batch), SQL | Kafka + Spark Streaming | Apache Flink, custom |
+
+: {.striped .hover}
+
+#### Chart
+
+```{python}
+#| label: fig-processing-modes
+#| fig-cap: "Comparison of processing modes: latency vs cost"
+import matplotlib.pyplot as plt
+import numpy as np
+
+modes = ['Batch', 'Near\nReal-Time', 'Real-Time']
+latency = [3600, 30, 0.1]  # seconds
+cost = [1, 3, 8]  # relative
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+
+colors = ['#2196F3', '#FF9800', '#F44336']
+
+ax1.barh(modes, latency, color=colors, edgecolor='white')
+ax1.set_xscale('log')
+ax1.set_xlabel('Latency (seconds, log scale)')
+ax1.set_title('Latency')
+for i, v in enumerate(latency):
+    label = f"{v}s" if v >= 1 else f"{int(v*1000)}ms"
+    ax1.text(v * 1.5, i, label, va='center', fontweight='bold')
+
+ax2.barh(modes, cost, color=colors, edgecolor='white')
+ax2.set_xlabel('Relative cost')
+ax2.set_title('Infrastructure cost')
+for i, v in enumerate(cost):
+    ax2.text(v + 0.2, i, f'{v}x', va='center', fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+```
+
+:::
+
+::: {.callout-tip appearance="simple"}
+## The golden rule
+You don't always need full real-time. In many cases near real-time is sufficient and significantly cheaper.
+:::
+
+---
+
+## Data types — a brief overview
+
+::: {.panel-tabset}
+
+#### Structured
+
+SQL tables, CSV files with a fixed column structure. The foundation of transactional systems.
+
+#### Semi-structured
+
+JSON, XML. Flexible schema, dominant in APIs and NoSQL systems.
+
+```{python}
 import json
 
-# Consumer reacts to large transactions
-consumer = KafkaConsumer(
-    'transactions',
-    bootstrap_servers='localhost:9092',
-    auto_offset_reset='earliest',
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-)
-
-for message in consumer:
-    t = message.value
-    if t['amount'] > 8000:
-        print(f"ALERT: Large transaction {t['id']}: {t['amount']} PLN in {t['store']}")
+order = {
+    "id": "ORD-2026-0042",
+    "customer": {"name": "Anna", "city": "Warsaw"},
+    "products": [
+        {"name": "Laptop", "price": 4299.00},
+        {"name": "Mouse", "price": 89.99}
+    ],
+    "status": "shipped"
+}
+print(json.dumps(order, indent=2))
 ```
 
-These two programs illustrate the essence of stream processing: a producer generates data, a consumer reacts to it in near real-time.
+#### Unstructured
 
+Text (emails, reviews), images, audio, video. Require NLP, computer vision, deep learning.
 
-### Real-Time Analytics
+#### Streaming
 
-Immediate analysis and reaction — in milliseconds. Requires dedicated infrastructure and is the most expensive, but in some cases there is no alternative.
+Events generated continuously. This is what we'll work with throughout the rest of the course.
 
-Typical use cases:
+:::
 
-- High-Frequency Trading (HFT) — investment decisions in microseconds,
-- autonomous vehicles — real-time camera image analysis,
-- DDoS attack detection in computer networks.
+---
 
-Technologies: Apache Flink, Apache Storm, dedicated FPGA systems.
+## Big Data — five dimensions (5V) {.unnumbered}
 
+:::: {.columns}
 
-### Comparison
+::: {.column width="50%"}
+- **Volume** — size (terabytes, petabytes)
+- **Velocity** — rate of data arrival
+- **Variety** — diversity of formats and sources
+:::
 
-| Feature | Batch | Near Real-Time | Real-Time |
-|---|---|---|---|
-| **Latency** | Minutes — hours | Seconds — minutes | Milliseconds |
-| **Infrastructure cost** | Low | Medium | High |
-| **Complexity** | Low | Medium | High |
-| **Example** | Monthly report | Transaction monitoring | HFT, autonomous vehicles |
+::: {.column width="50%"}
+- **Veracity** — reliability and data quality
+- **Value** — business value hidden in the data
+:::
 
-Key principle: **real-time is not always necessary**. In many cases near real-time is sufficient and significantly cheaper. Understanding business requirements before choosing an approach is essential.
+::::
 
+::: {.callout-caution}
+## Data warehouse ≠ Big Data
+A data warehouse is **not** a Big Data system. A warehouse stores structured data and serves reporting (100% accuracy). A Big Data system handles data of any structure and tolerates some level of inaccuracy.
+:::
 
-## Business Applications
-
-A few domains where real-time data analytics delivers concrete business value.
-
-**Finance and banking:** Anti-fraud systems analyze every card transaction in a fraction of a second and block suspicious operations before money leaves the account. HFT systems make thousands of investment decisions per second.
-
-**E-commerce:** Dynamic pricing (e.g., airlines, Uber) changes in response to current demand. Recommendation engines adapt offers to user behavior during their session.
-
-**Telecommunications and IoT:** Smart energy meters transmit consumption data in real time, enabling grid optimization. Infrastructure monitoring systems detect failures before users notice them.
-
-**Healthcare:** Medical devices monitor patient vital signs and alert staff to threats. Epidemiological systems track disease spread.
-
-
-## Challenges
-
-Implementing real-time systems involves specific technical and organizational problems:
-
-| Challenge | Description | Typical solution |
-|---|---|---|
-| **Scalability** | Data volume grows — system must keep up | Kafka, Kubernetes, cloud |
-| **Latency** | Every millisecond can matter | Edge computing, network optimization |
-| **Data quality** | Streaming data can be incomplete or erroneous | In-flight validation, data cleansing |
-| **Integration complexity** | Many systems must work together | APIs, microservices, Docker |
-| **Security** | Data in motion needs protection | TLS encryption, authorization |
-| **Cost** | Real-time requires powerful infrastructure | Serverless, autoscaling |
-
+---
 
 ## Summary
 
-In this lecture you learned about three data processing modes and their applications. Key takeaways:
+In this lecture we traced the evolution from flat files, through OLTP, OLAP and Data Lake, up to stream processing. Each model addresses different business needs — and none replaces the previous one. In practice, companies use them in parallel.
 
-- Data is always generated as a continuous stream — batch is just a way of analyzing it later.
-- The choice of processing mode depends on business requirements, not technology.
-- In upcoming lectures we'll explore technologies (Kafka, Spark) and architectures (Lambda, Kappa) that enable stream processing.
+::: {.callout-note appearance="simple"}
+## {{< fa forward >}} Next lecture
+Architectures combining batch and streaming — **Lambda and Kappa** — and key concepts: event time, processing time, time windows.
+:::
 
-
-## Business Impact
-
-Shifting from batch to near real-time dramatically reduces the time from event occurrence to decision (*Time-to-Insight*). For a manager, this means the ability to react immediately to competitor actions or sudden demand changes, which directly translates to higher financial liquidity and better customer-offer alignment.
+::: {.callout-tip appearance="simple"}
+## {{< fa brain >}} Food for thought
+In what mode does your company (or a company you'd like to work for) process data? Are there processes that would benefit from moving to stream processing?
+:::

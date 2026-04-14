@@ -1,230 +1,372 @@
 ---
-title: "Lecture 4: Apache Kafka and Microservices"
+title: "Lecture 4 — Apache Kafka"
+subtitle: "Real-Time Data Analytics"
+description: "Apache Kafka architecture — brokers, topics, partitions, producers, consumers, consumer groups and ML integration."
 format:
   html:
     code-fold: true
+    code-tools: true
+    code-summary: "Show code"
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: true
+    smooth-scroll: true
+    theme:
+      light: flatly
+    highlight-style: github
+    fig-align: center
+    fig-cap-location: bottom
 jupyter: python3
 ---
 
-*Duration: 1.5h*
-
-**Goal:** Learn Apache Kafka's architecture — a distributed streaming platform — and the concepts of microservices and APIs for serving data and ML models.
+::: {.callout-note appearance="minimal"}
+## {{< fa clock >}} Duration: 1.5h
+**Goal:** Learn Apache Kafka's architecture — brokers, topics, partitions, producers, consumers and consumer groups. Understand why Kafka is the backbone of modern real-time systems.
+:::
 
 ---
 
-## From Monolith to Microservices
+## From monolith to microservices — context
 
-Traditional IT systems were built as **monoliths** — a single large application where all functions (customer service, payments, reports, logging) are part of one codebase. Monoliths are simple at first, but quickly become hard to maintain — changing one module requires redeploying the whole thing.
+Before we get to Kafka, a brief context. A traditional application is a **monolith** — one large program that does everything: handles users, processes data, generates reports. Simple to start with, but hard to scale and modify.
 
-The answer to these problems is **microservices** — an architecture where the system consists of many small, independent services, each handling one task and communicating with others via APIs.
+**Microservices** is an approach in which the application is divided into small, independent services — each responsible for one task. The "payments" service doesn't know the details of the "recommendations" service. They communicate through **APIs** or **message queues**.
 
-Advantages of microservices:
+::: {.callout-caution}
+## The N×N problem
+When you have 20 microservices that need to exchange data, you create a point-to-point mesh of connections. Every new service requires integration with many others. This doesn't scale.
 
-- Each service can be developed and deployed independently.
-- Failure of one service doesn't bring down the entire system.
-- Easy scaling — add instances only of the services that need it.
-- Different technologies can be used in different services.
+**Solution:** a central message broker — one place through which all data flows. And that's where **Apache Kafka** comes in.
+:::
 
-Challenges:
+---
 
-- Communication complexity between services.
-- Need to monitor many components.
-- Managing distributed transactions.
+## What is Apache Kafka?
 
-In practice, microservices run in **containers** (Docker), managed by orchestrators (Kubernetes), and communicate via **APIs** (REST, gRPC) or **asynchronous messaging systems** (Apache Kafka).
+Kafka is a **distributed streaming platform** created at LinkedIn (2011), now developed as an Apache project. It is not "just another queue system" — it's something more.
 
+:::: {.columns}
 
-## REST API with FastAPI
+::: {.column width="50%"}
+::: {.callout-tip appearance="simple"}
+## {{< fa server >}} Distributed
+Runs on multiple servers (brokers) as a cluster.
+:::
+::: {.callout-tip appearance="simple"}
+## {{< fa hard-drive >}} Durable
+Messages written to disk, don't disappear after being read.
+:::
+:::
 
-An API (*Application Programming Interface*) is an interface through which services communicate with each other. In microservice architecture it's the **primary method of data exchange**.
+::: {.column width="50%"}
+::: {.callout-tip appearance="simple"}
+## {{< fa gauge-high >}} Fast
+Handles millions of messages per second.
+:::
+::: {.callout-tip appearance="simple"}
+## {{< fa arrows-left-right >}} Scalable
+Add brokers and partitions as data grows.
+:::
+:::
 
-When you visit a website, your browser sends an HTTP request to a server, which returns an HTML page. An API works the same way — except instead of HTML it returns data (usually in JSON format).
+::::
 
-### Key REST API Principles
+::: {.callout-important}
+## Kafka is not a queue!
+In a classical queue system (e.g., RabbitMQ) a message is **deleted** after being processed. Kafka doesn't do that — messages are **stored on disk** for a configurable period (default 7 days). This means:
 
-- **Client–Server** — client sends a request, server returns a response.
-- **Statelessness** — each request contains all information needed to handle it. The server doesn't remember previous requests.
-- **HTTP Methods** — GET (retrieve), POST (create), PUT (update), DELETE (remove).
+- multiple consumers can read the same data,
+- a consumer can go back to earlier messages (**replay**),
+- a consumer failure does not cause data loss.
+:::
 
-### Example: a simple microservice in FastAPI
+---
 
-```python
-from fastapi import FastAPI
+## Kafka architecture
 
-app = FastAPI()
+### Publish/Subscribe pattern
 
-customers = {
-    1: {"name": "Anna", "city": "Warsaw", "segment": "premium"},
-    2: {"name": "Piotr", "city": "Krakow", "segment": "standard"},
-    3: {"name": "Kasia", "city": "Gdansk", "segment": "premium"},
-}
+Kafka implements the **pub/sub** (publish/subscribe) pattern. The sender (producer) doesn't send messages directly to the receiver — it publishes to a **topic**. Receivers (consumers) subscribe to the topics they're interested in.
 
-@app.get("/customers/{customer_id}")
-def get_customer(customer_id: int):
-    """Returns customer data by ID."""
-    return customers.get(customer_id, {"error": "Customer not found"})
+```{mermaid}
+%%| fig-cap: "Publish/Subscribe pattern in Kafka"
+flowchart LR
+    PA["Producer A"] --> T["Topic:\norders"]
+    PB["Producer B"] --> T
+    PC["Producer C"] --> T
+    T --> CX["Consumer X\n(Group 1)"]
+    T --> CY["Consumer Y\n(Group 1)"]
+    T --> CZ["Consumer Z\n(Group 2)"]
 
-@app.get("/customers/")
-def list_customers(segment: str = None):
-    """Returns customer list, optionally filtered by segment."""
-    if segment:
-        return {k: v for k, v in customers.items() if v["segment"] == segment}
-    return customers
+    style T fill:#FF9800,color:#fff
+    style PA fill:#2196F3,color:#fff
+    style PB fill:#2196F3,color:#fff
+    style PC fill:#2196F3,color:#fff
+    style CX fill:#4CAF50,color:#fff
+    style CY fill:#4CAF50,color:#fff
+    style CZ fill:#9C27B0,color:#fff
 ```
 
-After starting (`uvicorn main:app --reload`), the server listens on `http://localhost:8000`. You can test:
+### Topics and partitions
 
-- `GET /customers/1` — Anna's data
-- `GET /customers/?segment=premium` — all premium customers
-- `GET /docs` — automatic API documentation (Swagger UI)
+::: {.panel-tabset}
 
+#### {{< fa folder >}} Topics
 
-### ML Model as a Service
+A **topic** is a logical data channel — like a folder into which messages of a certain type arrive. E.g., `transactions`, `orders`, `server-logs`, `sensor-readings`.
 
-Training a good ML model is just the first step. To make it useful, you need to **serve** it to end users — most commonly as an API.
+#### {{< fa layer-group >}} Partitions
 
-```python
-from fastapi import FastAPI
-import pickle
-import numpy as np
+Each topic is divided into one or more **partitions**. A partition is an ordered, immutable sequence of messages — each message receives a unique number (**offset**).
 
-app = FastAPI()
+Partitions serve two purposes:
 
-# Load trained model
-with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
+- **Scalability** — data from one topic can be distributed across multiple brokers.
+- **Parallelism** — multiple consumers can read different partitions simultaneously.
 
-@app.get("/predict/")
-def predict_price(area: float, bedrooms: int, building_age: int):
-    """Real estate price prediction."""
-    features = np.array([[area, bedrooms, building_age]])
-    price = model.predict(features)[0]
-    return {"estimated_price": round(price, 2)}
+#### {{< fa server >}} Brokers
+
+A **broker** is a single Kafka server. A Kafka cluster consists of multiple brokers. Each broker stores a subset of partitions.
+
+To ensure reliability, Kafka **replicates** partitions across multiple brokers. A replication factor (e.g., 3) means each partition has 3 copies on different servers. If one broker goes down — data is not lost.
+
+:::
+
+```{mermaid}
+%%| fig-cap: "Topic with partitions distributed across brokers"
+flowchart LR
+    subgraph "Topic: transactions"
+        direction TB
+        P0["Partition 0\noffset: 0,1,2,3..."]
+        P1["Partition 1\noffset: 0,1,2,3..."]
+        P2["Partition 2\noffset: 0,1,2,3..."]
+    end
+    P0 -.-> B1["Broker 1"]
+    P1 -.-> B2["Broker 2"]
+    P2 -.-> B3["Broker 3"]
+
+    style P0 fill:#E3F2FD,stroke:#2196F3
+    style P1 fill:#E3F2FD,stroke:#2196F3
+    style P2 fill:#E3F2FD,stroke:#2196F3
+    style B1 fill:#FFF3E0,stroke:#FF9800
+    style B2 fill:#FFF3E0,stroke:#FF9800
+    style B3 fill:#FFF3E0,stroke:#FF9800
 ```
 
-A request `GET /predict/?area=65&bedrooms=3&building_age=10` returns the estimated property price. A million users can simultaneously use the same model.
+---
 
-Key model serving metrics:
+## Producers
 
-- **Latency** — response time per request,
-- **QPS** (*Queries Per Second*) — number of requests handled per second,
-- **Infrastructure cost** — how much we pay for servers.
+A producer is an application that sends messages to Kafka. The producer specifies a topic, and Kafka assigns the message to a partition:
 
+- by default: **round-robin** (sequentially to each partition),
+- with a key: Kafka computes the key's hash and selects the partition based on it — messages with the same key always go to the same partition.
 
-## Apache Kafka
+::: {.panel-tabset}
 
-Apache Kafka is a **distributed platform for stream data processing**. It was created at LinkedIn in 2009 and has been developed as an Apache project since 2012.
-
-Kafka is not a regular message queue. The difference is fundamental.
-
-### Kafka vs Traditional Queue
-
-In a classical queue system (e.g., RabbitMQ), a message is **deleted after being read**. One consumer picks it up and it's gone.
-
-In Kafka, messages are **stored on disk** for a configured retention period (e.g., 7 days). Multiple consumers can read the same data independently. A consumer that restarts can resume from where it left off.
-
-### Kafka Architecture
-
-Kafka consists of several key components:
-
-**Broker** — a Kafka server. A Kafka cluster is a group of brokers working together. If one goes down, the others take over its responsibilities.
-
-**Topic** — a logical channel to which producers send messages and from which consumers read them. Think of it as a folder — grouping related events (e.g., topic `transactions`, topic `logs`, topic `orders`).
-
-**Partition** — a physical division of a topic. Each partition is an ordered, immutable sequence of messages. Partitions enable parallel processing — more partitions means more consumers can read simultaneously.
-
-**Offset** — a unique message identifier within a partition. A consumer tracks its offset — knowing which messages it has already processed.
-
-**Replication** — each partition can be replicated across multiple brokers. If one broker fails, data isn't lost.
-
-
-### Producer
-
-A producer is an application that sends messages to a Kafka topic.
+#### Without a key
 
 ```python
 from kafka import KafkaProducer
 import json
+from datetime import datetime
 
 producer = KafkaProducer(
-    bootstrap_servers="localhost:9092",
+    bootstrap_servers='localhost:9092',
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
+# Sending a transaction to the "transactions" topic
 transaction = {
-    "id": "TX5001",
-    "amount": 1250.00,
-    "store": "Warsaw",
-    "type": "purchase"
+    'id': 'TX0042',
+    'amount': 1250.00,
+    'customer': 'C-1001',
+    'time': datetime.now().isoformat(),
+    'store': 'Warsaw'
 }
 
-producer.send("transactions", value=transaction)
+producer.send('transactions', value=transaction)
 producer.flush()
 print(f"Sent: {transaction}")
 ```
 
-How Kafka assigns messages to partitions:
+#### With a key
 
-- Default: *round-robin* algorithm — successive messages go to successive partitions.
-- With a key: if we provide a message key (e.g., `store`), Kafka computes its hash and always assigns messages with the same key to the same partition. This guarantees event ordering per key.
+If we want all transactions from the same customer to go to the same partition (e.g., for session analysis):
 
+```python
+# Key = customer ID → same customer always in the same partition
+producer.send(
+    'transactions',
+    key=b'C-1001',       # partitioning key
+    value=transaction
+)
+```
 
-### Consumer
+::: {.callout-tip appearance="simple"}
+## When to use a key?
+Use a key when you need **ordering guarantees** for a given entity (e.g., all transactions for customer C-1001 in order) or when downstream processing requires grouping by key.
+:::
 
-A consumer reads messages from a topic and processes them.
+:::
+
+---
+
+## Consumers
+
+A consumer is an application that reads messages from a topic. The consumer tracks its **offset** — it knows which message it last processed. After a failure it resumes from that point.
 
 ```python
 from kafka import KafkaConsumer
 import json
 
 consumer = KafkaConsumer(
-    "transactions",
-    bootstrap_servers="localhost:9092",
-    auto_offset_reset="earliest",
+    'transactions',
+    bootstrap_servers='localhost:9092',
+    auto_offset_reset='earliest',
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
 
-print("Listening for transactions...")
 for message in consumer:
-    t = message.value
-    print(f"[offset={message.offset}] {t['id']}: {t['amount']} PLN ({t['store']})")
+    tx = message.value
+    if tx['amount'] > 1000:
+        print(f"Large transaction: {tx['id']} = {tx['amount']} PLN ({tx['store']})")
 ```
 
-### Consumer Groups
+### Consumer groups
 
-When a single consumer can't keep up with processing, we add more consumers to a **group**. Kafka automatically distributes partitions among consumers in the group:
+When a single consumer can't keep up with processing — you add more. Consumers in **the same group** divide the partitions among themselves.
 
-- Each partition is assigned to exactly one consumer in the group.
-- Ideally: as many consumers as partitions.
-- If a consumer fails, Kafka reassigns its partitions to another consumer (rebalancing).
+::: {.callout-note}
+## Consumer group rules
+- Kafka automatically assigns partitions to consumers in a group.
+- Each partition is read by **exactly one** consumer in the group.
+- If a consumer fails — its partitions are taken over by another.
+- **Ideal:** number of consumers in the group = number of partitions.
+- If there are more consumers than partitions — the excess will be idle.
+:::
 
-This mechanism ensures **scalability** — you add consumers as load grows.
+```
+  Topic: transactions (3 partitions)
+  Consumer group: "fraud-detection"
 
+  Partition 0 ──→ Consumer A
+  Partition 1 ──→ Consumer B
+  Partition 2 ──→ Consumer C
+```
 
-### Publish/Subscribe Pattern
+::: {.callout-tip appearance="simple"}
+## Multiple groups = independent reads
+Different consumer groups can read **the same data** independently. E.g., group `fraud-detection` analyzes transactions for fraud, while group `reporting` builds reports — both read the `transactions` topic but have separate offsets.
+:::
 
-Kafka implements the **Pub/Sub** pattern — a producer publishes messages to a topic, and any number of consumers (from different groups) can independently read them. This is the fundamental difference from classical queues, where a message goes to only one receiver.
+---
 
-Example: a producer sends transactions to the `transactions` topic. Simultaneously:
+## ML microservice — FastAPI
 
-- Group A (anti-fraud system) analyzes them for fraud.
-- Group B (reporting module) generates sales statistics.
-- Group C (recommendation engine) updates customer profiles.
+In practice, a Kafka consumer often passes data to an ML model served by an API. FastAPI is a lightweight Python framework ideal for this purpose.
 
-Each group reads the same data independently.
+```python
+from fastapi import FastAPI
+import numpy as np
+import pickle
 
+app = FastAPI()
+
+# Load trained model
+# with open("model.pkl", "rb") as f:
+#     model = pickle.load(f)
+
+@app.get("/predict/")
+def predict_price(area: float, bedrooms: int, age: int):
+    """Real estate price prediction."""
+    features = np.array([[area, bedrooms, age]])
+    # price = model.predict(features)[0]
+    price = area * 8500 + bedrooms * 50000 - age * 2000  # simplified model
+    return {"estimated_price": round(price, 2)}
+
+# Start: uvicorn main:app --reload
+# Query: http://localhost:8000/predict/?area=75&bedrooms=3&age=10
+```
+
+::: {.callout-tip collapse="true"}
+## {{< fa arrows-left-right >}} Request and Response — how does an API work?
+
+**Request:**
+
+- URL: `http://localhost:8000/predict/?area=75&bedrooms=3&age=10`
+- HTTP method: GET or POST
+- Headers: Content-Type, Authorization
+- Body: data in JSON format
+
+**Response:**
+
+- HTTP status: `200 OK`, `400 Bad Request`, `500 Internal Server Error`
+- Body: result in JSON format
+
+```json
+{"estimated_price": 787500.0}
+```
+:::
+
+---
+
+## Kafka + ML — the complete picture
+
+Combining elements from recent lectures, here is a typical real-time analytics system:
+
+```{mermaid}
+%%| fig-cap: "Typical real-time analytics system with Kafka"
+flowchart LR
+    subgraph Sources
+        WEB["Web application"]
+        IOT["IoT sensors"]
+        PAY["Payment system"]
+    end
+    subgraph Kafka
+        T["Topic:\nevents"]
+    end
+    subgraph Processing
+        SP["Spark Streaming"]
+        API["FastAPI + ML"]
+        DB["Write to database"]
+    end
+    subgraph Results
+        DASH["Dashboard"]
+        ALERT["Alerts"]
+        REP["Reports"]
+    end
+
+    WEB --> T
+    IOT --> T
+    PAY --> T
+    T --> SP --> DASH
+    T --> API --> ALERT
+    T --> DB --> REP
+
+    style T fill:#FF9800,color:#fff
+    style SP fill:#2196F3,color:#fff
+    style API fill:#4CAF50,color:#fff
+    style DB fill:#9C27B0,color:#fff
+```
+
+::: {.callout-note appearance="simple"}
+Producers (applications, sensors, systems) send events to Kafka. Consumers (Spark, FastAPI, reporting systems) read them and process them — each in their own way, independently of the others.
+:::
+
+---
 
 ## Summary
 
-In this lecture you learned:
+Kafka is the central element of streaming architecture. Its strength lies in data durability (messages don't disappear), scalability (partitions, replication) and flexibility (many independent consumers). In the labs you'll run a Kafka cluster in Docker and write producers and consumers in Python.
 
-- Microservice architecture and why it's replacing monoliths.
-- REST APIs with FastAPI — serving data and ML models.
-- Apache Kafka — a distributed streaming platform: brokers, topics, partitions, offsets, producers, consumers, consumer groups.
+::: {.callout-note appearance="simple"}
+## {{< fa forward >}} Next lecture
+Apache Spark and Structured Streaming — processing streaming data at scale, integration with Kafka.
+:::
 
-In the labs, you'll set up Kafka in Docker and write your own producer and consumer. In the next (final) lecture, we'll cover machine learning in the context of stream processing.
-
-
-## Business Impact
-
-Microservice architecture built on Kafka gives a company flexibility — new business features can be deployed without stopping the entire system. Serving ML models via API opens the door to *API Economy* — monetizing algorithms as products for external partners. Containerization (Docker) converts fixed infrastructure costs (Capex) into variable costs (Opex), which is key to data-driven project profitability.
+::: {.callout-tip appearance="simple"}
+## {{< fa brain >}} Food for thought
+You're designing a competitor price monitoring system for a retail chain. What Kafka topics would you create? How many partitions? What consumer groups?
+:::

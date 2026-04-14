@@ -45,6 +45,9 @@ website:
     
   page-footer: "Copyright 2026, Sebastian Zajac"
 
+filters:
+  - fontawesome
+
 format:
   html:
     page-layout: article
