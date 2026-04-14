@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Batch vs stream processing, Lambda and Kappa architectures, event time, watermarking and time windows.">
 
-<title>Lecture 2: Evolution of Data and Processing Models – Real-Time Analytics</title>
+<title>Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures – Real-Time Analytics</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -78,6 +79,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-32453a28a3092dd2068a885cb311269d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/quarto-contrib/fontawesome6-6.7.2/all.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/fontawesome6-6.7.2/latex-fontsize.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +108,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="../style.css">
@@ -154,7 +161,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture2.html">Lecture 2: Evolution of Data and Processing Models</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture2.html">Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -184,31 +191,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 1: Introduction to Real-Time Data Analytics</span></a>
+ <span class="menu-text">Lecture 1 — From Flat Files to Data Lake</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture2.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Lecture 2: Evolution of Data and Processing Models</span></a>
+ <span class="menu-text">Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 3: Stream Processing — Time and Windows</span></a>
+ <span class="menu-text">Lecture 3 — Machine Learning: batch vs online</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 4: Apache Kafka and Microservices</span></a>
+ <span class="menu-text">Lecture 4 — Apache Kafka</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 5: Machine Learning in Real Time</span></a>
+ <span class="menu-text">Lecture 5 — Apache Spark and Structured Streaming</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -249,26 +256,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title"><strong>Sections</strong></h2>
+    <h2 id="toc-title">Contents</h2>
    
+  <ul>
+  <li><a href="#batch-vs-stream-two-approaches-to-the-same-data" id="toc-batch-vs-stream-two-approaches-to-the-same-data" class="nav-link active" data-scroll-target="#batch-vs-stream-two-approaches-to-the-same-data"><span class="header-section-number">1</span> Batch vs Stream — two approaches to the same data</a></li>
+  <li><a href="#lambda-architecture" id="toc-lambda-architecture" class="nav-link" data-scroll-target="#lambda-architecture"><span class="header-section-number">2</span> Lambda Architecture</a>
   <ul class="collapse">
-  <li><a href="#evolution-of-data" id="toc-evolution-of-data" class="nav-link active" data-scroll-target="#evolution-of-data">Evolution of Data</a></li>
-  <li><a href="#data-processing-models" id="toc-data-processing-models" class="nav-link" data-scroll-target="#data-processing-models">Data Processing Models</a></li>
-  <li><a href="#big-data" id="toc-big-data" class="nav-link" data-scroll-target="#big-data">Big Data</a></li>
-  <li><a href="#data-technology-timeline" id="toc-data-technology-timeline" class="nav-link" data-scroll-target="#data-technology-timeline">Data Technology Timeline</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#business-impact" id="toc-business-impact" class="nav-link" data-scroll-target="#business-impact">Business Impact</a></li>
+  <li><a href="#three-layers-of-lambda" id="toc-three-layers-of-lambda" class="nav-link" data-scroll-target="#three-layers-of-lambda"><span class="header-section-number">2.1</span> Three layers of Lambda</a></li>
+  <li><a href="#lambda-advantages-and-disadvantages" id="toc-lambda-advantages-and-disadvantages" class="nav-link" data-scroll-target="#lambda-advantages-and-disadvantages"><span class="header-section-number">2.2</span> Lambda advantages and disadvantages</a></li>
+  </ul></li>
+  <li><a href="#kappa-architecture" id="toc-kappa-architecture" class="nav-link" data-scroll-target="#kappa-architecture"><span class="header-section-number">3</span> Kappa Architecture</a>
+  <ul class="collapse">
+  <li><a href="#lambda-vs-kappa-when-to-use-which" id="toc-lambda-vs-kappa-when-to-use-which" class="nav-link" data-scroll-target="#lambda-vs-kappa-when-to-use-which"><span class="header-section-number">3.1</span> Lambda vs Kappa — when to use which?</a></li>
+  </ul></li>
+  <li><a href="#time-in-stream-processing" id="toc-time-in-stream-processing" class="nav-link" data-scroll-target="#time-in-stream-processing"><span class="header-section-number">4</span> Time in stream processing</a>
+  <ul class="collapse">
+  <li><a href="#two-kinds-of-time" id="toc-two-kinds-of-time" class="nav-link" data-scroll-target="#two-kinds-of-time"><span class="header-section-number">4.1</span> Two kinds of time</a></li>
+  </ul></li>
+  <li><a href="#time-windows" id="toc-time-windows" class="nav-link" data-scroll-target="#time-windows"><span class="header-section-number">5</span> Time windows</a>
+  <ul class="collapse">
+  <li><a href="#window-comparison" id="toc-window-comparison" class="nav-link" data-scroll-target="#window-comparison"><span class="header-section-number">5.1</span> Window comparison</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">6</span> Summary</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture2.html">Lecture 2: Evolution of Data and Processing Models</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture2.html">Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Lecture 2: Evolution of Data and Processing Models</h1>
+<div class="quarto-title-block"><div><h1 class="title">Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Real-Time Data Analytics</p>
 </div>
 
+<div>
+  <div class="description">
+    Batch vs stream processing, Lambda and Kappa architectures, event time, watermarking and time windows.
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -283,301 +309,690 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><em>Duration: 1.5h</em></p>
-<p><strong>Goal:</strong> Understand how data types and processing models evolved — from simple SQL tables, through data warehouses, to Data Lakes and Big Data.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Duration: 1.5h
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Goal:</strong> Understand the differences between batch and stream processing, learn about Lambda and Kappa architectures, and key concepts: event time, processing time, time windows.</p>
+</div>
+</div>
 <hr>
-<section id="evolution-of-data" class="level2">
-<h2 class="anchored" data-anchor-id="evolution-of-data">Evolution of Data</h2>
-<p>Data hasn’t always looked the same. The way we store and process it has changed with technology and business needs.</p>
-<section id="structured-data-sql-tables" class="level3">
-<h3 class="anchored" data-anchor-id="structured-data-sql-tables">Structured Data — SQL Tables</h3>
-<p>For decades, business data was stored in relational databases — tables with columns following a strict schema. This remains the foundation of most transactional systems.</p>
-<div id="c565d023" class="cell" data-execution_count="1">
+<section id="batch-vs-stream-two-approaches-to-the-same-data" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="batch-vs-stream-two-approaches-to-the-same-data"><span class="header-section-number">1</span> Batch vs Stream — two approaches to the same data</h2>
+<p>In the previous lecture we established that data <strong>always</strong> originates as a stream of events. Batch processing is just a simplification — we collect the stream into a file and analyze it with a delay.</p>
+<p>Let’s compare both approaches on the same business problem: <strong>monitoring transactions in an online store</strong>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href=""><i class="fa-solid fa-database" aria-label="database"></i> Batch approach</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href=""><i class="fa-solid fa-bolt" aria-label="bolt"></i> Stream approach</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div id="fa57d7bd" class="cell" data-execution_count="1">
 <details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> sqlite3.<span class="ex">connect</span>(<span class="st">':memory:'</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>cursor <span class="op">=</span> conn.cursor()</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>cursor.execute(<span class="st">"""</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st">    CREATE TABLE customers (</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="st">        id INTEGER PRIMARY KEY,</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="st">        name TEXT,</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="st">        city TEXT,</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="st">        revenue REAL</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>cursor.executemany(<span class="st">"INSERT INTO customers VALUES (?, ?, ?, ?)"</span>, [</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">1</span>, <span class="st">'Anna'</span>, <span class="st">'Warsaw'</span>, <span class="dv">125000</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">2</span>, <span class="st">'Piotr'</span>, <span class="st">'Krakow'</span>, <span class="dv">89000</span>),</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">3</span>, <span class="st">'Kasia'</span>, <span class="st">'Gdansk'</span>, <span class="dv">210000</span>),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>cursor.execute(<span class="st">"SELECT city, SUM(revenue) FROM customers GROUP BY city"</span>)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> cursor.fetchall():</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>row[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>row[<span class="dv">1</span>]<span class="sc">:,.0f}</span><span class="ss"> PLN"</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>conn.close()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime, timedelta</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Data collected throughout the day — analyzed the next morning</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>transactions <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'time'</span>: [datetime(<span class="dv">2026</span>, <span class="dv">3</span>, <span class="dv">12</span>, h, m)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> h <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">9</span>, <span class="dv">18</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> m <span class="kw">in</span> np.random.choice(<span class="bu">range</span>(<span class="dv">60</span>), <span class="dv">20</span>)],</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'amount'</span>: np.random.uniform(<span class="dv">20</span>, <span class="dv">3000</span>, <span class="dv">180</span>).<span class="bu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'customer_id'</span>: np.random.randint(<span class="dv">1000</span>, <span class="dv">9999</span>, <span class="dv">180</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Daily report — we see it THE NEXT DAY</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>report <span class="op">=</span> transactions.groupby(transactions[<span class="st">'time'</span>].dt.hour).agg(</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    count<span class="op">=</span>(<span class="st">'amount'</span>, <span class="st">'count'</span>),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    total<span class="op">=</span>(<span class="st">'amount'</span>, <span class="st">'sum'</span>),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    average<span class="op">=</span>(<span class="st">'amount'</span>, <span class="st">'mean'</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Daily report (generated the next morning):"</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(report.head())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Gdansk: 210,000 PLN
-Krakow: 89,000 PLN
-Warsaw: 125,000 PLN</code></pre>
+<pre><code>Daily report (generated the next morning):
+      count     total  average
+time                          
+9        20  30174.87  1508.74
+10       20  23969.05  1198.45
+11       20  27346.70  1367.34
+12       20  33457.91  1672.90
+13       20  36552.13  1827.61</code></pre>
 </div>
 </div>
-<p>Advantages: consistency, normalization, ACID. Drawbacks: rigid schema, difficulty handling unstructured data.</p>
-</section>
-<section id="semi-structured-data-json-xml" class="level3">
-<h3 class="anchored" data-anchor-id="semi-structured-data-json-xml">Semi-Structured Data — JSON, XML</h3>
-<p>With the rise of APIs and web applications, data emerged that has some structure but isn’t strictly tabular. JSON became the lingua franca of data exchange between services.</p>
-<div id="11a81b71" class="cell" data-execution_count="2">
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="aff9f799" class="cell" data-execution_count="2">
 <details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>transaction <span class="op">=</span> {</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"id"</span>: <span class="st">"TX4521"</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"amount"</span>: <span class="fl">1250.00</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"currency"</span>: <span class="st">"PLN"</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"customer"</span>: {</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"name"</span>: <span class="st">"Anna"</span>,</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"segment"</span>: <span class="st">"premium"</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    },</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"products"</span>: [<span class="st">"laptop"</span>, <span class="st">"mouse"</span>]</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(json.dumps(transaction, indent<span class="op">=</span><span class="dv">2</span>, ensure_ascii<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation: each transaction analyzed the moment it appears</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>window_5min <span class="op">=</span> []</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>alert_threshold <span class="op">=</span> <span class="dv">5000</span>  <span class="co"># alert if window sum &gt; 5000 PLN</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    tx <span class="op">=</span> {</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">'time'</span>: datetime.now().strftime(<span class="st">'%H:%M:%S'</span>),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'amount'</span>: <span class="bu">round</span>(np.random.uniform(<span class="dv">20</span>, <span class="dv">3000</span>), <span class="dv">2</span>),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'customer'</span>: np.random.randint(<span class="dv">1000</span>, <span class="dv">9999</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    window_5min.append(tx[<span class="st">'amount'</span>])</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    window_sum <span class="op">=</span> <span class="bu">sum</span>(window_5min)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    status <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> window_sum <span class="op">&gt;</span> alert_threshold:</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        status <span class="op">=</span> <span class="st">" &lt;&lt; ALERT: high activity!"</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        window_5min <span class="op">=</span> []  <span class="co"># reset window</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"[</span><span class="sc">{</span>tx[<span class="st">'time'</span>]<span class="sc">}</span><span class="ss">] Customer </span><span class="sc">{</span>tx[<span class="st">'customer'</span>]<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>tx[<span class="st">'amount'</span>]<span class="sc">:&gt;8.2f}</span><span class="ss"> PLN | Window sum: </span><span class="sc">{</span>window_sum<span class="sc">:&gt;9.2f}{</span>status<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>{
-  "id": "TX4521",
-  "amount": 1250.0,
-  "currency": "PLN",
-  "customer": {
-    "name": "Anna",
-    "segment": "premium"
-  },
-  "products": [
-    "laptop",
-    "mouse"
-  ]
-}</code></pre>
+<pre><code>[16:31:49] Customer 2191:  1289.75 PLN | Window sum:   1289.75
+[16:31:49] Customer 7938:   236.83 PLN | Window sum:   1526.58
+[16:31:49] Customer 2540:  2124.60 PLN | Window sum:   3651.18
+[16:31:50] Customer 6541:  1549.71 PLN | Window sum:   5200.89 &lt;&lt; ALERT: high activity!
+[16:31:50] Customer 2365:  2960.19 PLN | Window sum:   2960.19
+[16:31:50] Customer 9702:  2442.14 PLN | Window sum:   5402.33 &lt;&lt; ALERT: high activity!
+[16:31:50] Customer 2324:  2724.93 PLN | Window sum:   2724.93
+[16:31:50] Customer 4141:  2265.07 PLN | Window sum:   4990.00
+[16:31:51] Customer 2810:  2130.38 PLN | Window sum:   7120.38 &lt;&lt; ALERT: high activity!
+[16:31:51] Customer 6301:  2335.90 PLN | Window sum:   2335.90</code></pre>
 </div>
 </div>
-<p>JSON is flexible — you can add new fields without changing the schema. That’s why it dominates in NoSQL systems (MongoDB), REST APIs, and data streams (Kafka).</p>
-</section>
-<section id="unstructured-data" class="level3">
-<h3 class="anchored" data-anchor-id="unstructured-data">Unstructured Data</h3>
-<p>Today, most generated data is unstructured: text (emails, reviews, posts), images, audio, video. These require specialized tools — NLP models (BERT, GPT), convolutional networks (CNN), or multimodal models.</p>
-<p>We won’t cover these in detail in this course, but it’s important to know that streaming systems (Kafka, Spark) can process all these data types.</p>
-</section>
-<section id="streaming-data" class="level3">
-<h3 class="anchored" data-anchor-id="streaming-data">Streaming Data</h3>
-<p>This is the newest “type” of data — or rather, a way of thinking about it. Every transaction, page click, sensor reading is an <strong>event</strong> appearing in a continuous stream.</p>
-<p>The key shift in perspective: <strong>data is always generated as a stream</strong>. We decide whether to process it on the fly (streaming) or collect and analyze it later (batch).</p>
-<div id="c14bc626" class="cell" data-execution_count="3">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated event stream</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>events <span class="op">=</span> [</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"type"</span>: <span class="st">"purchase"</span>, <span class="st">"amount"</span>: <span class="dv">150</span>, <span class="st">"store"</span>: <span class="st">"Warsaw"</span>},</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"type"</span>: <span class="st">"return"</span>, <span class="st">"amount"</span>: <span class="dv">50</span>, <span class="st">"store"</span>: <span class="st">"Krakow"</span>},</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"type"</span>: <span class="st">"purchase"</span>, <span class="st">"amount"</span>: <span class="dv">2200</span>, <span class="st">"store"</span>: <span class="st">"Warsaw"</span>},</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> e <span class="kw">in</span> events:</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    e[<span class="st">"time"</span>] <span class="op">=</span> datetime.now().strftime(<span class="st">"%H:%M:%S"</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"[</span><span class="sc">{</span>e[<span class="st">'time'</span>]<span class="sc">}</span><span class="ss">] </span><span class="sc">{</span>e[<span class="st">'type'</span>]<span class="sc">.</span>upper()<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>e[<span class="st">'amount'</span>]<span class="sc">}</span><span class="ss"> PLN (</span><span class="sc">{</span>e[<span class="st">'store'</span>]<span class="sc">}</span><span class="ss">)"</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[01:17:54] PURCHASE: 150 PLN (Warsaw)
-[01:17:55] RETURN: 50 PLN (Krakow)
-[01:17:55] PURCHASE: 2200 PLN (Warsaw)</code></pre>
 </div>
 </div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The fundamental difference
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In batch mode we learn about a problem <strong>the next day</strong>. In stream mode — <strong>immediately</strong>.</p>
+</div>
+</div>
+<hr>
 </section>
-</section>
-<section id="data-processing-models" class="level2">
-<h2 class="anchored" data-anchor-id="data-processing-models">Data Processing Models</h2>
-<section id="oltp-transaction-processing" class="level3">
-<h3 class="anchored" data-anchor-id="oltp-transaction-processing">OLTP — Transaction Processing</h3>
-<p>The OLTP model (<em>Online Transaction Processing</em>) is classical transaction handling: recording an order, updating an account balance, registering a customer. OLTP systems (ERP, CRM, banking) are optimized for fast read/write operations on individual records.</p>
-<p>Features:</p>
+<section id="lambda-architecture" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="lambda-architecture"><span class="header-section-number">2</span> Lambda Architecture</h2>
+<p>In practice, companies need <strong>both</strong> approaches simultaneously. Lambda architecture, proposed by Nathan Marz, combines batch and stream processing in a single system.</p>
+<section id="three-layers-of-lambda" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="three-layers-of-lambda"><span class="header-section-number">2.1</span> Three layers of Lambda</h3>
+<div class="columns">
+<div class="column" style="width:33%;">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><i class="fa-solid fa-database" aria-label="database"></i> Batch layer
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Batch Layer</strong> — processes the complete dataset at regular intervals. Produces accurate results, but with a delay.</p>
+<p><em>Tools:</em> Spark (batch), Hadoop</p>
+</div>
+</div>
+</div><div class="column" style="width:33%;">
+<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span><i class="fa-solid fa-bolt" aria-label="bolt"></i> Speed layer
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Speed Layer</strong> — processes streaming data in real time. Produces approximate results, but immediately.</p>
+<p><em>Tools:</em> Spark Streaming, Kafka Streams</p>
+</div>
+</div>
+</div><div class="column" style="width:33%;">
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-server" aria-label="server"></i> Serving layer
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Serving Layer</strong> — merges results from both layers and exposes them to end users.</p>
+<p><em>Tools:</em> databases, APIs, dashboards</p>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    SRC["Data source\n(stream of events)"] --&gt; BATCH["Batch Layer\nComplete data\nHigh latency"]
+    SRC --&gt; SPEED["Speed Layer\nLatest data\nLow latency"]
+    BATCH --&gt; SERVE["Serving Layer\nDashboard / API"]
+    SPEED --&gt; SERVE
+
+    style BATCH fill:#2196F3,color:#fff
+    style SPEED fill:#F44336,color:#fff
+    style SERVE fill:#4CAF50,color:#fff
+</pre>
+</div>
+<p></p><figcaption> Lambda Architecture</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-building-columns" aria-label="building-columns"></i> Business example: Bank analyzing card transactions
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
 <ul>
-<li>CRUD operations (Create, Read, Update, Delete),</li>
-<li>ACID guarantees (Atomicity, Consistency, Isolation, Durability),</li>
-<li>normalized data schemas,</li>
-<li>support for many concurrent users.</li>
+<li><strong>Batch layer:</strong> every night recalculates historical customer behavior patterns, trains fraud detection models.</li>
+<li><strong>Speed layer:</strong> in real time compares each transaction against patterns and blocks suspicious operations.</li>
+<li><strong>Serving layer:</strong> analyst dashboard + mobile app API.</li>
 </ul>
-<p>Limitation: OLTP is not designed for complex analytics. A query like “what was the sales breakdown by region and product category over the last 12 months?” will overwhelm a transactional system.</p>
-</section>
-<section id="olap-analytical-processing" class="level3">
-<h3 class="anchored" data-anchor-id="olap-analytical-processing">OLAP — Analytical Processing</h3>
-<p>The analytical problem was solved by creating <strong>data warehouses</strong> and the OLAP model (<em>Online Analytical Processing</em>).</p>
-<p>Data from multiple OLTP systems is collected via an <strong>ETL</strong> process (Extract–Transform–Load) and loaded into a single analytical database, optimized for aggregation and reporting.</p>
-<p>Typical analytical questions:</p>
-<ul>
-<li>What is the sales breakdown by quarter, region, and category?</li>
-<li>Which products generate losses?</li>
-<li>What does the year-over-year sales trend look like?</li>
-</ul>
-<p>A data warehouse operates in <strong>batch</strong> mode — data is loaded periodically (e.g., daily), and reports are generated on demand.</p>
-<div id="370ab0ec" class="cell" data-execution_count="4">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated warehouse data</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">500</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'date'</span>: pd.date_range(<span class="st">'2025-01-01'</span>, periods<span class="op">=</span>n, freq<span class="op">=</span><span class="st">'D'</span>),</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'region'</span>: np.random.choice([<span class="st">'Warsaw'</span>, <span class="st">'Krakow'</span>, <span class="st">'Gdansk'</span>, <span class="st">'Wroclaw'</span>], n),</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'category'</span>: np.random.choice([<span class="st">'Electronics'</span>, <span class="st">'Appliances'</span>, <span class="st">'Clothing'</span>], n),</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'sales'</span>: np.random.uniform(<span class="dv">1000</span>, <span class="dv">50000</span>, n).<span class="bu">round</span>(<span class="dv">2</span>)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Typical OLAP query — pivot by region and category</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>pivot <span class="op">=</span> df.pivot_table(values<span class="op">=</span><span class="st">'sales'</span>, index<span class="op">=</span><span class="st">'region'</span>, columns<span class="op">=</span><span class="st">'category'</span>, aggfunc<span class="op">=</span><span class="st">'sum'</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pivot.<span class="bu">round</span>(<span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>category  Appliances  Clothing  Electronics
-region                                     
-Gdansk      996275.0  997330.0    1228807.0
-Krakow      969828.0  781050.0     814134.0
-Warsaw      919540.0  822135.0    1032894.0
-Wroclaw    1053424.0  987009.0    1583392.0</code></pre>
+</div>
 </div>
 </div>
 </section>
-<section id="from-warehouses-to-data-lakes" class="level3">
-<h3 class="anchored" data-anchor-id="from-warehouses-to-data-lakes">From Warehouses to Data Lakes</h3>
-<p>A data warehouse requires structured data and a strict schema. What if we want to store raw logs, images, IoT data, or JSON files as well?</p>
-<p>The answer is the <strong>Data Lake</strong> — a data store that accepts data in any format (schema-on-read instead of schema-on-write). Data is stored raw and structured only at the point of analysis.</p>
-<table class="caption-top table">
+<section id="lambda-advantages-and-disadvantages" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="lambda-advantages-and-disadvantages"><span class="header-section-number">2.2</span> Lambda advantages and disadvantages</h3>
+<p><strong>Advantage:</strong> completeness — the batch layer corrects speed layer errors.</p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Lambda’s main drawback
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You maintain <strong>two separate processing pipelines</strong> — two codebases, two test suites, two environments. This is expensive and error-prone.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="kappa-architecture" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="kappa-architecture"><span class="header-section-number">3</span> Kappa Architecture</h2>
+<p>Jay Kreps (creator of Apache Kafka) proposed a simplification: <strong>what if we only needed the streaming layer?</strong></p>
+<p>Kappa architecture is Lambda without the batch layer. The entire data flow is based on a stream of events. If historical data needs to be reprocessed — we replay the stream from the beginning.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    SRC["Data source\n(stream of events)"] --&gt; STREAM["Stream Layer\nOne codebase, one pipeline"]
+    STREAM --&gt; SERVE["Serving Layer\nDashboard / API"]
+    STREAM -.-&gt;|replay| SRC
+
+    style STREAM fill:#FF9800,color:#fff
+    style SERVE fill:#4CAF50,color:#fff
+</pre>
+</div>
+<p></p><figcaption> Kappa Architecture — a simplification of Lambda</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<section id="lambda-vs-kappa-when-to-use-which" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="lambda-vs-kappa-when-to-use-which"><span class="header-section-number">3.1</span> Lambda vs Kappa — when to use which?</h3>
+<table class="table-striped table-hover caption-top table">
+<caption>Lambda vs Kappa</caption>
 <colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
+<col style="width: 31%">
+<col style="width: 36%">
+<col style="width: 31%">
 </colgroup>
 <thead>
 <tr class="header">
 <th>Feature</th>
-<th>Data Warehouse</th>
-<th>Data Lake</th>
+<th><i class="fa-solid fa-layer-group" aria-label="layer-group"></i> Lambda</th>
+<th><i class="fa-solid fa-arrows-turn-right" aria-label="arrows-turn-right"></i> Kappa</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Schema</strong></td>
-<td>Defined at load (ETL)</td>
-<td>Defined at read</td>
+<td>Complexity</td>
+<td>High (two pipelines)</td>
+<td>Low (one pipeline)</td>
 </tr>
 <tr class="even">
-<td><strong>Data types</strong></td>
-<td>Structured</td>
-<td>Any (raw)</td>
+<td>Accuracy</td>
+<td>Batch corrects stream</td>
+<td>Depends on streaming quality</td>
 </tr>
 <tr class="odd">
-<td><strong>Users</strong></td>
-<td>Business analysts</td>
-<td>Data Scientists, engineers</td>
+<td>Historical reprocessing</td>
+<td>Natural (batch)</td>
+<td>Stream replay</td>
 </tr>
 <tr class="even">
-<td><strong>Storage cost</strong></td>
-<td>High</td>
-<td>Low</td>
+<td>When to use</td>
+<td>When batch and stream have different logic</td>
+<td>When one logic is sufficient</td>
 </tr>
 <tr class="odd">
-<td><strong>Technologies</strong></td>
-<td>SQL Server, Oracle, Teradata</td>
-<td>Hadoop HDFS, S3, Azure Data Lake</td>
+<td>Example</td>
+<td>Bank (nightly retraining + RT scoring)</td>
+<td>E-commerce (personalization)</td>
 </tr>
 </tbody>
 </table>
+<hr>
 </section>
 </section>
-<section id="big-data" class="level2">
-<h2 class="anchored" data-anchor-id="big-data">Big Data</h2>
-<p>The term <em>Big Data</em> describes situations where data exceeds the processing capabilities of traditional tools. It’s characterized by the <strong>5 V’s</strong>:</p>
-<ul>
-<li><strong>Volume</strong> — terabytes and petabytes of data,</li>
-<li><strong>Velocity</strong> — the rate at which new data is generated,</li>
-<li><strong>Variety</strong> — different formats and sources,</li>
-<li><strong>Veracity</strong> — data quality and completeness,</li>
-<li><strong>Value</strong> — the actual business value hidden in the data.</li>
-</ul>
-<p>Important distinction: <strong>a data warehouse is not a Big Data system</strong>. A warehouse stores structured data and serves reporting. Big Data is an ecosystem of tools for processing data of any structure and scale.</p>
-<section id="mapreduce-historical-context" class="level3">
-<h3 class="anchored" data-anchor-id="mapreduce-historical-context">MapReduce — Historical Context</h3>
-<p>When Google needed to process petabytes of web index data, traditional SQL databases weren’t enough. In 2004, they published a paper describing <strong>MapReduce</strong> — a computational model where data is split into fragments processed in parallel across many machines.</p>
-<p>Two steps:</p>
-<ol type="1">
-<li><strong>Map</strong> — split data into fragments and process them independently.</li>
-<li><strong>Reduce</strong> — aggregate partial results into the final answer.</li>
-</ol>
-<div id="c92ec98b" class="cell" data-execution_count="5">
+<section id="time-in-stream-processing" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="time-in-stream-processing"><span class="header-section-number">4</span> Time in stream processing</h2>
+<p>In batch processing, time is not a problem — we analyze historical data whenever we want. In stream processing, time becomes a <strong>key dimension of analysis</strong>.</p>
+<section id="two-kinds-of-time" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="two-kinds-of-time"><span class="header-section-number">4.1</span> Two kinds of time</h3>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><i class="fa-solid fa-calendar-day" aria-label="calendar-day"></i> Event time
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The moment the event <strong>actually occurred</strong>.</p>
+<p><em>E.g., a customer clicked “Buy” at 14:23:45.</em></p>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span><i class="fa-solid fa-server" aria-label="server"></i> Processing time
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The moment the system <strong>received and processed</strong> the event.</p>
+<p><em>E.g., the Kafka system received the event at 14:23:47.</em></p>
+</div>
+</div>
+</div>
+</div>
+<p>In an ideal world both times would be identical. In practice there is always a <strong>delay</strong> (latency) — caused by network, buffering, device failure.</p>
+<div id="7a6932cf" class="cell" data-execution_count="3">
 <details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Map: each text fragment processed independently</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> map_function(text):</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Counter(text.split())</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Reduce: aggregate results</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reduce_function(counters):</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> Counter()</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> c <span class="kw">in</span> counters:</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        total.update(c)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>texts <span class="op">=</span> [</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"real time data analytics"</span>,</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"stream processing and batch data processing"</span>,</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data analysis and machine learning"</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> [map_function(t) <span class="cf">for</span> t <span class="kw">in</span> texts]</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">dict</span>(reduce_function(results)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation: events arrive with random delay</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>events <span class="op">=</span> []</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    event_time <span class="op">=</span> datetime(<span class="dv">2026</span>, <span class="dv">3</span>, <span class="dv">12</span>, <span class="dv">14</span>, <span class="dv">23</span>, i <span class="op">*</span> <span class="dv">2</span>)  <span class="co"># every 2 seconds</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    delay <span class="op">=</span> random.uniform(<span class="fl">0.1</span>, <span class="fl">5.0</span>)  <span class="co"># delay 0.1–5s</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    processing_time <span class="op">=</span> event_time <span class="op">+</span> timedelta(seconds<span class="op">=</span>delay)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    events.append({</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">'event_time'</span>: event_time.strftime(<span class="st">'%H:%M:%S'</span>),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">'processing_time'</span>: processing_time.strftime(<span class="st">'%H:%M:%S.'</span>) <span class="op">+</span> <span class="ss">f'</span><span class="sc">{</span><span class="bu">int</span>(delay<span class="op">*</span><span class="dv">100</span>)<span class="sc">:02d}</span><span class="ss">'</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">'delay'</span>: <span class="ss">f'</span><span class="sc">{</span>delay<span class="sc">:.1f}</span><span class="ss">s'</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(events)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>{'real': 1, 'time': 1, 'data': 3, 'analytics': 1, 'stream': 1, 'processing': 2, 'and': 2, 'batch': 1, 'analysis': 1, 'machine': 1, 'learning': 1}</code></pre>
+<pre><code>event_time processing_time delay
+  14:23:00    14:23:03.340  3.4s
+  14:23:02    14:23:03.192  1.9s
+  14:23:04    14:23:06.218  2.2s
+  14:23:06    14:23:07.140  1.4s
+  14:23:08     14:23:08.45  0.5s
+  14:23:10    14:23:11.130  1.3s
+  14:23:12    14:23:15.388  3.9s
+  14:23:14    14:23:15.104  1.0s</code></pre>
 </div>
 </div>
-<p>MapReduce (and Hadoop) revolutionized Big Data processing, but it was slow and cumbersome. That’s why <strong>Apache Spark</strong> was created — a successor that’s faster (in-memory processing) and simpler to use. Spark supports both batch and streaming modes — and it’s what we’ll use in the labs.</p>
-</section>
-</section>
-<section id="data-technology-timeline" class="level2">
-<h2 class="anchored" data-anchor-id="data-technology-timeline">Data Technology Timeline</h2>
+<div id="cell-fig-event-vs-processing" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.patches <span class="im">as</span> mpatches</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>evt <span class="op">=</span> np.sort(np.random.uniform(<span class="dv">0</span>, <span class="dv">60</span>, n))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>delays <span class="op">=</span> np.random.exponential(<span class="dv">3</span>, n)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>proc <span class="op">=</span> evt <span class="op">+</span> delays</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>watermark <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">6</span>))</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="dv">0</span>, <span class="dv">70</span>], [<span class="dv">0</span>, <span class="dv">70</span>], <span class="st">'k--'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, label<span class="op">=</span><span class="st">'Ideal (delay=0)'</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="dv">0</span>, <span class="dv">70</span>], [watermark, <span class="dv">70</span><span class="op">+</span>watermark], <span class="st">'b--'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, label<span class="op">=</span><span class="ss">f'Watermark (</span><span class="sc">{</span>watermark<span class="sc">}</span><span class="ss">s)'</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    in_wm <span class="op">=</span> proc[i] <span class="op">&lt;=</span> evt[i] <span class="op">+</span> watermark <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="st">'#4CAF50'</span> <span class="cf">if</span> in_wm <span class="cf">else</span> <span class="st">'#F44336'</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    ax.scatter(evt[i], proc[i], c<span class="op">=</span>color, s<span class="op">=</span><span class="dv">50</span>, zorder<span class="op">=</span><span class="dv">5</span>, edgecolors<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    ax.plot([evt[i], evt[i]], [evt[i], proc[i]], color<span class="op">=</span>color, alpha<span class="op">=</span><span class="fl">0.2</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>gp <span class="op">=</span> mpatches.Patch(color<span class="op">=</span><span class="st">'#4CAF50'</span>, label<span class="op">=</span><span class="st">'Within watermark window'</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>rp <span class="op">=</span> mpatches.Patch(color<span class="op">=</span><span class="st">'#F44336'</span>, label<span class="op">=</span><span class="st">'Too late (discarded)'</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>ax.legend(handles<span class="op">=</span>[gp, rp, ax.lines[<span class="dv">0</span>], ax.lines[<span class="dv">1</span>]], loc<span class="op">=</span><span class="st">'upper left'</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Event time (seconds)'</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Processing time (seconds)'</span>)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Delays and watermarking'</span>)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">70</span>)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">75</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-event-vs-processing" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-event-vs-processing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture2_files/figure-html/fig-event-vs-processing-output-1.png" width="854" height="566" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-event-vs-processing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Event time vs processing time — delays in streaming systems
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-car" aria-label="car"></i> Analogy: GPS in a tunnel
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Imagine tracking a car by GPS. The vehicle enters a tunnel — for 30 seconds there is no signal. After exiting, the device sends 30 readings at once. The system needs to know that these events belong to the <strong>past</strong>, not the present.</p>
+</div>
+</div>
+</div>
+<p>Late events can be handled in two ways:</p>
 <ul>
-<li><strong>1960s–70s:</strong> relational databases, OLTP</li>
-<li><strong>1980s–90s:</strong> data warehouses, OLAP, data mining</li>
-<li><strong>2004:</strong> Google publishes MapReduce paper</li>
-<li><strong>2005:</strong> Hadoop — open-source MapReduce implementation</li>
-<li><strong>2009:</strong> Apache Kafka — distributed streaming platform (LinkedIn)</li>
-<li><strong>2014:</strong> Apache Spark — fast in-memory processing</li>
-<li><strong>2020+:</strong> Data Lakehouse, real-time ML, serverless analytics</li>
+<li><strong>Ignoring</strong> — discard events that arrived too late (risk of data loss).</li>
+<li><strong>Watermarking</strong> — define a “watermark” — the maximum allowed delay. Events within the watermark window are included; the rest are discarded.</li>
 </ul>
+<hr>
 </section>
-<section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">Summary</h2>
-<p>In this lecture we traced the evolution from simple SQL tables to complex Big Data ecosystems. Key takeaways:</p>
-<ul>
-<li>Data evolved from structured (SQL) through semi-structured (JSON) to streaming (events).</li>
-<li>Processing models evolved from OLTP through OLAP to Data Lakes.</li>
-<li>MapReduce opened the Big Data era but was replaced by the faster Spark.</li>
-<li>In the next lecture we’ll focus on stream processing — the concept of time, latency, and time windows.</li>
-</ul>
 </section>
-<section id="business-impact" class="level2">
-<h2 class="anchored" data-anchor-id="business-impact">Business Impact</h2>
-<p>Data variety allows companies to build a complete customer picture (Customer 360) — combining transactional data (SQL) with social media opinions (JSON/NLP). Moving from warehouses to Data Lakes reduces storage costs and opens the door to experimenting with new data sources — and that’s the foundation of a data-driven culture.</p>
+<section id="time-windows" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="time-windows"><span class="header-section-number">5</span> Time windows</h2>
+<p>In stream processing we can’t analyze “all data” — the stream is infinite. Instead, we group events into <strong>time windows</strong> of finite length.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Tumbling</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Sliding</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false" href="">Hopping</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-4" role="tab" aria-controls="tabset-2-4" aria-selected="false" href="">Session</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<p>Fixed length, no overlap. Each event belongs to <strong>exactly one</strong> window.</p>
+<p><em>Example:</em> sum of transactions every 5 minutes.</p>
+<div id="c82e30f7" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation of a 5-minute tumbling window</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>events <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'time'</span>: pd.date_range(<span class="st">'2026-03-12 14:00'</span>, periods<span class="op">=</span><span class="dv">30</span>, freq<span class="op">=</span><span class="st">'30s'</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'amount'</span>: np.random.uniform(<span class="dv">10</span>, <span class="dv">500</span>, <span class="dv">30</span>).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Tumbling window: grouping every 5 minutes</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>events[<span class="st">'window'</span>] <span class="op">=</span> events[<span class="st">'time'</span>].dt.floor(<span class="st">'5min'</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> events.groupby(<span class="st">'window'</span>)[<span class="st">'amount'</span>].agg([<span class="st">'sum'</span>, <span class="st">'count'</span>]).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>result.columns <span class="op">=</span> [<span class="st">'total'</span>, <span class="st">'count'</span>]</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Tumbling window (5 min):"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tumbling window (5 min):
+                       total  count
+window                             
+2026-03-12 14:00:00  2648.68     10
+2026-03-12 14:05:00  2036.82     10
+2026-03-12 14:10:00  2061.89     10</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<p>Fixed length, but the window slides by a given interval — events can belong to <strong>multiple windows</strong>.</p>
+<p><em>Example:</em> average over the last 10 minutes, updated every 2 minutes. Useful for detecting trends.</p>
+</div>
+<div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
+<p>Similar to sliding, but with overlap at a specific step. Used for data smoothing.</p>
+</div>
+<div id="tabset-2-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-4-tab">
+<p>Dynamic length — the window lasts as long as events keep arriving. Closes after a specified period of inactivity (<strong>gap</strong>).</p>
+<p><em>Example:</em> user session on a website. The session lasts while the user clicks. Closes after 15 minutes of inactivity.</p>
+</div>
+</div>
+</div>
+<section id="window-comparison" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="window-comparison"><span class="header-section-number">5.1</span> Window comparison</h3>
+<table class="table-striped table-hover caption-top table">
+<caption>Time window types</caption>
+<colgroup>
+<col style="width: 22%">
+<col style="width: 20%">
+<col style="width: 27%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Window type</th>
+<th>Length</th>
+<th style="text-align: center;">Overlap</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tumbling</td>
+<td>Fixed</td>
+<td style="text-align: center;"><p><i class="fa-solid fa-xmark" aria-label="xmark"></i></p></td>
+<td>Periodic reports</td>
+</tr>
+<tr class="even">
+<td>Sliding</td>
+<td>Fixed</td>
+<td style="text-align: center;"><p><i class="fa-solid fa-check" aria-label="check"></i></p></td>
+<td>Trend detection</td>
+</tr>
+<tr class="odd">
+<td>Hopping</td>
+<td>Fixed</td>
+<td style="text-align: center;">Partial</td>
+<td>Data smoothing</td>
+</tr>
+<tr class="even">
+<td>Session</td>
+<td>Dynamic</td>
+<td style="text-align: center;"><p><i class="fa-solid fa-xmark" aria-label="xmark"></i></p></td>
+<td>User session analysis</td>
+</tr>
+</tbody>
+</table>
+<div id="cell-fig-window-types" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.patches <span class="im">as</span> mpatches</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">7</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>events_x <span class="op">=</span> [<span class="dv">1</span>, <span class="fl">2.5</span>, <span class="dv">3</span>, <span class="fl">4.5</span>, <span class="fl">5.5</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">14</span>]</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Tumbling</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">0</span>]</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Tumbling window'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">15</span>, <span class="dv">5</span>):</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    rect <span class="op">=</span> mpatches.FancyBboxPatch((start, <span class="fl">0.2</span>), <span class="fl">4.9</span>, <span class="fl">0.6</span>, boxstyle<span class="op">=</span><span class="st">"round,pad=0.1"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        facecolor<span class="op">=</span><span class="st">'#2196F3'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, edgecolor<span class="op">=</span><span class="st">'#2196F3'</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(rect)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>ax.scatter(events_x, [<span class="fl">0.5</span>]<span class="op">*</span><span class="bu">len</span>(events_x), c<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="fl">1.2</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Sliding</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">1</span>]</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Sliding window (5 min, step 2 min)'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'#F44336'</span>, <span class="st">'#FF9800'</span>, <span class="st">'#4CAF50'</span>, <span class="st">'#2196F3'</span>, <span class="st">'#9C27B0'</span>, <span class="st">'#795548'</span>, <span class="st">'#607D8B'</span>]</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, start <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">12</span>, <span class="dv">2</span>)):</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    y_offset <span class="op">=</span> <span class="fl">0.15</span> <span class="op">+</span> (i <span class="op">%</span> <span class="dv">3</span>) <span class="op">*</span> <span class="fl">0.25</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    rect <span class="op">=</span> mpatches.FancyBboxPatch((start, y_offset), <span class="fl">4.9</span>, <span class="fl">0.2</span>, boxstyle<span class="op">=</span><span class="st">"round,pad=0.05"</span>,</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>        facecolor<span class="op">=</span>colors[i <span class="op">%</span> <span class="bu">len</span>(colors)], alpha<span class="op">=</span><span class="fl">0.3</span>, edgecolor<span class="op">=</span>colors[i <span class="op">%</span> <span class="bu">len</span>(colors)])</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(rect)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>ax.scatter(events_x, [<span class="fl">0.5</span>]<span class="op">*</span><span class="bu">len</span>(events_x), c<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="fl">1.2</span>)</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Session</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">2</span>]</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Session window (gap=2 min)'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>session_events <span class="op">=</span> [[<span class="dv">1</span>, <span class="fl">2.5</span>, <span class="dv">3</span>], [<span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>], [<span class="dv">14</span>]]</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>sess_colors <span class="op">=</span> [<span class="st">'#4CAF50'</span>, <span class="st">'#FF9800'</span>, <span class="st">'#9C27B0'</span>]</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j, (sess, col) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(session_events, sess_colors)):</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> <span class="bu">min</span>(sess) <span class="op">-</span> <span class="fl">0.3</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    end <span class="op">=</span> <span class="bu">max</span>(sess) <span class="op">+</span> <span class="fl">0.3</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    rect <span class="op">=</span> mpatches.FancyBboxPatch((start, <span class="fl">0.2</span>), end<span class="op">-</span>start, <span class="fl">0.6</span>, boxstyle<span class="op">=</span><span class="st">"round,pad=0.1"</span>,</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>        facecolor<span class="op">=</span>col, alpha<span class="op">=</span><span class="fl">0.3</span>, edgecolor<span class="op">=</span>col)</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(rect)</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>ax.scatter(events_x, [<span class="fl">0.5</span>]<span class="op">*</span><span class="bu">len</span>(events_x), c<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="fl">1.2</span>)</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (minutes)'</span>)</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="dv">16</span>)</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-window-types" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-window-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture2_files/figure-html/fig-window-types-output-1.png" width="950" height="662" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-window-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Time window types — visualization
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cf8167e8" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Show code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparison: tumbling vs sliding window on the same data</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== Tumbling (5 min) ==="</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>tumbling <span class="op">=</span> events.groupby(events[<span class="st">'time'</span>].dt.floor(<span class="st">'5min'</span>))[<span class="st">'amount'</span>].<span class="bu">sum</span>().<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tumbling)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== Sliding (5 min window, 1 min step) ==="</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start_min <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">15</span>, <span class="dv">1</span>):</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> pd.Timestamp(<span class="st">'2026-03-12 14:00'</span>) <span class="op">+</span> pd.Timedelta(minutes<span class="op">=</span>start_min)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    end <span class="op">=</span> start <span class="op">+</span> pd.Timedelta(minutes<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> (events[<span class="st">'time'</span>] <span class="op">&gt;=</span> start) <span class="op">&amp;</span> (events[<span class="st">'time'</span>] <span class="op">&lt;</span> end)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> events.loc[mask, <span class="st">'amount'</span>].<span class="bu">sum</span>()</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> total <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  [</span><span class="sc">{</span>start<span class="sc">.</span>strftime(<span class="st">'%H:%M'</span>)<span class="sc">}</span><span class="ss">–</span><span class="sc">{</span>end<span class="sc">.</span>strftime(<span class="st">'%H:%M'</span>)<span class="sc">}</span><span class="ss">) total = </span><span class="sc">{</span>total<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== Tumbling (5 min) ===
+time
+2026-03-12 14:00:00    2648.68
+2026-03-12 14:05:00    2036.82
+2026-03-12 14:10:00    2061.89
+Name: amount, dtype: float64
 
+=== Sliding (5 min window, 1 min step) ===
+  [14:00–14:05) total = 2648.68
+  [14:01–14:06) total = 2484.66
+  [14:02–14:07) total = 2344.59
+  [14:03–14:08) total = 2370.66
+  [14:04–14:09) total = 2323.98
+  [14:05–14:10) total = 2036.82
+  [14:06–14:11) total = 1919.63
+  [14:07–14:12) total = 1730.35
+  [14:08–14:13) total = 2159.60
+  [14:09–14:14) total = 2103.20
+  [14:10–14:15) total = 2061.89
+  [14:11–14:16) total = 1673.73
+  [14:12–14:17) total = 1331.06
+  [14:13–14:18) total = 702.85
+  [14:14–14:19) total = 333.04</code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="summary" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="summary"><span class="header-section-number">6</span> Summary</h2>
+<p>In this lecture we learned about two key architectures (Lambda and Kappa) and the fundamental concepts of stream processing: event time, processing time, watermarking and time windows. These concepts will accompany us in the labs when working with Apache Kafka and Spark Structured Streaming.</p>
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><i class="fa-solid fa-forward" aria-label="forward"></i> Next lecture
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Machine learning in batch and incremental (online learning) modes, Stochastic Gradient Descent, anomaly detection.</p>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-brain" aria-label="brain"></i> Food for thought
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Your client wants a sales dashboard updated every 30 seconds. What architecture (Lambda/Kappa) would you propose? What type of time window would you use?</p>
+</div>
+</div>
+
+
+<!-- -->
 
 </section>
 
@@ -652,6 +1067,57 @@ Wroclaw    1053424.0  987009.0    1583392.0</code></pre>
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -986,7 +1452,451 @@ Wroclaw    1053424.0  987009.0    1583392.0</code></pre>
       }
     }
   });
-  </script>
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Real-Time Data Analytics"</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Batch vs stream processing, Lambda and Kappa architectures, event time, watermarking and time windows."</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show code"</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-title: "Contents"</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">    smooth-scroll: true</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">    theme:</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">      light: flatly</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">    highlight-style: github</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-align: center</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-cap-location: bottom</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="an">jupyter:</span><span class="co"> python3</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="minimal"}</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Duration: 1.5h</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>**Goal:** Understand the differences between batch and stream processing, learn about Lambda and Kappa architectures, and key concepts: event time, processing time, time windows.</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="fu">## Batch vs Stream — two approaches to the same data</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>In the previous lecture we established that data **always** originates as a stream of events. Batch processing is just a simplification — we collect the stream into a file and analyze it with a delay.</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>Let's compare both approaches on the same business problem: **monitoring transactions in an online store**.</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="fu">### {{&lt; fa database &gt;}} Batch approach</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime, timedelta</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Data collected throughout the day — analyzed the next morning</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>transactions <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>    <span class="st">'time'</span>: [datetime(<span class="dv">2026</span>, <span class="dv">3</span>, <span class="dv">12</span>, h, m)</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> h <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">9</span>, <span class="dv">18</span>)</span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>             <span class="cf">for</span> m <span class="kw">in</span> np.random.choice(<span class="bu">range</span>(<span class="dv">60</span>), <span class="dv">20</span>)],</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">'amount'</span>: np.random.uniform(<span class="dv">20</span>, <span class="dv">3000</span>, <span class="dv">180</span>).<span class="bu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">'customer_id'</span>: np.random.randint(<span class="dv">1000</span>, <span class="dv">9999</span>, <span class="dv">180</span>)</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Daily report — we see it THE NEXT DAY</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>report <span class="op">=</span> transactions.groupby(transactions[<span class="st">'time'</span>].dt.hour).agg(</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>    count<span class="op">=</span>(<span class="st">'amount'</span>, <span class="st">'count'</span>),</span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>    total<span class="op">=</span>(<span class="st">'amount'</span>, <span class="st">'sum'</span>),</span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>    average<span class="op">=</span>(<span class="st">'amount'</span>, <span class="st">'mean'</span>)</span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Daily report (generated the next morning):"</span>)</span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(report.head())</span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a><span class="fu">### {{&lt; fa bolt &gt;}} Stream approach</span></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation: each transaction analyzed the moment it appears</span></span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>window_5min <span class="op">=</span> []</span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>alert_threshold <span class="op">=</span> <span class="dv">5000</span>  <span class="co"># alert if window sum &gt; 5000 PLN</span></span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a>    tx <span class="op">=</span> {</span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>        <span class="st">'time'</span>: datetime.now().strftime(<span class="st">'%H:%M:%S'</span>),</span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a>        <span class="st">'amount'</span>: <span class="bu">round</span>(np.random.uniform(<span class="dv">20</span>, <span class="dv">3000</span>), <span class="dv">2</span>),</span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a>        <span class="st">'customer'</span>: np.random.randint(<span class="dv">1000</span>, <span class="dv">9999</span>)</span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a>    window_5min.append(tx[<span class="st">'amount'</span>])</span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a>    window_sum <span class="op">=</span> <span class="bu">sum</span>(window_5min)</span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a>    status <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> window_sum <span class="op">&gt;</span> alert_threshold:</span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>        status <span class="op">=</span> <span class="st">" &lt;&lt; ALERT: high activity!"</span></span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a>        window_5min <span class="op">=</span> []  <span class="co"># reset window</span></span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"[</span><span class="sc">{</span>tx[<span class="st">'time'</span>]<span class="sc">}</span><span class="ss">] Customer </span><span class="sc">{</span>tx[<span class="st">'customer'</span>]<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>tx[<span class="st">'amount'</span>]<span class="sc">:&gt;8.2f}</span><span class="ss"> PLN | Window sum: </span><span class="sc">{</span>window_sum<span class="sc">:&gt;9.2f}{</span>status<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.2</span>)</span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a>::: {.callout-important}</span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a><span class="fu">## The fundamental difference</span></span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a>In batch mode we learn about a problem **the next day**. In stream mode — **immediately**.</span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lambda Architecture</span></span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a>In practice, companies need **both** approaches simultaneously. Lambda architecture, proposed by Nathan Marz, combines batch and stream processing in a single system.</span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a><span class="fu">### Three layers of Lambda</span></span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>:::: {.columns}</span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>::: {.column width="33%"}</span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="simple"}</span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa database &gt;}} Batch layer</span></span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>**Batch Layer** — processes the complete dataset at regular intervals. Produces accurate results, but with a delay.</span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a>*Tools:* Spark (batch), Hadoop</span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a>::: {.column width="33%"}</span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning appearance="simple"}</span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa bolt &gt;}} Speed layer</span></span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a>**Speed Layer** — processes streaming data in real time. Produces approximate results, but immediately.</span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a>*Tools:* Spark Streaming, Kafka Streams</span>
+<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a>::: {.column width="33%"}</span>
+<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip appearance="simple"}</span>
+<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa server &gt;}} Serving layer</span></span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a>**Serving Layer** — merges results from both layers and exposes them to end users.</span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a>*Tools:* databases, APIs, dashboards</span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a>::::</span>
+<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a>%%| fig-cap: <span class="ot">"</span><span class="st">Lambda Architecture</span><span class="ot">"</span></span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a>    SRC[<span class="ot">"</span><span class="st">Data source</span><span class="ch">\n</span><span class="st">(stream of events)</span><span class="ot">"</span>] --&gt; BATCH[<span class="ot">"</span><span class="st">Batch Layer</span><span class="ch">\n</span><span class="st">Complete data</span><span class="ch">\n</span><span class="st">High latency</span><span class="ot">"</span>]</span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a>    SRC --&gt; SPEED[<span class="ot">"</span><span class="st">Speed Layer</span><span class="ch">\n</span><span class="st">Latest data</span><span class="ch">\n</span><span class="st">Low latency</span><span class="ot">"</span>]</span>
+<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a>    BATCH --&gt; SERVE[<span class="ot">"</span><span class="st">Serving Layer</span><span class="ch">\n</span><span class="st">Dashboard / API</span><span class="ot">"</span>]</span>
+<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a>    SPEED --&gt; SERVE</span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a>    style BATCH fill:<span class="co">#2196F3,color:#fff</span></span>
+<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a>    style SPEED fill:<span class="co">#F44336,color:#fff</span></span>
+<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a>    style SERVE fill:<span class="co">#4CAF50,color:#fff</span></span>
+<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa building-columns &gt;}} Business example: Bank analyzing card transactions</span></span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Batch layer:** every night recalculates historical customer behavior patterns, trains fraud detection models.</span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Speed layer:** in real time compares each transaction against patterns and blocks suspicious operations.</span>
+<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Serving layer:** analyst dashboard + mobile app API.</span>
+<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a><span class="fu">### Lambda advantages and disadvantages</span></span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a>**Advantage:** completeness — the batch layer corrects speed layer errors.</span>
+<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution}</span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lambda's main drawback</span></span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a>You maintain **two separate processing pipelines** — two codebases, two test suites, two environments. This is expensive and error-prone.</span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a><span class="fu">## Kappa Architecture</span></span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a>Jay Kreps (creator of Apache Kafka) proposed a simplification: **what if we only needed the streaming layer?**</span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a>Kappa architecture is Lambda without the batch layer. The entire data flow is based on a stream of events. If historical data needs to be reprocessed — we replay the stream from the beginning.</span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a>%%| fig-cap: <span class="ot">"</span><span class="st">Kappa Architecture — a simplification of Lambda</span><span class="ot">"</span></span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a>flowchart TD</span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a>    SRC[<span class="ot">"</span><span class="st">Data source</span><span class="ch">\n</span><span class="st">(stream of events)</span><span class="ot">"</span>] --&gt; STREAM[<span class="ot">"</span><span class="st">Stream Layer</span><span class="ch">\n</span><span class="st">One codebase, one pipeline</span><span class="ot">"</span>]</span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a>    STREAM --&gt; SERVE[<span class="ot">"</span><span class="st">Serving Layer</span><span class="ch">\n</span><span class="st">Dashboard / API</span><span class="ot">"</span>]</span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a>    STREAM -.-&gt;|replay| SRC</span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a>    style STREAM fill:<span class="co">#FF9800,color:#fff</span></span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a>    style SERVE fill:<span class="co">#4CAF50,color:#fff</span></span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a><span class="fu">### Lambda vs Kappa — when to use which?</span></span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Feature <span class="pp">|</span> {{&lt; fa layer-group &gt;}} Lambda <span class="pp">|</span> {{&lt; fa arrows-turn-right &gt;}} Kappa <span class="pp">|</span></span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------|--------|-------|</span></span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Complexity <span class="pp">|</span> High (two pipelines) <span class="pp">|</span> Low (one pipeline) <span class="pp">|</span></span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Accuracy <span class="pp">|</span> Batch corrects stream <span class="pp">|</span> Depends on streaming quality <span class="pp">|</span></span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Historical reprocessing <span class="pp">|</span> Natural (batch) <span class="pp">|</span> Stream replay <span class="pp">|</span></span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> When to use <span class="pp">|</span> When batch and stream have different logic <span class="pp">|</span> When one logic is sufficient <span class="pp">|</span></span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Example <span class="pp">|</span> Bank (nightly retraining + RT scoring) <span class="pp">|</span> E-commerce (personalization) <span class="pp">|</span></span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a>: Lambda vs Kappa {.striped .hover}</span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a><span class="fu">## Time in stream processing</span></span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a>In batch processing, time is not a problem — we analyze historical data whenever we want. In stream processing, time becomes a **key dimension of analysis**.</span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a><span class="fu">### Two kinds of time</span></span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a>:::: {.columns}</span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a>::: {.column width="50%"}</span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="simple"}</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa calendar-day &gt;}} Event time</span></span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>The moment the event **actually occurred**.</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a>*E.g., a customer clicked "Buy" at 14:23:45.*</span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a>::: {.column width="50%"}</span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning appearance="simple"}</span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa server &gt;}} Processing time</span></span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a>The moment the system **received and processed** the event.</span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a>*E.g., the Kafka system received the event at 14:23:47.*</span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a>::::</span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a>In an ideal world both times would be identical. In practice there is always a **delay** (latency) — caused by network, buffering, device failure.</span>
+<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation: events arrive with random delay</span></span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a>events <span class="op">=</span> []</span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>):</span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a>    event_time <span class="op">=</span> datetime(<span class="dv">2026</span>, <span class="dv">3</span>, <span class="dv">12</span>, <span class="dv">14</span>, <span class="dv">23</span>, i <span class="op">*</span> <span class="dv">2</span>)  <span class="co"># every 2 seconds</span></span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a>    delay <span class="op">=</span> random.uniform(<span class="fl">0.1</span>, <span class="fl">5.0</span>)  <span class="co"># delay 0.1–5s</span></span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a>    processing_time <span class="op">=</span> event_time <span class="op">+</span> timedelta(seconds<span class="op">=</span>delay)</span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a>    events.append({</span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a>        <span class="st">'event_time'</span>: event_time.strftime(<span class="st">'%H:%M:%S'</span>),</span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a>        <span class="st">'processing_time'</span>: processing_time.strftime(<span class="st">'%H:%M:%S.'</span>) <span class="op">+</span> <span class="ss">f'</span><span class="sc">{</span><span class="bu">int</span>(delay<span class="op">*</span><span class="dv">100</span>)<span class="sc">:02d}</span><span class="ss">'</span>,</span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a>        <span class="st">'delay'</span>: <span class="ss">f'</span><span class="sc">{</span>delay<span class="sc">:.1f}</span><span class="ss">s'</span></span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(events)</span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.to_string(index<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-event-vs-processing</span></span>
+<span id="cb13-266"><a href="#cb13-266" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Event time vs processing time — delays in streaming systems"</span></span>
+<span id="cb13-267"><a href="#cb13-267" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-268"><a href="#cb13-268" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.patches <span class="im">as</span> mpatches</span>
+<span id="cb13-269"><a href="#cb13-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-270"><a href="#cb13-270" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb13-271"><a href="#cb13-271" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb13-272"><a href="#cb13-272" aria-hidden="true" tabindex="-1"></a>evt <span class="op">=</span> np.sort(np.random.uniform(<span class="dv">0</span>, <span class="dv">60</span>, n))</span>
+<span id="cb13-273"><a href="#cb13-273" aria-hidden="true" tabindex="-1"></a>delays <span class="op">=</span> np.random.exponential(<span class="dv">3</span>, n)</span>
+<span id="cb13-274"><a href="#cb13-274" aria-hidden="true" tabindex="-1"></a>proc <span class="op">=</span> evt <span class="op">+</span> delays</span>
+<span id="cb13-275"><a href="#cb13-275" aria-hidden="true" tabindex="-1"></a>watermark <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb13-276"><a href="#cb13-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-277"><a href="#cb13-277" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">6</span>))</span>
+<span id="cb13-278"><a href="#cb13-278" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="dv">0</span>, <span class="dv">70</span>], [<span class="dv">0</span>, <span class="dv">70</span>], <span class="st">'k--'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, label<span class="op">=</span><span class="st">'Ideal (delay=0)'</span>)</span>
+<span id="cb13-279"><a href="#cb13-279" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="dv">0</span>, <span class="dv">70</span>], [watermark, <span class="dv">70</span><span class="op">+</span>watermark], <span class="st">'b--'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, label<span class="op">=</span><span class="ss">f'Watermark (</span><span class="sc">{</span>watermark<span class="sc">}</span><span class="ss">s)'</span>)</span>
+<span id="cb13-280"><a href="#cb13-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-281"><a href="#cb13-281" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb13-282"><a href="#cb13-282" aria-hidden="true" tabindex="-1"></a>    in_wm <span class="op">=</span> proc[i] <span class="op">&lt;=</span> evt[i] <span class="op">+</span> watermark <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb13-283"><a href="#cb13-283" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="st">'#4CAF50'</span> <span class="cf">if</span> in_wm <span class="cf">else</span> <span class="st">'#F44336'</span></span>
+<span id="cb13-284"><a href="#cb13-284" aria-hidden="true" tabindex="-1"></a>    ax.scatter(evt[i], proc[i], c<span class="op">=</span>color, s<span class="op">=</span><span class="dv">50</span>, zorder<span class="op">=</span><span class="dv">5</span>, edgecolors<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb13-285"><a href="#cb13-285" aria-hidden="true" tabindex="-1"></a>    ax.plot([evt[i], evt[i]], [evt[i], proc[i]], color<span class="op">=</span>color, alpha<span class="op">=</span><span class="fl">0.2</span>, linewidth<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb13-286"><a href="#cb13-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-287"><a href="#cb13-287" aria-hidden="true" tabindex="-1"></a>gp <span class="op">=</span> mpatches.Patch(color<span class="op">=</span><span class="st">'#4CAF50'</span>, label<span class="op">=</span><span class="st">'Within watermark window'</span>)</span>
+<span id="cb13-288"><a href="#cb13-288" aria-hidden="true" tabindex="-1"></a>rp <span class="op">=</span> mpatches.Patch(color<span class="op">=</span><span class="st">'#F44336'</span>, label<span class="op">=</span><span class="st">'Too late (discarded)'</span>)</span>
+<span id="cb13-289"><a href="#cb13-289" aria-hidden="true" tabindex="-1"></a>ax.legend(handles<span class="op">=</span>[gp, rp, ax.lines[<span class="dv">0</span>], ax.lines[<span class="dv">1</span>]], loc<span class="op">=</span><span class="st">'upper left'</span>)</span>
+<span id="cb13-290"><a href="#cb13-290" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Event time (seconds)'</span>)</span>
+<span id="cb13-291"><a href="#cb13-291" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Processing time (seconds)'</span>)</span>
+<span id="cb13-292"><a href="#cb13-292" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Delays and watermarking'</span>)</span>
+<span id="cb13-293"><a href="#cb13-293" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">70</span>)</span>
+<span id="cb13-294"><a href="#cb13-294" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">75</span>)</span>
+<span id="cb13-295"><a href="#cb13-295" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb13-296"><a href="#cb13-296" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb13-297"><a href="#cb13-297" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-298"><a href="#cb13-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-299"><a href="#cb13-299" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb13-300"><a href="#cb13-300" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa car &gt;}} Analogy: GPS in a tunnel</span></span>
+<span id="cb13-301"><a href="#cb13-301" aria-hidden="true" tabindex="-1"></a>Imagine tracking a car by GPS. The vehicle enters a tunnel — for 30 seconds there is no signal. After exiting, the device sends 30 readings at once. The system needs to know that these events belong to the **past**, not the present.</span>
+<span id="cb13-302"><a href="#cb13-302" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-303"><a href="#cb13-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-304"><a href="#cb13-304" aria-hidden="true" tabindex="-1"></a>Late events can be handled in two ways:</span>
+<span id="cb13-305"><a href="#cb13-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-306"><a href="#cb13-306" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Ignoring** — discard events that arrived too late (risk of data loss).</span>
+<span id="cb13-307"><a href="#cb13-307" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Watermarking** — define a "watermark" — the maximum allowed delay. Events within the watermark window are included; the rest are discarded.</span>
+<span id="cb13-308"><a href="#cb13-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-309"><a href="#cb13-309" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb13-310"><a href="#cb13-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-311"><a href="#cb13-311" aria-hidden="true" tabindex="-1"></a><span class="fu">## Time windows</span></span>
+<span id="cb13-312"><a href="#cb13-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-313"><a href="#cb13-313" aria-hidden="true" tabindex="-1"></a>In stream processing we can't analyze "all data" — the stream is infinite. Instead, we group events into **time windows** of finite length.</span>
+<span id="cb13-314"><a href="#cb13-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-315"><a href="#cb13-315" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
+<span id="cb13-316"><a href="#cb13-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-317"><a href="#cb13-317" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tumbling</span></span>
+<span id="cb13-318"><a href="#cb13-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-319"><a href="#cb13-319" aria-hidden="true" tabindex="-1"></a>Fixed length, no overlap. Each event belongs to **exactly one** window.</span>
+<span id="cb13-320"><a href="#cb13-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-321"><a href="#cb13-321" aria-hidden="true" tabindex="-1"></a>*Example:* sum of transactions every 5 minutes.</span>
+<span id="cb13-322"><a href="#cb13-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-325"><a href="#cb13-325" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-326"><a href="#cb13-326" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation of a 5-minute tumbling window</span></span>
+<span id="cb13-327"><a href="#cb13-327" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb13-328"><a href="#cb13-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-329"><a href="#cb13-329" aria-hidden="true" tabindex="-1"></a>events <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb13-330"><a href="#cb13-330" aria-hidden="true" tabindex="-1"></a>    <span class="st">'time'</span>: pd.date_range(<span class="st">'2026-03-12 14:00'</span>, periods<span class="op">=</span><span class="dv">30</span>, freq<span class="op">=</span><span class="st">'30s'</span>),</span>
+<span id="cb13-331"><a href="#cb13-331" aria-hidden="true" tabindex="-1"></a>    <span class="st">'amount'</span>: np.random.uniform(<span class="dv">10</span>, <span class="dv">500</span>, <span class="dv">30</span>).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb13-332"><a href="#cb13-332" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb13-333"><a href="#cb13-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-334"><a href="#cb13-334" aria-hidden="true" tabindex="-1"></a><span class="co"># Tumbling window: grouping every 5 minutes</span></span>
+<span id="cb13-335"><a href="#cb13-335" aria-hidden="true" tabindex="-1"></a>events[<span class="st">'window'</span>] <span class="op">=</span> events[<span class="st">'time'</span>].dt.floor(<span class="st">'5min'</span>)</span>
+<span id="cb13-336"><a href="#cb13-336" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> events.groupby(<span class="st">'window'</span>)[<span class="st">'amount'</span>].agg([<span class="st">'sum'</span>, <span class="st">'count'</span>]).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb13-337"><a href="#cb13-337" aria-hidden="true" tabindex="-1"></a>result.columns <span class="op">=</span> [<span class="st">'total'</span>, <span class="st">'count'</span>]</span>
+<span id="cb13-338"><a href="#cb13-338" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Tumbling window (5 min):"</span>)</span>
+<span id="cb13-339"><a href="#cb13-339" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span>
+<span id="cb13-340"><a href="#cb13-340" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-341"><a href="#cb13-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-342"><a href="#cb13-342" aria-hidden="true" tabindex="-1"></a><span class="fu">### Sliding</span></span>
+<span id="cb13-343"><a href="#cb13-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-344"><a href="#cb13-344" aria-hidden="true" tabindex="-1"></a>Fixed length, but the window slides by a given interval — events can belong to **multiple windows**.</span>
+<span id="cb13-345"><a href="#cb13-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-346"><a href="#cb13-346" aria-hidden="true" tabindex="-1"></a>*Example:* average over the last 10 minutes, updated every 2 minutes. Useful for detecting trends.</span>
+<span id="cb13-347"><a href="#cb13-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-348"><a href="#cb13-348" aria-hidden="true" tabindex="-1"></a><span class="fu">### Hopping</span></span>
+<span id="cb13-349"><a href="#cb13-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-350"><a href="#cb13-350" aria-hidden="true" tabindex="-1"></a>Similar to sliding, but with overlap at a specific step. Used for data smoothing.</span>
+<span id="cb13-351"><a href="#cb13-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-352"><a href="#cb13-352" aria-hidden="true" tabindex="-1"></a><span class="fu">### Session</span></span>
+<span id="cb13-353"><a href="#cb13-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-354"><a href="#cb13-354" aria-hidden="true" tabindex="-1"></a>Dynamic length — the window lasts as long as events keep arriving. Closes after a specified period of inactivity (**gap**).</span>
+<span id="cb13-355"><a href="#cb13-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-356"><a href="#cb13-356" aria-hidden="true" tabindex="-1"></a>*Example:* user session on a website. The session lasts while the user clicks. Closes after 15 minutes of inactivity.</span>
+<span id="cb13-357"><a href="#cb13-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-358"><a href="#cb13-358" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-359"><a href="#cb13-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-360"><a href="#cb13-360" aria-hidden="true" tabindex="-1"></a><span class="fu">### Window comparison</span></span>
+<span id="cb13-361"><a href="#cb13-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-362"><a href="#cb13-362" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Window type <span class="pp">|</span> Length <span class="pp">|</span> Overlap <span class="pp">|</span> Use case <span class="pp">|</span></span>
+<span id="cb13-363"><a href="#cb13-363" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------|---------|:----------:|-------------|</span></span>
+<span id="cb13-364"><a href="#cb13-364" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Tumbling <span class="pp">|</span> Fixed <span class="pp">|</span> {{&lt; fa xmark &gt;}} <span class="pp">|</span> Periodic reports <span class="pp">|</span></span>
+<span id="cb13-365"><a href="#cb13-365" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Sliding <span class="pp">|</span> Fixed <span class="pp">|</span> {{&lt; fa check &gt;}} <span class="pp">|</span> Trend detection <span class="pp">|</span></span>
+<span id="cb13-366"><a href="#cb13-366" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Hopping <span class="pp">|</span> Fixed <span class="pp">|</span> Partial <span class="pp">|</span> Data smoothing <span class="pp">|</span></span>
+<span id="cb13-367"><a href="#cb13-367" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Session <span class="pp">|</span> Dynamic <span class="pp">|</span> {{&lt; fa xmark &gt;}} <span class="pp">|</span> User session analysis <span class="pp">|</span></span>
+<span id="cb13-368"><a href="#cb13-368" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-369"><a href="#cb13-369" aria-hidden="true" tabindex="-1"></a>: Time window types {.striped .hover}</span>
+<span id="cb13-370"><a href="#cb13-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-373"><a href="#cb13-373" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-374"><a href="#cb13-374" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-window-types</span></span>
+<span id="cb13-375"><a href="#cb13-375" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Time window types — visualization"</span></span>
+<span id="cb13-376"><a href="#cb13-376" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-377"><a href="#cb13-377" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.patches <span class="im">as</span> mpatches</span>
+<span id="cb13-378"><a href="#cb13-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-379"><a href="#cb13-379" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">7</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-380"><a href="#cb13-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-381"><a href="#cb13-381" aria-hidden="true" tabindex="-1"></a>events_x <span class="op">=</span> [<span class="dv">1</span>, <span class="fl">2.5</span>, <span class="dv">3</span>, <span class="fl">4.5</span>, <span class="fl">5.5</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">14</span>]</span>
+<span id="cb13-382"><a href="#cb13-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-383"><a href="#cb13-383" aria-hidden="true" tabindex="-1"></a><span class="co"># Tumbling</span></span>
+<span id="cb13-384"><a href="#cb13-384" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">0</span>]</span>
+<span id="cb13-385"><a href="#cb13-385" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Tumbling window'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb13-386"><a href="#cb13-386" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">15</span>, <span class="dv">5</span>):</span>
+<span id="cb13-387"><a href="#cb13-387" aria-hidden="true" tabindex="-1"></a>    rect <span class="op">=</span> mpatches.FancyBboxPatch((start, <span class="fl">0.2</span>), <span class="fl">4.9</span>, <span class="fl">0.6</span>, boxstyle<span class="op">=</span><span class="st">"round,pad=0.1"</span>,</span>
+<span id="cb13-388"><a href="#cb13-388" aria-hidden="true" tabindex="-1"></a>        facecolor<span class="op">=</span><span class="st">'#2196F3'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, edgecolor<span class="op">=</span><span class="st">'#2196F3'</span>)</span>
+<span id="cb13-389"><a href="#cb13-389" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(rect)</span>
+<span id="cb13-390"><a href="#cb13-390" aria-hidden="true" tabindex="-1"></a>ax.scatter(events_x, [<span class="fl">0.5</span>]<span class="op">*</span><span class="bu">len</span>(events_x), c<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb13-391"><a href="#cb13-391" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="fl">1.2</span>)</span>
+<span id="cb13-392"><a href="#cb13-392" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb13-393"><a href="#cb13-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-394"><a href="#cb13-394" aria-hidden="true" tabindex="-1"></a><span class="co"># Sliding</span></span>
+<span id="cb13-395"><a href="#cb13-395" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">1</span>]</span>
+<span id="cb13-396"><a href="#cb13-396" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Sliding window (5 min, step 2 min)'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb13-397"><a href="#cb13-397" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'#F44336'</span>, <span class="st">'#FF9800'</span>, <span class="st">'#4CAF50'</span>, <span class="st">'#2196F3'</span>, <span class="st">'#9C27B0'</span>, <span class="st">'#795548'</span>, <span class="st">'#607D8B'</span>]</span>
+<span id="cb13-398"><a href="#cb13-398" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, start <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">12</span>, <span class="dv">2</span>)):</span>
+<span id="cb13-399"><a href="#cb13-399" aria-hidden="true" tabindex="-1"></a>    y_offset <span class="op">=</span> <span class="fl">0.15</span> <span class="op">+</span> (i <span class="op">%</span> <span class="dv">3</span>) <span class="op">*</span> <span class="fl">0.25</span></span>
+<span id="cb13-400"><a href="#cb13-400" aria-hidden="true" tabindex="-1"></a>    rect <span class="op">=</span> mpatches.FancyBboxPatch((start, y_offset), <span class="fl">4.9</span>, <span class="fl">0.2</span>, boxstyle<span class="op">=</span><span class="st">"round,pad=0.05"</span>,</span>
+<span id="cb13-401"><a href="#cb13-401" aria-hidden="true" tabindex="-1"></a>        facecolor<span class="op">=</span>colors[i <span class="op">%</span> <span class="bu">len</span>(colors)], alpha<span class="op">=</span><span class="fl">0.3</span>, edgecolor<span class="op">=</span>colors[i <span class="op">%</span> <span class="bu">len</span>(colors)])</span>
+<span id="cb13-402"><a href="#cb13-402" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(rect)</span>
+<span id="cb13-403"><a href="#cb13-403" aria-hidden="true" tabindex="-1"></a>ax.scatter(events_x, [<span class="fl">0.5</span>]<span class="op">*</span><span class="bu">len</span>(events_x), c<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb13-404"><a href="#cb13-404" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="fl">1.2</span>)</span>
+<span id="cb13-405"><a href="#cb13-405" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb13-406"><a href="#cb13-406" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-407"><a href="#cb13-407" aria-hidden="true" tabindex="-1"></a><span class="co"># Session</span></span>
+<span id="cb13-408"><a href="#cb13-408" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">2</span>]</span>
+<span id="cb13-409"><a href="#cb13-409" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Session window (gap=2 min)'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb13-410"><a href="#cb13-410" aria-hidden="true" tabindex="-1"></a>session_events <span class="op">=</span> [[<span class="dv">1</span>, <span class="fl">2.5</span>, <span class="dv">3</span>], [<span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>], [<span class="dv">14</span>]]</span>
+<span id="cb13-411"><a href="#cb13-411" aria-hidden="true" tabindex="-1"></a>sess_colors <span class="op">=</span> [<span class="st">'#4CAF50'</span>, <span class="st">'#FF9800'</span>, <span class="st">'#9C27B0'</span>]</span>
+<span id="cb13-412"><a href="#cb13-412" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j, (sess, col) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(session_events, sess_colors)):</span>
+<span id="cb13-413"><a href="#cb13-413" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> <span class="bu">min</span>(sess) <span class="op">-</span> <span class="fl">0.3</span></span>
+<span id="cb13-414"><a href="#cb13-414" aria-hidden="true" tabindex="-1"></a>    end <span class="op">=</span> <span class="bu">max</span>(sess) <span class="op">+</span> <span class="fl">0.3</span></span>
+<span id="cb13-415"><a href="#cb13-415" aria-hidden="true" tabindex="-1"></a>    rect <span class="op">=</span> mpatches.FancyBboxPatch((start, <span class="fl">0.2</span>), end<span class="op">-</span>start, <span class="fl">0.6</span>, boxstyle<span class="op">=</span><span class="st">"round,pad=0.1"</span>,</span>
+<span id="cb13-416"><a href="#cb13-416" aria-hidden="true" tabindex="-1"></a>        facecolor<span class="op">=</span>col, alpha<span class="op">=</span><span class="fl">0.3</span>, edgecolor<span class="op">=</span>col)</span>
+<span id="cb13-417"><a href="#cb13-417" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(rect)</span>
+<span id="cb13-418"><a href="#cb13-418" aria-hidden="true" tabindex="-1"></a>ax.scatter(events_x, [<span class="fl">0.5</span>]<span class="op">*</span><span class="bu">len</span>(events_x), c<span class="op">=</span><span class="st">'black'</span>, s<span class="op">=</span><span class="dv">30</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb13-419"><a href="#cb13-419" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="fl">1.2</span>)</span>
+<span id="cb13-420"><a href="#cb13-420" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([])</span>
+<span id="cb13-421"><a href="#cb13-421" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (minutes)'</span>)</span>
+<span id="cb13-422"><a href="#cb13-422" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="dv">16</span>)</span>
+<span id="cb13-423"><a href="#cb13-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-424"><a href="#cb13-424" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb13-425"><a href="#cb13-425" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb13-426"><a href="#cb13-426" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-427"><a href="#cb13-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-430"><a href="#cb13-430" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-431"><a href="#cb13-431" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparison: tumbling vs sliding window on the same data</span></span>
+<span id="cb13-432"><a href="#cb13-432" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"=== Tumbling (5 min) ==="</span>)</span>
+<span id="cb13-433"><a href="#cb13-433" aria-hidden="true" tabindex="-1"></a>tumbling <span class="op">=</span> events.groupby(events[<span class="st">'time'</span>].dt.floor(<span class="st">'5min'</span>))[<span class="st">'amount'</span>].<span class="bu">sum</span>().<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb13-434"><a href="#cb13-434" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tumbling)</span>
+<span id="cb13-435"><a href="#cb13-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-436"><a href="#cb13-436" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== Sliding (5 min window, 1 min step) ==="</span>)</span>
+<span id="cb13-437"><a href="#cb13-437" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start_min <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">15</span>, <span class="dv">1</span>):</span>
+<span id="cb13-438"><a href="#cb13-438" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> pd.Timestamp(<span class="st">'2026-03-12 14:00'</span>) <span class="op">+</span> pd.Timedelta(minutes<span class="op">=</span>start_min)</span>
+<span id="cb13-439"><a href="#cb13-439" aria-hidden="true" tabindex="-1"></a>    end <span class="op">=</span> start <span class="op">+</span> pd.Timedelta(minutes<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb13-440"><a href="#cb13-440" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> (events[<span class="st">'time'</span>] <span class="op">&gt;=</span> start) <span class="op">&amp;</span> (events[<span class="st">'time'</span>] <span class="op">&lt;</span> end)</span>
+<span id="cb13-441"><a href="#cb13-441" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> events.loc[mask, <span class="st">'amount'</span>].<span class="bu">sum</span>()</span>
+<span id="cb13-442"><a href="#cb13-442" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> total <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb13-443"><a href="#cb13-443" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  [</span><span class="sc">{</span>start<span class="sc">.</span>strftime(<span class="st">'%H:%M'</span>)<span class="sc">}</span><span class="ss">–</span><span class="sc">{</span>end<span class="sc">.</span>strftime(<span class="st">'%H:%M'</span>)<span class="sc">}</span><span class="ss">) total = </span><span class="sc">{</span>total<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb13-444"><a href="#cb13-444" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-445"><a href="#cb13-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-446"><a href="#cb13-446" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb13-447"><a href="#cb13-447" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-448"><a href="#cb13-448" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb13-449"><a href="#cb13-449" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-450"><a href="#cb13-450" aria-hidden="true" tabindex="-1"></a>In this lecture we learned about two key architectures (Lambda and Kappa) and the fundamental concepts of stream processing: event time, processing time, watermarking and time windows. These concepts will accompany us in the labs when working with Apache Kafka and Spark Structured Streaming.</span>
+<span id="cb13-451"><a href="#cb13-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-452"><a href="#cb13-452" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="simple"}</span>
+<span id="cb13-453"><a href="#cb13-453" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa forward &gt;}} Next lecture</span></span>
+<span id="cb13-454"><a href="#cb13-454" aria-hidden="true" tabindex="-1"></a>Machine learning in batch and incremental (online learning) modes, Stochastic Gradient Descent, anomaly detection.</span>
+<span id="cb13-455"><a href="#cb13-455" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb13-456"><a href="#cb13-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-457"><a href="#cb13-457" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip appearance="simple"}</span>
+<span id="cb13-458"><a href="#cb13-458" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa brain &gt;}} Food for thought</span></span>
+<span id="cb13-459"><a href="#cb13-459" aria-hidden="true" tabindex="-1"></a>Your client wants a sales dashboard updated every 30 seconds. What architecture (Lambda/Kappa) would you propose? What type of time window would you use?</span>
+<span id="cb13-460"><a href="#cb13-460" aria-hidden="true" tabindex="-1"></a>:::</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
@@ -1005,4 +1915,5 @@ Wroclaw    1053424.0  987009.0    1583392.0</code></pre>
 
 
 
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>

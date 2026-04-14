@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Apache Spark as a distributed processing engine, Structured Streaming, Spark–Kafka integration, complete real-time analytics pipeline.">
 
-<title>Lecture 5: Machine Learning in Real Time – Real-Time Analytics</title>
+<title>Lecture 5 — Apache Spark and Structured Streaming – Real-Time Analytics</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -78,6 +79,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-32453a28a3092dd2068a885cb311269d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/quarto-contrib/fontawesome6-6.7.2/all.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/fontawesome6-6.7.2/latex-fontsize.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,36 +108,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../style.css">
 </head>
@@ -183,7 +161,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture5.html">Lecture 5: Machine Learning in Real Time</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture5.html">Lecture 5 — Apache Spark and Structured Streaming</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -213,31 +191,31 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 1: Introduction to Real-Time Data Analytics</span></a>
+ <span class="menu-text">Lecture 1 — From Flat Files to Data Lake</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 2: Evolution of Data and Processing Models</span></a>
+ <span class="menu-text">Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 3: Stream Processing — Time and Windows</span></a>
+ <span class="menu-text">Lecture 3 — Machine Learning: batch vs online</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Lecture 4: Apache Kafka and Microservices</span></a>
+ <span class="menu-text">Lecture 4 — Apache Kafka</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../lectures/lecture5.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Lecture 5: Machine Learning in Real Time</span></a>
+ <span class="menu-text">Lecture 5 — Apache Spark and Structured Streaming</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -278,25 +256,43 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title"><strong>Sections</strong></h2>
+    <h2 id="toc-title">Contents</h2>
    
+  <ul>
+  <li><a href="#why-spark" id="toc-why-spark" class="nav-link active" data-scroll-target="#why-spark"><span class="header-section-number">1</span> Why Spark?</a></li>
+  <li><a href="#pyspark-basics" id="toc-pyspark-basics" class="nav-link" data-scroll-target="#pyspark-basics"><span class="header-section-number">2</span> PySpark — basics</a>
   <ul class="collapse">
-  <li><a href="#offline-learning-vs-online-learning" id="toc-offline-learning-vs-online-learning" class="nav-link active" data-scroll-target="#offline-learning-vs-online-learning">Offline Learning vs Online Learning</a></li>
-  <li><a href="#anomaly-detection" id="toc-anomaly-detection" class="nav-link" data-scroll-target="#anomaly-detection">Anomaly Detection</a></li>
-  <li><a href="#algorithm-explainability" id="toc-algorithm-explainability" class="nav-link" data-scroll-target="#algorithm-explainability">Algorithm Explainability</a></li>
-  <li><a href="#course-summary-whats-next" id="toc-course-summary-whats-next" class="nav-link" data-scroll-target="#course-summary-whats-next">Course Summary — What’s Next?</a></li>
-  <li><a href="#business-impact" id="toc-business-impact" class="nav-link" data-scroll-target="#business-impact">Business Impact</a></li>
+  <li><a href="#sparksession-the-entry-point" id="toc-sparksession-the-entry-point" class="nav-link" data-scroll-target="#sparksession-the-entry-point"><span class="header-section-number">2.1</span> SparkSession — the entry point</a></li>
+  <li><a href="#dataframe-api" id="toc-dataframe-api" class="nav-link" data-scroll-target="#dataframe-api"><span class="header-section-number">2.2</span> DataFrame API</a></li>
+  <li><a href="#transformations-and-actions" id="toc-transformations-and-actions" class="nav-link" data-scroll-target="#transformations-and-actions"><span class="header-section-number">2.3</span> Transformations and actions</a></li>
+  </ul></li>
+  <li><a href="#structured-streaming-streams-as-tables" id="toc-structured-streaming-streams-as-tables" class="nav-link" data-scroll-target="#structured-streaming-streams-as-tables"><span class="header-section-number">3</span> Structured Streaming — streams as tables</a>
+  <ul class="collapse">
+  <li><a href="#output-modes" id="toc-output-modes" class="nav-link" data-scroll-target="#output-modes"><span class="header-section-number">3.1</span> Output modes</a></li>
+  <li><a href="#example-streaming-from-csv-files" id="toc-example-streaming-from-csv-files" class="nav-link" data-scroll-target="#example-streaming-from-csv-files"><span class="header-section-number">3.2</span> Example: streaming from CSV files</a></li>
+  </ul></li>
+  <li><a href="#spark-kafka-integration" id="toc-spark-kafka-integration" class="nav-link" data-scroll-target="#spark-kafka-integration"><span class="header-section-number">4</span> Spark + Kafka integration</a></li>
+  <li><a href="#complete-pipeline-course-summary" id="toc-complete-pipeline-course-summary" class="nav-link" data-scroll-target="#complete-pipeline-course-summary"><span class="header-section-number">5</span> Complete pipeline — course summary</a></li>
+  <li><a href="#algorithm-complexity-a-practical-note" id="toc-algorithm-complexity-a-practical-note" class="nav-link" data-scroll-target="#algorithm-complexity-a-practical-note"><span class="header-section-number">6</span> Algorithm complexity — a practical note</a></li>
+  <li><a href="#whats-next-the-labs" id="toc-whats-next-the-labs" class="nav-link" data-scroll-target="#whats-next-the-labs"><span class="header-section-number">7</span> What’s next — the labs</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">8</span> Summary</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture5.html">Lecture 5: Machine Learning in Real Time</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../lectures/lecture1.html">Lectures</a></li><li class="breadcrumb-item"><a href="../lectures/lecture5.html">Lecture 5 — Apache Spark and Structured Streaming</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Lecture 5: Machine Learning in Real Time</h1>
+<div class="quarto-title-block"><div><h1 class="title">Lecture 5 — Apache Spark and Structured Streaming</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Real-Time Data Analytics</p>
 </div>
 
+<div>
+  <div class="description">
+    Apache Spark as a distributed processing engine, Structured Streaming, Spark–Kafka integration, complete real-time analytics pipeline.
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -311,349 +307,604 @@ window.Quarto = {
 </header>
 
 
-<p><em>Duration: 1.5h</em></p>
-<p><strong>Goal:</strong> Understand the differences between offline and online learning, anomaly detection in real time, and algorithm explainability — from a business perspective.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><i class="fa-solid fa-clock" aria-label="clock"></i> Duration: 1.5h
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Goal:</strong> Learn Apache Spark as an engine for distributed data processing. Introduction to Structured Streaming and Spark–Kafka integration. Overview of the complete real-time analytics pipeline.</p>
+</div>
+</div>
 <hr>
-<section id="offline-learning-vs-online-learning" class="level2">
-<h2 class="anchored" data-anchor-id="offline-learning-vs-online-learning">Offline Learning vs Online Learning</h2>
-<p>In previous lectures we learned the difference between batch and stream processing. The same dichotomy applies to machine learning.</p>
-<section id="offline-learning-batch-learning" class="level3">
-<h3 class="anchored" data-anchor-id="offline-learning-batch-learning">Offline Learning (Batch Learning)</h3>
-<p>The classical approach: collect historical data, train a model, deploy it — and the model doesn’t change until you retrain it on new data.</p>
-<div id="eaee6599" class="cell" data-execution_count="1">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Historical data — area (sqm) vs price (thousands PLN)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> np.array([[<span class="dv">30</span>], [<span class="dv">45</span>], [<span class="dv">55</span>], [<span class="dv">70</span>], [<span class="dv">85</span>], [<span class="dv">100</span>], [<span class="dv">120</span>]])</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.array([<span class="dv">250</span>, <span class="dv">370</span>, <span class="dv">430</span>, <span class="dv">560</span>, <span class="dv">680</span>, <span class="dv">790</span>, <span class="dv">950</span>])</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression()</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>model.fit(X, y)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Model is "frozen" — it doesn't learn from new data</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>new <span class="op">=</span> np.array([[<span class="dv">65</span>], [<span class="dv">90</span>]])</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Predictions:"</span>, model.predict(new).<span class="bu">round</span>(<span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Predictions: [520. 715.]</code></pre>
+<section id="why-spark" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="why-spark"><span class="header-section-number">1</span> Why Spark?</h2>
+<p>In previous lectures we learned about Kafka — a system that <strong>transports</strong> data streams. But Kafka itself doesn’t perform complex analytics. For that we need a processing engine — and that’s where <strong>Apache Spark</strong> comes in.</p>
+<p>Spark is an engine for <strong>distributed data processing</strong> that supports both batch and streaming modes. It was created at UC Berkeley in 2009 as a response to the limitations of Hadoop MapReduce — mainly its slowness due to constant writes to disk.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-memory" aria-label="memory"></i> In-memory processing
 </div>
 </div>
-<p>Problem: the world changes. Property prices rise, customer preferences evolve, new fraud patterns emerge. A model trained on last year’s data may be outdated.</p>
-<p>Brute-force solution: retrain the model periodically (e.g., weekly) on new data. This works, but it’s expensive and delayed.</p>
+<div class="callout-body-container callout-body">
+<p>Data kept in RAM, not on disk. Up to <strong>100x faster</strong> than MapReduce.</p>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-cubes" aria-label="cubes"></i> One engine, many modes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Batch, streaming, SQL, ML, graphs — all in one framework.</p>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-python" aria-label="python"></i> Multi-language API
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>PySpark, Scala, Java, R.</p>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-wand-magic-sparkles" aria-label="wand-magic-sparkles"></i> Lazy evaluation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Spark builds an execution plan and optimizes it <strong>before</strong> computing anything.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+    subgraph "Apache Spark"
+        CORE["Spark Core\n(RDD, memory management)"]
+        SQL["Spark SQL\n&amp; DataFrames"]
+        SS["Structured\nStreaming"]
+        ML["MLlib\n(Machine Learning)"]
+        GR["GraphX\n(Graphs)"]
+    end
+    SQL --&gt; CORE
+    SS --&gt; CORE
+    ML --&gt; CORE
+    GR --&gt; CORE
+
+    style CORE fill:#FF9800,color:#fff
+    style SQL fill:#2196F3,color:#fff
+    style SS fill:#F44336,color:#fff
+    style ML fill:#4CAF50,color:#fff
+    style GR fill:#9C27B0,color:#fff
+</pre>
+</div>
+<p></p><figcaption> Apache Spark ecosystem</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<hr>
 </section>
-<section id="online-learning-incremental-learning" class="level3">
-<h3 class="anchored" data-anchor-id="online-learning-incremental-learning">Online Learning (Incremental Learning)</h3>
-<p>An alternative approach: the model learns <strong>continuously</strong>, updating its parameters with each new observation (or small batch).</p>
-<p>Key algorithm: <strong>Stochastic Gradient Descent (SGD)</strong> — instead of computing the gradient on the entire dataset, we update weights after each observation.</p>
-<div id="86f88a86" class="cell" data-execution_count="2">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> SGDRegressor</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Data arrives as a stream — one observation at a time</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> SGDRegressor(max_iter<span class="op">=</span><span class="dv">1</span>, warm_start<span class="op">=</span><span class="va">True</span>, learning_rate<span class="op">=</span><span class="st">'constant'</span>, eta0<span class="op">=</span><span class="fl">0.0001</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulated data stream</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Online learning — model learns with each new observation:"</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">50</span>):</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    X_new <span class="op">=</span> np.array([[<span class="dv">30</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">2</span>]])</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    y_new <span class="op">=</span> np.array([<span class="dv">250</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">15</span> <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="dv">20</span>)])</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    model.partial_fit(X_new, y_new)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        pred <span class="op">=</span> model.predict(np.array([[<span class="dv">75</span>]]))[<span class="dv">0</span>]</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  After </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss"> observations -&gt; prediction for 75sqm: </span><span class="sc">{</span>pred<span class="sc">:.0f}</span><span class="ss">k PLN"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Online learning — model learns with each new observation:
-  After 1 observations -&gt; prediction for 75sqm: 59k PLN
-  After 11 observations -&gt; prediction for 75sqm: 509k PLN
-  After 21 observations -&gt; prediction for 75sqm: 592k PLN
-  After 31 observations -&gt; prediction for 75sqm: 590k PLN
-  After 41 observations -&gt; prediction for 75sqm: 593k PLN</code></pre>
+<section id="pyspark-basics" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="pyspark-basics"><span class="header-section-number">2</span> PySpark — basics</h2>
+<section id="sparksession-the-entry-point" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="sparksession-the-entry-point"><span class="header-section-number">2.1</span> SparkSession — the entry point</h3>
+<p>Every PySpark program starts by creating a <code>SparkSession</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"MyFirstApplication"</span>) <span class="op">\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    .master(<span class="st">"local[*]"</span>) <span class="op">\</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><code>local[*]</code> means: run Spark locally, using all available CPU cores. In production, a cluster address is provided instead.</p>
 </div>
 </div>
-<p>The <code>partial_fit()</code> method is the heart of online learning — the model updates its parameters without needing to store the entire dataset.</p>
+</div>
 </section>
-<section id="when-to-use-which" class="level3">
-<h3 class="anchored" data-anchor-id="when-to-use-which">When to Use Which?</h3>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
+<section id="dataframe-api" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="dataframe-api"><span class="header-section-number">2.2</span> DataFrame API</h3>
+<p>A Spark DataFrame is the equivalent of a SQL table or a Pandas DataFrame — but <strong>distributed</strong> across multiple machines.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, avg, <span class="bu">sum</span>, count</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder.appName(<span class="st">"Demo"</span>).master(<span class="st">"local[*]"</span>).getOrCreate()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a DataFrame</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Warsaw"</span>, <span class="st">"Electronics"</span>, <span class="fl">4299.00</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Krakow"</span>, <span class="st">"Clothing"</span>, <span class="fl">189.99</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Warsaw"</span>, <span class="st">"Food"</span>, <span class="fl">87.50</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Gdansk"</span>, <span class="st">"Electronics"</span>, <span class="fl">2599.00</span>),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Krakow"</span>, <span class="st">"Electronics"</span>, <span class="fl">1299.00</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Warsaw"</span>, <span class="st">"Clothing"</span>, <span class="fl">349.99</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Gdansk"</span>, <span class="st">"Food"</span>, <span class="fl">156.00</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> spark.createDataFrame(data, [<span class="st">"city"</span>, <span class="st">"category"</span>, <span class="st">"amount"</span>])</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>df.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="transformations-and-actions" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="transformations-and-actions"><span class="header-section-number">2.3</span> Transformations and actions</h3>
+<p>Spark distinguishes two types of operations:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href=""><i class="fa-solid fa-wand-magic-sparkles" aria-label="wand-magic-sparkles"></i> Transformations (lazy)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href=""><i class="fa-solid fa-play" aria-label="play"></i> Actions (eager)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<p>Define <em>what</em> you want to do, but <strong>don’t execute</strong> computations. They are <strong>lazy</strong>.</p>
+<p>Examples: <code>filter</code>, <code>groupBy</code>, <code>select</code>, <code>join</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transformations (lazy — nothing is computed yet)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df <span class="op">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(col(<span class="st">"amount"</span>) <span class="op">&gt;</span> <span class="dv">100</span>) <span class="op">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    .groupBy(<span class="st">"city"</span>) <span class="op">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    .agg(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">sum</span>(<span class="st">"amount"</span>).alias(<span class="st">"total"</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        count(<span class="st">"amount"</span>).alias(<span class="st">"count"</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        avg(<span class="st">"amount"</span>).alias(<span class="st">"average"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<p><strong>Trigger</strong> actual computation.</p>
+<p>Examples: <code>show</code>, <code>count</code>, <code>collect</code>, <code>write</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Action (here Spark actually performs the computation)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>result.show()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>spark.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-database" aria-label="database"></i> Spark SQL — an alternative
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>You can also use plain SQL:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df.createOrReplaceTempView(<span class="st">"sales"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"""</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT city,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">           SUM(amount) as total,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(*) as count</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM sales</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE amount &gt; 100</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY city</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY total DESC</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>).show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="structured-streaming-streams-as-tables" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="structured-streaming-streams-as-tables"><span class="header-section-number">3</span> Structured Streaming — streams as tables</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Key concept
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Structured Streaming treats a <strong>data stream as a table to which new rows are continuously appended</strong>. This lets you write streaming code almost identically to batch — using the same DataFrame API.</p>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+    subgraph "Input stream"
+        T1["Batch t1"] --&gt; TAB["Unbounded\ninput table\n(new rows\nappended continuously)"]
+        T2["Batch t2"] --&gt; TAB
+        T3["Batch t3"] --&gt; TAB
+        T4["Batch t4..."] --&gt; TAB
+    end
+    TAB --&gt;|"Query"| RES["Result table\n(updated\nwith each trigger)"]
+    RES --&gt; OUT["Output:\nconsole / Kafka / files / database"]
+
+    style TAB fill:#2196F3,color:#fff
+    style RES fill:#4CAF50,color:#fff
+    style OUT fill:#FF9800,color:#fff
+</pre>
+</div>
+<p></p><figcaption> Structured Streaming: stream as an unbounded table</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<section id="output-modes" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="output-modes"><span class="header-section-number">3.1</span> Output modes</h3>
+<div class="columns">
+<div class="column" style="width:33%;">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><i class="fa-solid fa-plus" aria-label="plus"></i> Append
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Only <strong>new</strong> rows are added to the output. Default mode.</p>
+</div>
+</div>
+</div><div class="column" style="width:33%;">
+<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span><i class="fa-solid fa-arrows-rotate" aria-label="arrows-rotate"></i> Complete
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The entire result table is <strong>overwritten</strong> (e.g., after aggregation).</p>
+</div>
+</div>
+</div><div class="column" style="width:33%;">
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-pen" aria-label="pen"></i> Update
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Only <strong>changed</strong> rows are written.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="example-streaming-from-csv-files" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="example-streaming-from-csv-files"><span class="header-section-number">3.2</span> Example: streaming from CSV files</h3>
+<p>The simplest example — Spark monitors a directory and processes new CSV files as they appear:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, window, <span class="bu">sum</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.types <span class="im">import</span> StructType, StringType, DoubleType, TimestampType</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder.appName(<span class="st">"StreamingDemo"</span>).master(<span class="st">"local[*]"</span>).getOrCreate()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Data schema</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>schema <span class="op">=</span> StructType() <span class="op">\</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"transaction_id"</span>, StringType()) <span class="op">\</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"amount"</span>, DoubleType()) <span class="op">\</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"store"</span>, StringType()) <span class="op">\</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"timestamp"</span>, TimestampType())</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Reading stream from CSV directory</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>streaming_df <span class="op">=</span> spark.readStream <span class="op">\</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    .schema(schema) <span class="op">\</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"header"</span>, <span class="va">True</span>) <span class="op">\</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    .csv(<span class="st">"/data/incoming/"</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregation in 5-minute windows</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> streaming_df <span class="op">\</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    .groupBy(</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        window(col(<span class="st">"timestamp"</span>), <span class="st">"5 minutes"</span>),</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        col(<span class="st">"store"</span>)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">\</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    .agg(<span class="bu">sum</span>(<span class="st">"amount"</span>).alias(<span class="st">"total"</span>))</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Write result to console</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> result.writeStream <span class="op">\</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    .outputMode(<span class="st">"complete"</span>) <span class="op">\</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"console"</span>) <span class="op">\</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    .trigger(processingTime<span class="op">=</span><span class="st">"10 seconds"</span>) <span class="op">\</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="co"># query.awaitTermination()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="spark-kafka-integration" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="spark-kafka-integration"><span class="header-section-number">4</span> Spark + Kafka integration</h2>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The heart of the course
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Kafka transports data, Spark processes it.</strong> This is the fundamental pair in real-time analytics architecture.</p>
+</div>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Reading from Kafka</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Processing and writing</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> from_json, col, window, avg, count</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.types <span class="im">import</span> StructType, StringType, DoubleType, TimestampType</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"KafkaStreaming"</span>) <span class="op">\</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    .master(<span class="st">"local[*]"</span>) <span class="op">\</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Read stream from Kafka</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>kafka_df <span class="op">=</span> spark.readStream <span class="op">\</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"kafka"</span>) <span class="op">\</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"kafka.bootstrap.servers"</span>, <span class="st">"localhost:9092"</span>) <span class="op">\</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"subscribe"</span>, <span class="st">"transactions"</span>) <span class="op">\</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"startingOffsets"</span>, <span class="st">"latest"</span>) <span class="op">\</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    .load()</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Kafka returns data as bytes — needs to be parsed</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>schema <span class="op">=</span> StructType() <span class="op">\</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"id"</span>, StringType()) <span class="op">\</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"amount"</span>, DoubleType()) <span class="op">\</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"store"</span>, StringType()) <span class="op">\</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"time"</span>, TimestampType())</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>parsed_df <span class="op">=</span> kafka_df <span class="op">\</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    .selectExpr(<span class="st">"CAST(value AS STRING) as json"</span>) <span class="op">\</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    .select(from_json(col(<span class="st">"json"</span>), schema).alias(<span class="st">"data"</span>)) <span class="op">\</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    .select(<span class="st">"data.*"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregation: average amount and transaction count</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># in 5-minute windows per store</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> parsed_df <span class="op">\</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    .withWatermark(<span class="st">"time"</span>, <span class="st">"2 minutes"</span>) <span class="op">\</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    .groupBy(</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        window(col(<span class="st">"time"</span>), <span class="st">"5 minutes"</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        col(<span class="st">"store"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">\</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    .agg(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        avg(<span class="st">"amount"</span>).alias(<span class="st">"average_amount"</span>),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        count(<span class="st">"*"</span>).alias(<span class="st">"transaction_count"</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Write to console (in labs: to database or dashboard)</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> result.writeStream <span class="op">\</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    .outputMode(<span class="st">"update"</span>) <span class="op">\</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"console"</span>) <span class="op">\</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"truncate"</span>, <span class="va">False</span>) <span class="op">\</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    .trigger(processingTime<span class="op">=</span><span class="st">"10 seconds"</span>) <span class="op">\</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co"># query.awaitTermination()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>Note <code>.withWatermark("time", "2 minutes")</code> — this is the watermarking mechanism we discussed in Lecture 2. Spark tolerates event delays up to 2 minutes and automatically discards those that arrive later.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="complete-pipeline-course-summary" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="complete-pipeline-course-summary"><span class="header-section-number">5</span> Complete pipeline — course summary</h2>
+<p>Putting together everything we’ve learned in the lectures:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    subgraph "Data sources"
+        WEB["Web\napplication"]
+        PAY["Payment\nsystem"]
+        IOT["IoT\nsensors"]
+    end
+    subgraph "Transport"
+        K["Apache Kafka\n(L4)"]
+    end
+    subgraph "Processing"
+        SS["Spark Streaming\n(L5)"]
+        ML["FastAPI + ML\n(L3)"]
+    end
+    subgraph "Results"
+        DASH["Dashboard\n(near RT)"]
+        ALERT["Alerts\n(real-time)"]
+        REP["Reports\n(batch)"]
+    end
+
+    WEB --&gt; K
+    PAY --&gt; K
+    IOT --&gt; K
+    K --&gt; SS --&gt; DASH
+    K --&gt; ML --&gt; ALERT
+    SS --&gt; REP
+
+    style K fill:#FF9800,color:#fff
+    style SS fill:#2196F3,color:#fff
+    style ML fill:#4CAF50,color:#fff
+    style DASH fill:#E3F2FD,stroke:#2196F3
+    style ALERT fill:#FFEBEE,stroke:#F44336
+    style REP fill:#F3E5F5,stroke:#9C27B0
+</pre>
+</div>
+<p></p><figcaption> Complete real-time analytics pipeline — course summary</figcaption> </figure><p></p>
+</div>
+</div>
+</div>
+<table class="table-striped table-hover caption-top table">
+<caption>Course map</caption>
 <thead>
 <tr class="header">
-<th>Feature</th>
-<th>Offline learning</th>
-<th>Online learning</th>
+<th>Component</th>
+<th>Role</th>
+<th style="text-align: center;">Lecture</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Data</strong></td>
-<td>Historical, collected</td>
-<td>Streaming, incremental</td>
+<td>Data types, OLTP/OLAP, Data Lake</td>
+<td>Context and history</td>
+<td style="text-align: center;">L1</td>
 </tr>
 <tr class="even">
-<td><strong>Model update</strong></td>
-<td>Periodic (retrain)</td>
-<td>Continuous (partial_fit)</td>
+<td>Lambda/Kappa, time windows</td>
+<td>Architecture</td>
+<td style="text-align: center;">L2</td>
 </tr>
 <tr class="odd">
-<td><strong>Compute cost</strong></td>
-<td>High one-time</td>
-<td>Low per observation</td>
+<td>ML batch vs online, SGD, anomalies</td>
+<td>Models and algorithms</td>
+<td style="text-align: center;">L3</td>
 </tr>
 <tr class="even">
-<td><strong>Reaction to change</strong></td>
-<td>Delayed</td>
-<td>Immediate</td>
+<td>Apache Kafka</td>
+<td>Data transport</td>
+<td style="text-align: center;">L4</td>
 </tr>
 <tr class="odd">
-<td><strong>Risk</strong></td>
-<td>Stale model</td>
-<td>Instability, concept drift</td>
-</tr>
-<tr class="even">
-<td><strong>Use case</strong></td>
-<td>Reports, predictive models</td>
-<td>Fraud detection, live recommendations</td>
+<td>Apache Spark + Structured Streaming</td>
+<td>Processing</td>
+<td style="text-align: center;">L5</td>
 </tr>
 </tbody>
 </table>
-<p>In practice, a <strong>hybrid</strong> approach is often used: a base model trained offline, updated online with current data.</p>
+<hr>
 </section>
-</section>
-<section id="anomaly-detection" class="level2">
-<h2 class="anchored" data-anchor-id="anomaly-detection">Anomaly Detection</h2>
-<p>Anomaly detection is one of the most important applications of real-time analytics. An anomaly (outlier) is an observation that significantly deviates from the rest — a suspicious transaction, unusual sensor reading, unexpected traffic spike.</p>
-<section id="statistical-method-iqr" class="level3">
-<h3 class="anchored" data-anchor-id="statistical-method-iqr">Statistical Method — IQR</h3>
-<p>The simplest method: an observation is an anomaly if it lies far from the median. Formally, a value is an outlier when:</p>
-<p><span class="math display">\[x_{out} &lt; Q_1 - 1.5 \times IQR \quad \text{or} \quad x_{out} &gt; Q_3 + 1.5 \times IQR\]</span></p>
-<p>where <span class="math inline">\(IQR = Q_3 - Q_1\)</span> (interquartile range).</p>
-<div id="8c75bc94" class="cell" data-execution_count="3">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Credit card transactions (amounts in PLN)</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>transactions <span class="op">=</span> [<span class="dv">85</span>, <span class="dv">92</span>, <span class="dv">78</span>, <span class="dv">110</span>, <span class="dv">95</span>, <span class="dv">88</span>, <span class="dv">102</span>, <span class="dv">91</span>, <span class="dv">87</span>, <span class="dv">99</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                <span class="dv">105</span>, <span class="dv">82</span>, <span class="dv">97</span>, <span class="dv">4500</span>, <span class="dv">89</span>, <span class="dv">94</span>, <span class="dv">101</span>, <span class="dv">86</span>, <span class="dv">93</span>, <span class="dv">8200</span>]</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>Q1 <span class="op">=</span> np.percentile(transactions, <span class="dv">25</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Q3 <span class="op">=</span> np.percentile(transactions, <span class="dv">75</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>IQR <span class="op">=</span> Q3 <span class="op">-</span> Q1</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>lower_bound <span class="op">=</span> Q1 <span class="op">-</span> <span class="fl">1.5</span> <span class="op">*</span> IQR</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>upper_bound <span class="op">=</span> Q3 <span class="op">+</span> <span class="fl">1.5</span> <span class="op">*</span> IQR</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>anomalies <span class="op">=</span> [x <span class="cf">for</span> x <span class="kw">in</span> transactions <span class="cf">if</span> x <span class="op">&lt;</span> lower_bound <span class="kw">or</span> x <span class="op">&gt;</span> upper_bound]</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Q1=</span><span class="sc">{</span>Q1<span class="sc">}</span><span class="ss">, Q3=</span><span class="sc">{</span>Q3<span class="sc">}</span><span class="ss">, IQR=</span><span class="sc">{</span>IQR<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Bounds: [</span><span class="sc">{</span>lower_bound<span class="sc">:.0f}</span><span class="ss">, </span><span class="sc">{</span>upper_bound<span class="sc">:.0f}</span><span class="ss">]"</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Anomalies: </span><span class="sc">{</span>anomalies<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">2</span>))</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>ax.boxplot(transactions, vert<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Transaction amount (PLN)'</span>)</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Anomaly detection with IQR'</span>)</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Q1=87.75, Q3=101.25, IQR=13.5
-Bounds: [68, 122]
-Anomalies: [4500, 8200]</code></pre>
+<section id="algorithm-complexity-a-practical-note" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="algorithm-complexity-a-practical-note"><span class="header-section-number">6</span> Algorithm complexity — a practical note</h2>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="lecture5_files/figure-html/cell-4-output-2.png" width="758" height="182" class="figure-img"></p>
-</figure>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>When designing a real-time pipeline, consider the computational dimension
 </div>
 </div>
-</div>
-<p>The IQR method is simple but works only for a single variable. For multidimensional data we need something more sophisticated.</p>
-</section>
-<section id="isolation-forest" class="level3">
-<h3 class="anchored" data-anchor-id="isolation-forest">Isolation Forest</h3>
-<p><strong>Isolation Forest</strong> is a tree-based algorithm designed specifically for anomaly detection (Liu, Ting, Zhou, 2008). It works on a simple intuition: <strong>anomalies are easier to isolate</strong> than normal observations.</p>
-<p>The algorithm randomly selects a feature and a split point. Outliers — being far from the rest — get isolated after fewer splits (closer to the tree root). Normal observations require many splits.</p>
-<div id="4940bbcd" class="cell" data-execution_count="4">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> IsolationForest</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Transaction data: amount, weekly frequency, hours since last transaction</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>normal <span class="op">=</span> np.column_stack([</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    np.random.normal(<span class="dv">200</span>, <span class="dv">50</span>, <span class="dv">50</span>),</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    np.random.normal(<span class="dv">10</span>, <span class="dv">3</span>, <span class="dv">50</span>),</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    np.random.normal(<span class="dv">24</span>, <span class="dv">8</span>, <span class="dv">50</span>),</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>anomalies <span class="op">=</span> np.array([</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">5000</span>, <span class="dv">1</span>, <span class="dv">720</span>],</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">4200</span>, <span class="dv">2</span>, <span class="dv">480</span>],</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">50</span>, <span class="dv">45</span>, <span class="fl">0.5</span>],</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> np.vstack([normal, anomalies])</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> IsolationForest(contamination<span class="op">=</span><span class="fl">0.05</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> model.fit_predict(data)</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(data, columns<span class="op">=</span>[<span class="st">"amount"</span>, <span class="st">"weekly_freq"</span>, <span class="st">"hours_since_last"</span>])</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"anomaly"</span>] <span class="op">=</span> [<span class="st">"YES"</span> <span class="cf">if</span> l <span class="op">==</span> <span class="op">-</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">"no"</span> <span class="cf">for</span> l <span class="kw">in</span> labels]</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Detected anomalies:"</span>)</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df[df[<span class="st">"anomaly"</span>] <span class="op">==</span> <span class="st">"YES"</span>].to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Detected anomalies:
- amount  weekly_freq  hours_since_last anomaly
- 5000.0          1.0             720.0     YES
- 4200.0          2.0             480.0     YES
-   50.0         45.0               0.5     YES</code></pre>
-</div>
-</div>
-<p>Isolation Forest advantages: fast on large datasets, handles multidimensional data, doesn’t require labeled data (unsupervised method).</p>
-</section>
-<section id="anomaly-detection-in-a-stream" class="level3">
-<h3 class="anchored" data-anchor-id="anomaly-detection-in-a-stream">Anomaly Detection in a Stream</h3>
-<p>In a real-time context, anomaly detection works in a loop:</p>
-<ol type="1">
-<li>A Kafka consumer receives a new transaction.</li>
-<li>A model (e.g., Isolation Forest, trained offline) evaluates whether it’s an anomaly.</li>
-<li>If so — generates an alert.</li>
-<li>Optionally: the model updates itself on new data (online learning).</li>
-</ol>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> kafka <span class="im">import</span> KafkaConsumer</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> IsolationForest</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json, numpy <span class="im">as</span> np</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume model is pre-trained</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> IsolationForest(contamination<span class="op">=</span><span class="fl">0.05</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># model.fit(historical_data)</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>consumer <span class="op">=</span> KafkaConsumer(</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"transactions"</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">"localhost:9092"</span>,</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    value_deserializer<span class="op">=</span><span class="kw">lambda</span> x: json.loads(x.decode(<span class="st">'utf-8'</span>))</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> msg <span class="kw">in</span> consumer:</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> msg.value</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    features <span class="op">=</span> np.array([[t[<span class="st">"amount"</span>], t[<span class="st">"weekly_freq"</span>], t[<span class="st">"hours_since_last"</span>]]])</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> model.predict(features)[<span class="dv">0</span>]</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pred <span class="op">==</span> <span class="op">-</span><span class="dv">1</span>:</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"ALERT: Suspicious transaction </span><span class="sc">{</span>t[<span class="st">'id'</span>]<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>t[<span class="st">'amount'</span>]<span class="sc">}</span><span class="ss"> PLN"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-</section>
-<section id="algorithm-explainability" class="level2">
-<h2 class="anchored" data-anchor-id="algorithm-explainability">Algorithm Explainability</h2>
-<p>An ML model may be highly accurate, but if we can’t explain <strong>why</strong> it made a particular decision, its usefulness in many industries is limited.</p>
-<p>This is especially important in regulated sectors:</p>
+<div class="callout-body-container callout-body">
 <ul>
-<li><strong>Banking</strong> — a bank must explain to a customer why their loan was denied.</li>
-<li><strong>Healthcare</strong> — a diagnostic algorithm must indicate what its recommendation is based on.</li>
-<li><strong>Insurance</strong> — a claim denial decision must be justified.</li>
-<li><strong>Regulation</strong> — the EU AI Act requires transparency for high-risk AI systems.</li>
+<li><strong>Large data, simple computation</strong> — e.g., log filtering, aggregations. Spark handles this well.</li>
+<li><strong>Small data, heavy computation</strong> — e.g., training a deep learning model. Better offline on GPU.</li>
+<li><strong>Large data, heavy computation</strong> — e.g., real-time video analysis. Requires specialized architecture (GPU cluster, edge computing).</li>
 </ul>
-<section id="lime-local-interpretable-model-agnostic-explanations" class="level3">
-<h3 class="anchored" data-anchor-id="lime-local-interpretable-model-agnostic-explanations">LIME — Local Interpretable Model-Agnostic Explanations</h3>
-<p>LIME (Ribeiro et al., 2016) explains individual predictions of any ML model. It works as follows:</p>
-<ol type="1">
-<li>Takes a specific observation we want explained.</li>
-<li>Generates perturbations — slightly modified versions of that observation.</li>
-<li>Checks how the model reacts to those changes.</li>
-<li>Builds a simple, interpretable local model (e.g., linear regression) that approximates the complex model’s behavior in the neighborhood of that observation.</li>
-</ol>
-<div id="c160020f" class="cell" data-execution_count="5">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_iris</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Train model on Iris data</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>iris <span class="op">=</span> load_iris()</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    iris.data, iris.target, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> RandomForestClassifier(n_estimators<span class="op">=</span><span class="dv">100</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>model.fit(X_train, y_train)</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Pick one observation</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">7</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>obs <span class="op">=</span> X_test[i]</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> model.predict([obs])[<span class="dv">0</span>]</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>proba <span class="op">=</span> model.predict_proba([obs])[<span class="dv">0</span>]</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observation: </span><span class="sc">{</span>obs<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Prediction: </span><span class="sc">{</span>iris<span class="sc">.</span>target_names[pred]<span class="sc">}</span><span class="ss"> (probabilities: </span><span class="sc">{</span>proba<span class="sc">.</span><span class="bu">round</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="ss">)"</span>)</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Feature importance for this model</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>importances <span class="op">=</span> model.feature_importances_</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Feature importance (global):"</span>)</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, imp <span class="kw">in</span> <span class="bu">sorted</span>(<span class="bu">zip</span>(iris.feature_names, importances), key<span class="op">=</span><span class="kw">lambda</span> x: <span class="op">-</span>x[<span class="dv">1</span>]):</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>imp<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Observation: [6.9 3.1 5.1 2.3]
-Prediction: virginica (probabilities: [0.   0.08 0.92])
-
-Feature importance (global):
-  petal length (cm): 0.440
-  petal width (cm): 0.422
-  sepal length (cm): 0.108
-  sepal width (cm): 0.030</code></pre>
+<p>For real-time systems the key is that the processing time of one event must be <strong>shorter</strong> than the interval between events. Otherwise the queue grows indefinitely.</p>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To use LIME (requires: pip install lime):</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lime.lime_tabular <span class="im">import</span> LimeTabularExplainer</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>explainer <span class="op">=</span> LimeTabularExplainer(</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    X_train,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    feature_names<span class="op">=</span>iris.feature_names,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    class_names<span class="op">=</span>iris.target_names,</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    discretize_continuous<span class="op">=</span><span class="va">True</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>exp <span class="op">=</span> explainer.explain_instance(X_test[i], model.predict_proba)</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>exp.show_in_notebook()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>LIME will show which features (e.g., petal length &gt; 4.5, petal width &gt; 1.6) influenced the classification of a given flower as <em>Virginica</em>. The same approach works for any model — from logistic regression to deep neural networks.</p>
+<hr>
 </section>
+<section id="whats-next-the-labs" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="whats-next-the-labs"><span class="header-section-number">7</span> What’s next — the labs</h2>
+<p>In the labs you’ll build a complete system step by step:</p>
+<table class="table-striped table-hover caption-top table">
+<caption>Lab plan</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Lab</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1–2</td>
+<td>Environment (Git, Docker, Python), exploratory data analysis</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">3–4</td>
+<td>ML model (scikit-learn), deployment preparation</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5–6</td>
+<td>Kafka in Docker — producer and consumer in Python</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">7–8</td>
+<td>PySpark + Structured Streaming + Kafka</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">9–10</td>
+<td>Complete pipeline + group project</td>
+</tr>
+</tbody>
+</table>
+<hr>
 </section>
-<section id="course-summary-whats-next" class="level2">
-<h2 class="anchored" data-anchor-id="course-summary-whats-next">Course Summary — What’s Next?</h2>
-<p>Over 5 lectures we followed this path:</p>
-<ol type="1">
-<li><strong>L1:</strong> What is real-time analytics and when is it needed (batch vs NRT vs RT).</li>
-<li><strong>L2:</strong> Evolution of data and processing models (OLTP -&gt; OLAP -&gt; Data Lake -&gt; Big Data).</li>
-<li><strong>L3:</strong> Stream processing — time, watermarking, time windows.</li>
-<li><strong>L4:</strong> Apache Kafka and microservices — real-time system architecture.</li>
-<li><strong>L5:</strong> Machine learning in streaming context — online learning, anomalies, explainability.</li>
-</ol>
-<p>In the <strong>labs</strong>, you’ll translate this knowledge into practice: set up an environment in Docker, write Kafka producers and consumers, build a Spark Streaming + Kafka pipeline, deploy an ML model as a FastAPI microservice, and build a complete real-time anomaly detection system.</p>
-</section>
-<section id="business-impact" class="level2">
-<h2 class="anchored" data-anchor-id="business-impact">Business Impact</h2>
-<p>Anomaly detection is the foundation of modern risk management — from detecting financial fraud to predicting machine failures (predictive maintenance). Algorithm explainability is a necessity in regulated sectors — understanding “why the system said NO” protects a company from reputational and legal damage and ensures compliance with regulations (AI Act, GDPR). Companies that combine real-time analytics with interpretable ML gain a competitive advantage not only in speed, but also in customer trust.</p>
+<section id="summary" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="summary"><span class="header-section-number">8</span> Summary</h2>
+<p>Apache Spark is the engine that turns raw data streams into business value. Combined with Kafka it forms a powerful real-time analytics platform. Structured Streaming simplifies streaming programming — you write code as for batch, and Spark takes care of the rest.</p>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span><i class="fa-solid fa-flag-checkered" aria-label="flag-checkered"></i> This was the last lecture
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In the labs you’ll translate this knowledge into practice — from the first <code>docker compose up</code> to a complete real-time data processing system.</p>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span><i class="fa-solid fa-laptop-code" aria-label="laptop-code"></i> Before Lab 1
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Make sure you have Docker and Git installed (see the <a href="../info.html">Tools</a> page). Clone the course repository and run <code>docker compose up</code> — if it works, you’re ready.</p>
+</div>
+</div>
 
+
+<!-- -->
 
 </section>
 
@@ -728,6 +979,57 @@ Feature importance (global):
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -1062,7 +1364,464 @@ Feature importance (global):
       }
     }
   });
-  </script>
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Lecture 5 — Apache Spark and Structured Streaming"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Real-Time Data Analytics"</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Apache Spark as a distributed processing engine, Structured Streaming, Spark–Kafka integration, complete real-time analytics pipeline."</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show code"</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-title: "Contents"</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">    smooth-scroll: true</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">    theme:</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">      light: flatly</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">    highlight-style: github</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-align: center</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-cap-location: bottom</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="an">jupyter:</span><span class="co"> python3</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="minimal"}</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa clock &gt;}} Duration: 1.5h</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>**Goal:** Learn Apache Spark as an engine for distributed data processing. Introduction to Structured Streaming and Spark–Kafka integration. Overview of the complete real-time analytics pipeline.</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why Spark?</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>In previous lectures we learned about Kafka — a system that **transports** data streams. But Kafka itself doesn't perform complex analytics. For that we need a processing engine — and that's where **Apache Spark** comes in.</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>Spark is an engine for **distributed data processing** that supports both batch and streaming modes. It was created at UC Berkeley in 2009 as a response to the limitations of Hadoop MapReduce — mainly its slowness due to constant writes to disk.</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>:::: {.columns}</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>::: {.column width="50%"}</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip appearance="simple"}</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa memory &gt;}} In-memory processing</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>Data kept in RAM, not on disk. Up to **100x faster** than MapReduce.</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip appearance="simple"}</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa cubes &gt;}} One engine, many modes</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>Batch, streaming, SQL, ML, graphs — all in one framework.</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>::: {.column width="50%"}</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip appearance="simple"}</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa python &gt;}} Multi-language API</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>PySpark, Scala, Java, R.</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip appearance="simple"}</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa wand-magic-sparkles &gt;}} Lazy evaluation</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>Spark builds an execution plan and optimizes it **before** computing anything.</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>::::</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>%%| fig-cap: <span class="ot">"</span><span class="st">Apache Spark ecosystem</span><span class="ot">"</span></span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>flowchart TB</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>    subgraph <span class="ot">"</span><span class="st">Apache Spark</span><span class="ot">"</span></span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>        CORE[<span class="ot">"</span><span class="st">Spark Core</span><span class="ch">\n</span><span class="st">(RDD, memory management)</span><span class="ot">"</span>]</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>        SQL[<span class="ot">"</span><span class="st">Spark SQL</span><span class="ch">\n</span><span class="st">&amp; DataFrames</span><span class="ot">"</span>]</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>        SS[<span class="ot">"</span><span class="st">Structured</span><span class="ch">\n</span><span class="st">Streaming</span><span class="ot">"</span>]</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>        ML[<span class="ot">"</span><span class="st">MLlib</span><span class="ch">\n</span><span class="st">(Machine Learning)</span><span class="ot">"</span>]</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>        GR[<span class="ot">"</span><span class="st">GraphX</span><span class="ch">\n</span><span class="st">(Graphs)</span><span class="ot">"</span>]</span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>    end</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>    SQL --&gt; CORE</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>    SS --&gt; CORE</span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>    ML --&gt; CORE</span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>    GR --&gt; CORE</span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>    style CORE fill:<span class="co">#FF9800,color:#fff</span></span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>    style SQL fill:<span class="co">#2196F3,color:#fff</span></span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>    style SS fill:<span class="co">#F44336,color:#fff</span></span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>    style ML fill:<span class="co">#4CAF50,color:#fff</span></span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>    style GR fill:<span class="co">#9C27B0,color:#fff</span></span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a><span class="fu">## PySpark — basics</span></span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a><span class="fu">### SparkSession — the entry point</span></span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a>Every PySpark program starts by creating a <span class="in">`SparkSession`</span>:</span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"MyFirstApplication"</span>) <span class="op">\</span></span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a>    .master(<span class="st">"local[*]"</span>) <span class="op">\</span></span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="simple"}</span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a><span class="in">`local[*]`</span> means: run Spark locally, using all available CPU cores. In production, a cluster address is provided instead.</span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a><span class="fu">### DataFrame API</span></span>
+<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a>A Spark DataFrame is the equivalent of a SQL table or a Pandas DataFrame — but **distributed** across multiple machines.</span>
+<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, avg, <span class="bu">sum</span>, count</span>
+<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder.appName(<span class="st">"Demo"</span>).master(<span class="st">"local[*]"</span>).getOrCreate()</span>
+<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a DataFrame</span></span>
+<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [</span>
+<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Warsaw"</span>, <span class="st">"Electronics"</span>, <span class="fl">4299.00</span>),</span>
+<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Krakow"</span>, <span class="st">"Clothing"</span>, <span class="fl">189.99</span>),</span>
+<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Warsaw"</span>, <span class="st">"Food"</span>, <span class="fl">87.50</span>),</span>
+<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Gdansk"</span>, <span class="st">"Electronics"</span>, <span class="fl">2599.00</span>),</span>
+<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Krakow"</span>, <span class="st">"Electronics"</span>, <span class="fl">1299.00</span>),</span>
+<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Warsaw"</span>, <span class="st">"Clothing"</span>, <span class="fl">349.99</span>),</span>
+<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Gdansk"</span>, <span class="st">"Food"</span>, <span class="fl">156.00</span>),</span>
+<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> spark.createDataFrame(data, [<span class="st">"city"</span>, <span class="st">"category"</span>, <span class="st">"amount"</span>])</span>
+<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a>df.show()</span>
+<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a><span class="fu">### Transformations and actions</span></span>
+<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a>Spark distinguishes two types of operations:</span>
+<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
+<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a><span class="fu">#### {{&lt; fa wand-magic-sparkles &gt;}} Transformations (lazy)</span></span>
+<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a>Define *what* you want to do, but **don't execute** computations. They are **lazy**.</span>
+<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a>Examples: <span class="in">`filter`</span>, <span class="in">`groupBy`</span>, <span class="in">`select`</span>, <span class="in">`join`</span>.</span>
+<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a><span class="co"># Transformations (lazy — nothing is computed yet)</span></span>
+<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df <span class="op">\</span></span>
+<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(col(<span class="st">"amount"</span>) <span class="op">&gt;</span> <span class="dv">100</span>) <span class="op">\</span></span>
+<span id="cb9-148"><a href="#cb9-148" aria-hidden="true" tabindex="-1"></a>    .groupBy(<span class="st">"city"</span>) <span class="op">\</span></span>
+<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a>    .agg(</span>
+<span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a>        <span class="bu">sum</span>(<span class="st">"amount"</span>).alias(<span class="st">"total"</span>),</span>
+<span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a>        count(<span class="st">"amount"</span>).alias(<span class="st">"count"</span>),</span>
+<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a>        avg(<span class="st">"amount"</span>).alias(<span class="st">"average"</span>)</span>
+<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a><span class="fu">#### {{&lt; fa play &gt;}} Actions (eager)</span></span>
+<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a>**Trigger** actual computation.</span>
+<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a>Examples: <span class="in">`show`</span>, <span class="in">`count`</span>, <span class="in">`collect`</span>, <span class="in">`write`</span>.</span>
+<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a><span class="co"># Action (here Spark actually performs the computation)</span></span>
+<span id="cb9-164"><a href="#cb9-164" aria-hidden="true" tabindex="-1"></a>result.show()</span>
+<span id="cb9-165"><a href="#cb9-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-166"><a href="#cb9-166" aria-hidden="true" tabindex="-1"></a>spark.stop()</span>
+<span id="cb9-167"><a href="#cb9-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-168"><a href="#cb9-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-169"><a href="#cb9-169" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-170"><a href="#cb9-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-171"><a href="#cb9-171" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb9-172"><a href="#cb9-172" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa database &gt;}} Spark SQL — an alternative</span></span>
+<span id="cb9-173"><a href="#cb9-173" aria-hidden="true" tabindex="-1"></a>You can also use plain SQL:</span>
+<span id="cb9-174"><a href="#cb9-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-175"><a href="#cb9-175" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-176"><a href="#cb9-176" aria-hidden="true" tabindex="-1"></a>df.createOrReplaceTempView(<span class="st">"sales"</span>)</span>
+<span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-178"><a href="#cb9-178" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"""</span></span>
+<span id="cb9-179"><a href="#cb9-179" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT city,</span></span>
+<span id="cb9-180"><a href="#cb9-180" aria-hidden="true" tabindex="-1"></a><span class="st">           SUM(amount) as total,</span></span>
+<span id="cb9-181"><a href="#cb9-181" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(*) as count</span></span>
+<span id="cb9-182"><a href="#cb9-182" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM sales</span></span>
+<span id="cb9-183"><a href="#cb9-183" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE amount &gt; 100</span></span>
+<span id="cb9-184"><a href="#cb9-184" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY city</span></span>
+<span id="cb9-185"><a href="#cb9-185" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY total DESC</span></span>
+<span id="cb9-186"><a href="#cb9-186" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>).show()</span>
+<span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-188"><a href="#cb9-188" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-189"><a href="#cb9-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-190"><a href="#cb9-190" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb9-191"><a href="#cb9-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-192"><a href="#cb9-192" aria-hidden="true" tabindex="-1"></a><span class="fu">## Structured Streaming — streams as tables</span></span>
+<span id="cb9-193"><a href="#cb9-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-194"><a href="#cb9-194" aria-hidden="true" tabindex="-1"></a>::: {.callout-important}</span>
+<span id="cb9-195"><a href="#cb9-195" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key concept</span></span>
+<span id="cb9-196"><a href="#cb9-196" aria-hidden="true" tabindex="-1"></a>Structured Streaming treats a **data stream as a table to which new rows are continuously appended**. This lets you write streaming code almost identically to batch — using the same DataFrame API.</span>
+<span id="cb9-197"><a href="#cb9-197" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-198"><a href="#cb9-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-201"><a href="#cb9-201" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb9-202"><a href="#cb9-202" aria-hidden="true" tabindex="-1"></a>%%| fig-cap: <span class="ot">"</span><span class="st">Structured Streaming: stream as an unbounded table</span><span class="ot">"</span></span>
+<span id="cb9-203"><a href="#cb9-203" aria-hidden="true" tabindex="-1"></a>flowchart TB</span>
+<span id="cb9-204"><a href="#cb9-204" aria-hidden="true" tabindex="-1"></a>    subgraph <span class="ot">"</span><span class="st">Input stream</span><span class="ot">"</span></span>
+<span id="cb9-205"><a href="#cb9-205" aria-hidden="true" tabindex="-1"></a>        T1[<span class="ot">"</span><span class="st">Batch t1</span><span class="ot">"</span>] --&gt; TAB[<span class="ot">"</span><span class="st">Unbounded</span><span class="ch">\n</span><span class="st">input table</span><span class="ch">\n</span><span class="st">(new rows</span><span class="ch">\n</span><span class="st">appended continuously)</span><span class="ot">"</span>]</span>
+<span id="cb9-206"><a href="#cb9-206" aria-hidden="true" tabindex="-1"></a>        T2[<span class="ot">"</span><span class="st">Batch t2</span><span class="ot">"</span>] --&gt; TAB</span>
+<span id="cb9-207"><a href="#cb9-207" aria-hidden="true" tabindex="-1"></a>        T3[<span class="ot">"</span><span class="st">Batch t3</span><span class="ot">"</span>] --&gt; TAB</span>
+<span id="cb9-208"><a href="#cb9-208" aria-hidden="true" tabindex="-1"></a>        T4[<span class="ot">"</span><span class="st">Batch t4...</span><span class="ot">"</span>] --&gt; TAB</span>
+<span id="cb9-209"><a href="#cb9-209" aria-hidden="true" tabindex="-1"></a>    end</span>
+<span id="cb9-210"><a href="#cb9-210" aria-hidden="true" tabindex="-1"></a>    TAB --&gt;|<span class="ot">"</span><span class="st">Query</span><span class="ot">"</span>| RES[<span class="ot">"</span><span class="st">Result table</span><span class="ch">\n</span><span class="st">(updated</span><span class="ch">\n</span><span class="st">with each trigger)</span><span class="ot">"</span>]</span>
+<span id="cb9-211"><a href="#cb9-211" aria-hidden="true" tabindex="-1"></a>    RES --&gt; OUT[<span class="ot">"</span><span class="st">Output:</span><span class="ch">\n</span><span class="st">console / Kafka / files / database</span><span class="ot">"</span>]</span>
+<span id="cb9-212"><a href="#cb9-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-213"><a href="#cb9-213" aria-hidden="true" tabindex="-1"></a>    style TAB fill:<span class="co">#2196F3,color:#fff</span></span>
+<span id="cb9-214"><a href="#cb9-214" aria-hidden="true" tabindex="-1"></a>    style RES fill:<span class="co">#4CAF50,color:#fff</span></span>
+<span id="cb9-215"><a href="#cb9-215" aria-hidden="true" tabindex="-1"></a>    style OUT fill:<span class="co">#FF9800,color:#fff</span></span>
+<span id="cb9-216"><a href="#cb9-216" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-217"><a href="#cb9-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-218"><a href="#cb9-218" aria-hidden="true" tabindex="-1"></a><span class="fu">### Output modes</span></span>
+<span id="cb9-219"><a href="#cb9-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-220"><a href="#cb9-220" aria-hidden="true" tabindex="-1"></a>:::: {.columns}</span>
+<span id="cb9-221"><a href="#cb9-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-222"><a href="#cb9-222" aria-hidden="true" tabindex="-1"></a>::: {.column width="33%"}</span>
+<span id="cb9-223"><a href="#cb9-223" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="simple"}</span>
+<span id="cb9-224"><a href="#cb9-224" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa plus &gt;}} Append</span></span>
+<span id="cb9-225"><a href="#cb9-225" aria-hidden="true" tabindex="-1"></a>Only **new** rows are added to the output. Default mode.</span>
+<span id="cb9-226"><a href="#cb9-226" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-227"><a href="#cb9-227" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-228"><a href="#cb9-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-229"><a href="#cb9-229" aria-hidden="true" tabindex="-1"></a>::: {.column width="33%"}</span>
+<span id="cb9-230"><a href="#cb9-230" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning appearance="simple"}</span>
+<span id="cb9-231"><a href="#cb9-231" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa arrows-rotate &gt;}} Complete</span></span>
+<span id="cb9-232"><a href="#cb9-232" aria-hidden="true" tabindex="-1"></a>The entire result table is **overwritten** (e.g., after aggregation).</span>
+<span id="cb9-233"><a href="#cb9-233" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-234"><a href="#cb9-234" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-235"><a href="#cb9-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-236"><a href="#cb9-236" aria-hidden="true" tabindex="-1"></a>::: {.column width="33%"}</span>
+<span id="cb9-237"><a href="#cb9-237" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip appearance="simple"}</span>
+<span id="cb9-238"><a href="#cb9-238" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa pen &gt;}} Update</span></span>
+<span id="cb9-239"><a href="#cb9-239" aria-hidden="true" tabindex="-1"></a>Only **changed** rows are written.</span>
+<span id="cb9-240"><a href="#cb9-240" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-241"><a href="#cb9-241" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-242"><a href="#cb9-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-243"><a href="#cb9-243" aria-hidden="true" tabindex="-1"></a>::::</span>
+<span id="cb9-244"><a href="#cb9-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-245"><a href="#cb9-245" aria-hidden="true" tabindex="-1"></a><span class="fu">### Example: streaming from CSV files</span></span>
+<span id="cb9-246"><a href="#cb9-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-247"><a href="#cb9-247" aria-hidden="true" tabindex="-1"></a>The simplest example — Spark monitors a directory and processes new CSV files as they appear:</span>
+<span id="cb9-248"><a href="#cb9-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-249"><a href="#cb9-249" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-250"><a href="#cb9-250" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb9-251"><a href="#cb9-251" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col, window, <span class="bu">sum</span></span>
+<span id="cb9-252"><a href="#cb9-252" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.types <span class="im">import</span> StructType, StringType, DoubleType, TimestampType</span>
+<span id="cb9-253"><a href="#cb9-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-254"><a href="#cb9-254" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder.appName(<span class="st">"StreamingDemo"</span>).master(<span class="st">"local[*]"</span>).getOrCreate()</span>
+<span id="cb9-255"><a href="#cb9-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-256"><a href="#cb9-256" aria-hidden="true" tabindex="-1"></a><span class="co"># Data schema</span></span>
+<span id="cb9-257"><a href="#cb9-257" aria-hidden="true" tabindex="-1"></a>schema <span class="op">=</span> StructType() <span class="op">\</span></span>
+<span id="cb9-258"><a href="#cb9-258" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"transaction_id"</span>, StringType()) <span class="op">\</span></span>
+<span id="cb9-259"><a href="#cb9-259" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"amount"</span>, DoubleType()) <span class="op">\</span></span>
+<span id="cb9-260"><a href="#cb9-260" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"store"</span>, StringType()) <span class="op">\</span></span>
+<span id="cb9-261"><a href="#cb9-261" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"timestamp"</span>, TimestampType())</span>
+<span id="cb9-262"><a href="#cb9-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-263"><a href="#cb9-263" aria-hidden="true" tabindex="-1"></a><span class="co"># Reading stream from CSV directory</span></span>
+<span id="cb9-264"><a href="#cb9-264" aria-hidden="true" tabindex="-1"></a>streaming_df <span class="op">=</span> spark.readStream <span class="op">\</span></span>
+<span id="cb9-265"><a href="#cb9-265" aria-hidden="true" tabindex="-1"></a>    .schema(schema) <span class="op">\</span></span>
+<span id="cb9-266"><a href="#cb9-266" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"header"</span>, <span class="va">True</span>) <span class="op">\</span></span>
+<span id="cb9-267"><a href="#cb9-267" aria-hidden="true" tabindex="-1"></a>    .csv(<span class="st">"/data/incoming/"</span>)</span>
+<span id="cb9-268"><a href="#cb9-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-269"><a href="#cb9-269" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregation in 5-minute windows</span></span>
+<span id="cb9-270"><a href="#cb9-270" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> streaming_df <span class="op">\</span></span>
+<span id="cb9-271"><a href="#cb9-271" aria-hidden="true" tabindex="-1"></a>    .groupBy(</span>
+<span id="cb9-272"><a href="#cb9-272" aria-hidden="true" tabindex="-1"></a>        window(col(<span class="st">"timestamp"</span>), <span class="st">"5 minutes"</span>),</span>
+<span id="cb9-273"><a href="#cb9-273" aria-hidden="true" tabindex="-1"></a>        col(<span class="st">"store"</span>)</span>
+<span id="cb9-274"><a href="#cb9-274" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">\</span></span>
+<span id="cb9-275"><a href="#cb9-275" aria-hidden="true" tabindex="-1"></a>    .agg(<span class="bu">sum</span>(<span class="st">"amount"</span>).alias(<span class="st">"total"</span>))</span>
+<span id="cb9-276"><a href="#cb9-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-277"><a href="#cb9-277" aria-hidden="true" tabindex="-1"></a><span class="co"># Write result to console</span></span>
+<span id="cb9-278"><a href="#cb9-278" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> result.writeStream <span class="op">\</span></span>
+<span id="cb9-279"><a href="#cb9-279" aria-hidden="true" tabindex="-1"></a>    .outputMode(<span class="st">"complete"</span>) <span class="op">\</span></span>
+<span id="cb9-280"><a href="#cb9-280" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"console"</span>) <span class="op">\</span></span>
+<span id="cb9-281"><a href="#cb9-281" aria-hidden="true" tabindex="-1"></a>    .trigger(processingTime<span class="op">=</span><span class="st">"10 seconds"</span>) <span class="op">\</span></span>
+<span id="cb9-282"><a href="#cb9-282" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb9-283"><a href="#cb9-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-284"><a href="#cb9-284" aria-hidden="true" tabindex="-1"></a><span class="co"># query.awaitTermination()</span></span>
+<span id="cb9-285"><a href="#cb9-285" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-286"><a href="#cb9-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-287"><a href="#cb9-287" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb9-288"><a href="#cb9-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-289"><a href="#cb9-289" aria-hidden="true" tabindex="-1"></a><span class="fu">## Spark + Kafka integration</span></span>
+<span id="cb9-290"><a href="#cb9-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-291"><a href="#cb9-291" aria-hidden="true" tabindex="-1"></a>::: {.callout-important appearance="simple"}</span>
+<span id="cb9-292"><a href="#cb9-292" aria-hidden="true" tabindex="-1"></a><span class="fu">## The heart of the course</span></span>
+<span id="cb9-293"><a href="#cb9-293" aria-hidden="true" tabindex="-1"></a>**Kafka transports data, Spark processes it.** This is the fundamental pair in real-time analytics architecture.</span>
+<span id="cb9-294"><a href="#cb9-294" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-295"><a href="#cb9-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-296"><a href="#cb9-296" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
+<span id="cb9-297"><a href="#cb9-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-298"><a href="#cb9-298" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reading from Kafka</span></span>
+<span id="cb9-299"><a href="#cb9-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-300"><a href="#cb9-300" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-301"><a href="#cb9-301" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb9-302"><a href="#cb9-302" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> from_json, col, window, avg, count</span>
+<span id="cb9-303"><a href="#cb9-303" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.types <span class="im">import</span> StructType, StringType, DoubleType, TimestampType</span>
+<span id="cb9-304"><a href="#cb9-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-305"><a href="#cb9-305" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
+<span id="cb9-306"><a href="#cb9-306" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"KafkaStreaming"</span>) <span class="op">\</span></span>
+<span id="cb9-307"><a href="#cb9-307" aria-hidden="true" tabindex="-1"></a>    .master(<span class="st">"local[*]"</span>) <span class="op">\</span></span>
+<span id="cb9-308"><a href="#cb9-308" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span>
+<span id="cb9-309"><a href="#cb9-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-310"><a href="#cb9-310" aria-hidden="true" tabindex="-1"></a><span class="co"># Read stream from Kafka</span></span>
+<span id="cb9-311"><a href="#cb9-311" aria-hidden="true" tabindex="-1"></a>kafka_df <span class="op">=</span> spark.readStream <span class="op">\</span></span>
+<span id="cb9-312"><a href="#cb9-312" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"kafka"</span>) <span class="op">\</span></span>
+<span id="cb9-313"><a href="#cb9-313" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"kafka.bootstrap.servers"</span>, <span class="st">"localhost:9092"</span>) <span class="op">\</span></span>
+<span id="cb9-314"><a href="#cb9-314" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"subscribe"</span>, <span class="st">"transactions"</span>) <span class="op">\</span></span>
+<span id="cb9-315"><a href="#cb9-315" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"startingOffsets"</span>, <span class="st">"latest"</span>) <span class="op">\</span></span>
+<span id="cb9-316"><a href="#cb9-316" aria-hidden="true" tabindex="-1"></a>    .load()</span>
+<span id="cb9-317"><a href="#cb9-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-318"><a href="#cb9-318" aria-hidden="true" tabindex="-1"></a><span class="co"># Kafka returns data as bytes — needs to be parsed</span></span>
+<span id="cb9-319"><a href="#cb9-319" aria-hidden="true" tabindex="-1"></a>schema <span class="op">=</span> StructType() <span class="op">\</span></span>
+<span id="cb9-320"><a href="#cb9-320" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"id"</span>, StringType()) <span class="op">\</span></span>
+<span id="cb9-321"><a href="#cb9-321" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"amount"</span>, DoubleType()) <span class="op">\</span></span>
+<span id="cb9-322"><a href="#cb9-322" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"store"</span>, StringType()) <span class="op">\</span></span>
+<span id="cb9-323"><a href="#cb9-323" aria-hidden="true" tabindex="-1"></a>    .add(<span class="st">"time"</span>, TimestampType())</span>
+<span id="cb9-324"><a href="#cb9-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-325"><a href="#cb9-325" aria-hidden="true" tabindex="-1"></a>parsed_df <span class="op">=</span> kafka_df <span class="op">\</span></span>
+<span id="cb9-326"><a href="#cb9-326" aria-hidden="true" tabindex="-1"></a>    .selectExpr(<span class="st">"CAST(value AS STRING) as json"</span>) <span class="op">\</span></span>
+<span id="cb9-327"><a href="#cb9-327" aria-hidden="true" tabindex="-1"></a>    .select(from_json(col(<span class="st">"json"</span>), schema).alias(<span class="st">"data"</span>)) <span class="op">\</span></span>
+<span id="cb9-328"><a href="#cb9-328" aria-hidden="true" tabindex="-1"></a>    .select(<span class="st">"data.*"</span>)</span>
+<span id="cb9-329"><a href="#cb9-329" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-330"><a href="#cb9-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-331"><a href="#cb9-331" aria-hidden="true" tabindex="-1"></a><span class="fu">### Processing and writing</span></span>
+<span id="cb9-332"><a href="#cb9-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-333"><a href="#cb9-333" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-334"><a href="#cb9-334" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregation: average amount and transaction count</span></span>
+<span id="cb9-335"><a href="#cb9-335" aria-hidden="true" tabindex="-1"></a><span class="co"># in 5-minute windows per store</span></span>
+<span id="cb9-336"><a href="#cb9-336" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> parsed_df <span class="op">\</span></span>
+<span id="cb9-337"><a href="#cb9-337" aria-hidden="true" tabindex="-1"></a>    .withWatermark(<span class="st">"time"</span>, <span class="st">"2 minutes"</span>) <span class="op">\</span></span>
+<span id="cb9-338"><a href="#cb9-338" aria-hidden="true" tabindex="-1"></a>    .groupBy(</span>
+<span id="cb9-339"><a href="#cb9-339" aria-hidden="true" tabindex="-1"></a>        window(col(<span class="st">"time"</span>), <span class="st">"5 minutes"</span>),</span>
+<span id="cb9-340"><a href="#cb9-340" aria-hidden="true" tabindex="-1"></a>        col(<span class="st">"store"</span>)</span>
+<span id="cb9-341"><a href="#cb9-341" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">\</span></span>
+<span id="cb9-342"><a href="#cb9-342" aria-hidden="true" tabindex="-1"></a>    .agg(</span>
+<span id="cb9-343"><a href="#cb9-343" aria-hidden="true" tabindex="-1"></a>        avg(<span class="st">"amount"</span>).alias(<span class="st">"average_amount"</span>),</span>
+<span id="cb9-344"><a href="#cb9-344" aria-hidden="true" tabindex="-1"></a>        count(<span class="st">"*"</span>).alias(<span class="st">"transaction_count"</span>)</span>
+<span id="cb9-345"><a href="#cb9-345" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-346"><a href="#cb9-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-347"><a href="#cb9-347" aria-hidden="true" tabindex="-1"></a><span class="co"># Write to console (in labs: to database or dashboard)</span></span>
+<span id="cb9-348"><a href="#cb9-348" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> result.writeStream <span class="op">\</span></span>
+<span id="cb9-349"><a href="#cb9-349" aria-hidden="true" tabindex="-1"></a>    .outputMode(<span class="st">"update"</span>) <span class="op">\</span></span>
+<span id="cb9-350"><a href="#cb9-350" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"console"</span>) <span class="op">\</span></span>
+<span id="cb9-351"><a href="#cb9-351" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"truncate"</span>, <span class="va">False</span>) <span class="op">\</span></span>
+<span id="cb9-352"><a href="#cb9-352" aria-hidden="true" tabindex="-1"></a>    .trigger(processingTime<span class="op">=</span><span class="st">"10 seconds"</span>) <span class="op">\</span></span>
+<span id="cb9-353"><a href="#cb9-353" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb9-354"><a href="#cb9-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-355"><a href="#cb9-355" aria-hidden="true" tabindex="-1"></a><span class="co"># query.awaitTermination()</span></span>
+<span id="cb9-356"><a href="#cb9-356" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-357"><a href="#cb9-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-358"><a href="#cb9-358" aria-hidden="true" tabindex="-1"></a>::: {.callout-note appearance="simple"}</span>
+<span id="cb9-359"><a href="#cb9-359" aria-hidden="true" tabindex="-1"></a>Note <span class="in">`.withWatermark("time", "2 minutes")`</span> — this is the watermarking mechanism we discussed in Lecture 2. Spark tolerates event delays up to 2 minutes and automatically discards those that arrive later.</span>
+<span id="cb9-360"><a href="#cb9-360" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-361"><a href="#cb9-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-362"><a href="#cb9-362" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-363"><a href="#cb9-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-364"><a href="#cb9-364" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb9-365"><a href="#cb9-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-366"><a href="#cb9-366" aria-hidden="true" tabindex="-1"></a><span class="fu">## Complete pipeline — course summary</span></span>
+<span id="cb9-367"><a href="#cb9-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-368"><a href="#cb9-368" aria-hidden="true" tabindex="-1"></a>Putting together everything we've learned in the lectures:</span>
+<span id="cb9-369"><a href="#cb9-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-372"><a href="#cb9-372" aria-hidden="true" tabindex="-1"></a><span class="in">```{mermaid}</span></span>
+<span id="cb9-373"><a href="#cb9-373" aria-hidden="true" tabindex="-1"></a>%%| fig-cap: <span class="ot">"</span><span class="st">Complete real-time analytics pipeline — course summary</span><span class="ot">"</span></span>
+<span id="cb9-374"><a href="#cb9-374" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
+<span id="cb9-375"><a href="#cb9-375" aria-hidden="true" tabindex="-1"></a>    subgraph <span class="ot">"</span><span class="st">Data sources</span><span class="ot">"</span></span>
+<span id="cb9-376"><a href="#cb9-376" aria-hidden="true" tabindex="-1"></a>        WEB[<span class="ot">"</span><span class="st">Web</span><span class="ch">\n</span><span class="st">application</span><span class="ot">"</span>]</span>
+<span id="cb9-377"><a href="#cb9-377" aria-hidden="true" tabindex="-1"></a>        PAY[<span class="ot">"</span><span class="st">Payment</span><span class="ch">\n</span><span class="st">system</span><span class="ot">"</span>]</span>
+<span id="cb9-378"><a href="#cb9-378" aria-hidden="true" tabindex="-1"></a>        IOT[<span class="ot">"</span><span class="st">IoT</span><span class="ch">\n</span><span class="st">sensors</span><span class="ot">"</span>]</span>
+<span id="cb9-379"><a href="#cb9-379" aria-hidden="true" tabindex="-1"></a>    end</span>
+<span id="cb9-380"><a href="#cb9-380" aria-hidden="true" tabindex="-1"></a>    subgraph <span class="ot">"</span><span class="st">Transport</span><span class="ot">"</span></span>
+<span id="cb9-381"><a href="#cb9-381" aria-hidden="true" tabindex="-1"></a>        K[<span class="ot">"</span><span class="st">Apache Kafka</span><span class="ch">\n</span><span class="st">(L4)</span><span class="ot">"</span>]</span>
+<span id="cb9-382"><a href="#cb9-382" aria-hidden="true" tabindex="-1"></a>    end</span>
+<span id="cb9-383"><a href="#cb9-383" aria-hidden="true" tabindex="-1"></a>    subgraph <span class="ot">"</span><span class="st">Processing</span><span class="ot">"</span></span>
+<span id="cb9-384"><a href="#cb9-384" aria-hidden="true" tabindex="-1"></a>        SS[<span class="ot">"</span><span class="st">Spark Streaming</span><span class="ch">\n</span><span class="st">(L5)</span><span class="ot">"</span>]</span>
+<span id="cb9-385"><a href="#cb9-385" aria-hidden="true" tabindex="-1"></a>        ML[<span class="ot">"</span><span class="st">FastAPI + ML</span><span class="ch">\n</span><span class="st">(L3)</span><span class="ot">"</span>]</span>
+<span id="cb9-386"><a href="#cb9-386" aria-hidden="true" tabindex="-1"></a>    end</span>
+<span id="cb9-387"><a href="#cb9-387" aria-hidden="true" tabindex="-1"></a>    subgraph <span class="ot">"</span><span class="st">Results</span><span class="ot">"</span></span>
+<span id="cb9-388"><a href="#cb9-388" aria-hidden="true" tabindex="-1"></a>        DASH[<span class="ot">"</span><span class="st">Dashboard</span><span class="ch">\n</span><span class="st">(near RT)</span><span class="ot">"</span>]</span>
+<span id="cb9-389"><a href="#cb9-389" aria-hidden="true" tabindex="-1"></a>        ALERT[<span class="ot">"</span><span class="st">Alerts</span><span class="ch">\n</span><span class="st">(real-time)</span><span class="ot">"</span>]</span>
+<span id="cb9-390"><a href="#cb9-390" aria-hidden="true" tabindex="-1"></a>        REP[<span class="ot">"</span><span class="st">Reports</span><span class="ch">\n</span><span class="st">(batch)</span><span class="ot">"</span>]</span>
+<span id="cb9-391"><a href="#cb9-391" aria-hidden="true" tabindex="-1"></a>    end</span>
+<span id="cb9-392"><a href="#cb9-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-393"><a href="#cb9-393" aria-hidden="true" tabindex="-1"></a>    WEB --&gt; K</span>
+<span id="cb9-394"><a href="#cb9-394" aria-hidden="true" tabindex="-1"></a>    PAY --&gt; K</span>
+<span id="cb9-395"><a href="#cb9-395" aria-hidden="true" tabindex="-1"></a>    IOT --&gt; K</span>
+<span id="cb9-396"><a href="#cb9-396" aria-hidden="true" tabindex="-1"></a>    K --&gt; SS --&gt; DASH</span>
+<span id="cb9-397"><a href="#cb9-397" aria-hidden="true" tabindex="-1"></a>    K --&gt; ML --&gt; ALERT</span>
+<span id="cb9-398"><a href="#cb9-398" aria-hidden="true" tabindex="-1"></a>    SS --&gt; REP</span>
+<span id="cb9-399"><a href="#cb9-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-400"><a href="#cb9-400" aria-hidden="true" tabindex="-1"></a>    style K fill:<span class="co">#FF9800,color:#fff</span></span>
+<span id="cb9-401"><a href="#cb9-401" aria-hidden="true" tabindex="-1"></a>    style SS fill:<span class="co">#2196F3,color:#fff</span></span>
+<span id="cb9-402"><a href="#cb9-402" aria-hidden="true" tabindex="-1"></a>    style ML fill:<span class="co">#4CAF50,color:#fff</span></span>
+<span id="cb9-403"><a href="#cb9-403" aria-hidden="true" tabindex="-1"></a>    style DASH fill:<span class="co">#E3F2FD,stroke:#2196F3</span></span>
+<span id="cb9-404"><a href="#cb9-404" aria-hidden="true" tabindex="-1"></a>    style ALERT fill:<span class="co">#FFEBEE,stroke:#F44336</span></span>
+<span id="cb9-405"><a href="#cb9-405" aria-hidden="true" tabindex="-1"></a>    style REP fill:<span class="co">#F3E5F5,stroke:#9C27B0</span></span>
+<span id="cb9-406"><a href="#cb9-406" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-407"><a href="#cb9-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-408"><a href="#cb9-408" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Component <span class="pp">|</span> Role <span class="pp">|</span> Lecture <span class="pp">|</span></span>
+<span id="cb9-409"><a href="#cb9-409" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|------|:------:|</span></span>
+<span id="cb9-410"><a href="#cb9-410" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Data types, OLTP/OLAP, Data Lake <span class="pp">|</span> Context and history <span class="pp">|</span> L1 <span class="pp">|</span></span>
+<span id="cb9-411"><a href="#cb9-411" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Lambda/Kappa, time windows <span class="pp">|</span> Architecture <span class="pp">|</span> L2 <span class="pp">|</span></span>
+<span id="cb9-412"><a href="#cb9-412" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> ML batch vs online, SGD, anomalies <span class="pp">|</span> Models and algorithms <span class="pp">|</span> L3 <span class="pp">|</span></span>
+<span id="cb9-413"><a href="#cb9-413" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Apache Kafka <span class="pp">|</span> Data transport <span class="pp">|</span> L4 <span class="pp">|</span></span>
+<span id="cb9-414"><a href="#cb9-414" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Apache Spark + Structured Streaming <span class="pp">|</span> Processing <span class="pp">|</span> L5 <span class="pp">|</span></span>
+<span id="cb9-415"><a href="#cb9-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-416"><a href="#cb9-416" aria-hidden="true" tabindex="-1"></a>: Course map {.striped .hover}</span>
+<span id="cb9-417"><a href="#cb9-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-418"><a href="#cb9-418" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb9-419"><a href="#cb9-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-420"><a href="#cb9-420" aria-hidden="true" tabindex="-1"></a><span class="fu">## Algorithm complexity — a practical note</span></span>
+<span id="cb9-421"><a href="#cb9-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-422"><a href="#cb9-422" aria-hidden="true" tabindex="-1"></a>::: {.callout-caution}</span>
+<span id="cb9-423"><a href="#cb9-423" aria-hidden="true" tabindex="-1"></a><span class="fu">## When designing a real-time pipeline, consider the computational dimension</span></span>
+<span id="cb9-424"><a href="#cb9-424" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Large data, simple computation** — e.g., log filtering, aggregations. Spark handles this well.</span>
+<span id="cb9-425"><a href="#cb9-425" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Small data, heavy computation** — e.g., training a deep learning model. Better offline on GPU.</span>
+<span id="cb9-426"><a href="#cb9-426" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Large data, heavy computation** — e.g., real-time video analysis. Requires specialized architecture (GPU cluster, edge computing).</span>
+<span id="cb9-427"><a href="#cb9-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-428"><a href="#cb9-428" aria-hidden="true" tabindex="-1"></a>For real-time systems the key is that the processing time of one event must be **shorter** than the interval between events. Otherwise the queue grows indefinitely.</span>
+<span id="cb9-429"><a href="#cb9-429" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-430"><a href="#cb9-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-431"><a href="#cb9-431" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb9-432"><a href="#cb9-432" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-433"><a href="#cb9-433" aria-hidden="true" tabindex="-1"></a><span class="fu">## What's next — the labs</span></span>
+<span id="cb9-434"><a href="#cb9-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-435"><a href="#cb9-435" aria-hidden="true" tabindex="-1"></a>In the labs you'll build a complete system step by step:</span>
+<span id="cb9-436"><a href="#cb9-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-437"><a href="#cb9-437" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Lab <span class="pp">|</span> Topic <span class="pp">|</span></span>
+<span id="cb9-438"><a href="#cb9-438" aria-hidden="true" tabindex="-1"></a><span class="pp">|:---:|-------|</span></span>
+<span id="cb9-439"><a href="#cb9-439" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 1–2 <span class="pp">|</span> Environment (Git, Docker, Python), exploratory data analysis <span class="pp">|</span></span>
+<span id="cb9-440"><a href="#cb9-440" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 3–4 <span class="pp">|</span> ML model (scikit-learn), deployment preparation <span class="pp">|</span></span>
+<span id="cb9-441"><a href="#cb9-441" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 5–6 <span class="pp">|</span> Kafka in Docker — producer and consumer in Python <span class="pp">|</span></span>
+<span id="cb9-442"><a href="#cb9-442" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 7–8 <span class="pp">|</span> PySpark + Structured Streaming + Kafka <span class="pp">|</span></span>
+<span id="cb9-443"><a href="#cb9-443" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 9–10 <span class="pp">|</span> Complete pipeline + group project <span class="pp">|</span></span>
+<span id="cb9-444"><a href="#cb9-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-445"><a href="#cb9-445" aria-hidden="true" tabindex="-1"></a>: Lab plan {.striped .hover}</span>
+<span id="cb9-446"><a href="#cb9-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-447"><a href="#cb9-447" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb9-448"><a href="#cb9-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-449"><a href="#cb9-449" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb9-450"><a href="#cb9-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-451"><a href="#cb9-451" aria-hidden="true" tabindex="-1"></a>Apache Spark is the engine that turns raw data streams into business value. Combined with Kafka it forms a powerful real-time analytics platform. Structured Streaming simplifies streaming programming — you write code as for batch, and Spark takes care of the rest.</span>
+<span id="cb9-452"><a href="#cb9-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-453"><a href="#cb9-453" aria-hidden="true" tabindex="-1"></a>::: {.callout-important appearance="simple"}</span>
+<span id="cb9-454"><a href="#cb9-454" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa flag-checkered &gt;}} This was the last lecture</span></span>
+<span id="cb9-455"><a href="#cb9-455" aria-hidden="true" tabindex="-1"></a>In the labs you'll translate this knowledge into practice — from the first <span class="in">`docker compose up`</span> to a complete real-time data processing system.</span>
+<span id="cb9-456"><a href="#cb9-456" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-457"><a href="#cb9-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-458"><a href="#cb9-458" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip appearance="simple"}</span>
+<span id="cb9-459"><a href="#cb9-459" aria-hidden="true" tabindex="-1"></a><span class="fu">## {{&lt; fa laptop-code &gt;}} Before Lab 1</span></span>
+<span id="cb9-460"><a href="#cb9-460" aria-hidden="true" tabindex="-1"></a>Make sure you have Docker and Git installed (see the <span class="co">[</span><span class="ot">Tools</span><span class="co">](../info.qmd)</span> page). Clone the course repository and run <span class="in">`docker compose up`</span> — if it works, you're ready.</span>
+<span id="cb9-461"><a href="#cb9-461" aria-hidden="true" tabindex="-1"></a>:::</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
@@ -1081,4 +1840,5 @@ Feature importance (global):
 
 
 
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
