@@ -273,6 +273,12 @@ window.Quarto = {
  <span class="menu-text">Lab 2: Apache Spark — Batch Analytics on Transaction Data</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/en_lab3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab 3: Spark Structured Streaming — Windows on a Live Stream</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -356,7 +362,7 @@ window.Quarto = {
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p>The model is trained on the <strong>entire dataset</strong> of historical data. Once trained it is deployed to production, where it makes predictions on new data. When new data arrives — the model is retrained from scratch.</p>
-<div id="15217727" class="cell" data-execution_count="1">
+<div id="6b125357" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -407,7 +413,7 @@ window.Quarto = {
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>The model learns <strong>continuously</strong> — each new observation (or small batch) updates the model parameters. No need to retrain from scratch.</p>
-<div id="41e91d7f" class="cell" data-execution_count="2">
+<div id="03169210" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> SGDClassifier</span>
@@ -669,7 +675,7 @@ Figure&nbsp;1: SGD vs Batch GD — convergence and fit result
 </div>
 </div>
 </div>
-<div id="60d15370" class="cell" data-execution_count="4">
+<div id="48a187db" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation of concept drift: sudden change in pattern</span></span>
@@ -797,7 +803,7 @@ Figure&nbsp;2: Concept drift: batch vs online model — accuracy over time
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <p>For a single variable we can use the interquartile range:</p>
 <p><span class="math display">\[x_{\text{out}} &lt; Q_1 - 1.5 \times IQR \quad \text{or} \quad x_{\text{out}} &gt; Q_3 + 1.5 \times IQR\]</span></p>
-<div id="c3ea83d8" class="cell" data-execution_count="6">
+<div id="c157c1be" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>salaries <span class="op">=</span> [<span class="dv">40</span>, <span class="dv">42</span>, <span class="dv">45</span>, <span class="dv">47</span>, <span class="dv">50</span>, <span class="dv">55</span>, <span class="dv">60</span>, <span class="dv">70</span>, <span class="dv">90</span>, <span class="dv">150</span>]</span>
@@ -841,7 +847,7 @@ Anomalies: [150]</code></pre>
 </div>
 <div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <p>A tree-based algorithm (Liu et al., 2008). Key intuition: <strong>anomalies are easier to isolate</strong> — random splits separate them from the rest of the data faster.</p>
-<div id="53959bf9" class="cell" data-execution_count="7">
+<div id="08d8d5a6" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> IsolationForest</span>
@@ -925,7 +931,7 @@ Anomalies: [150]</code></pre>
 <section id="lime-local-interpretable-model-agnostic-explanations" class="level3" data-number="5.1">
 <h3 data-number="5.1" class="anchored" data-anchor-id="lime-local-interpretable-model-agnostic-explanations"><span class="header-section-number">5.1</span> LIME (Local Interpretable Model-Agnostic Explanations)</h3>
 <p>LIME explains individual predictions of any model. It works by introducing small changes to the input data and observing how the result changes. Based on this, it builds a simple, interpretable local model (e.g., linear regression) that approximates the behavior of the original model in the neighborhood of the given observation.</p>
-<div id="e54c0bf2" class="cell" data-execution_count="8">
+<div id="8828a365" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lab 4: ML Model Training and Serving with FastAPI – Real-Time Analytics</title>
+<title>Lab 4: Spark Structured Streaming + Kafka – Real-Time Analytics</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -154,7 +154,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Lab 4: ML Model Training and Serving with FastAPI</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Lab 4: Spark Structured Streaming + Kafka</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -240,6 +240,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Lab 2: Apache Spark — Batch Analytics on Transaction Data</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/en_lab3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab 3: Spark Structured Streaming — Windows on a Live Stream</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -252,10 +258,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title"><strong>Sections</strong></h2>
    
   <ul class="collapse">
-  <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
-  <li><a href="#part-1-train-the-model" id="toc-part-1-train-the-model" class="nav-link" data-scroll-target="#part-1-train-the-model">Part 1: Train the Model</a></li>
-  <li><a href="#part-2-serve-the-model-with-fastapi" id="toc-part-2-serve-the-model-with-fastapi" class="nav-link" data-scroll-target="#part-2-serve-the-model-with-fastapi">Part 2: Serve the Model with FastAPI</a></li>
-  <li><a href="#part-3-connect-api-to-kafka" id="toc-part-3-connect-api-to-kafka" class="nav-link" data-scroll-target="#part-3-connect-api-to-kafka">Part 3: Connect API to Kafka</a></li>
+  <li><a href="#bridge-from-lab-3" id="toc-bridge-from-lab-3" class="nav-link active" data-scroll-target="#bridge-from-lab-3">Bridge from Lab 3</a></li>
+  <li><a href="#plan" id="toc-plan" class="nav-link" data-scroll-target="#plan">Plan</a></li>
+  <li><a href="#part-0-setup" id="toc-part-0-setup" class="nav-link" data-scroll-target="#part-0-setup">Part 0: Setup</a></li>
+  <li><a href="#part-1-connecting-spark-to-kafka" id="toc-part-1-connecting-spark-to-kafka" class="nav-link" data-scroll-target="#part-1-connecting-spark-to-kafka">Part 1: Connecting Spark to Kafka</a></li>
+  <li><a href="#part-2-what-really-comes-from-kafka" id="toc-part-2-what-really-comes-from-kafka" class="nav-link" data-scroll-target="#part-2-what-really-comes-from-kafka">Part 2: What Really Comes from Kafka?</a></li>
+  <li><a href="#part-3-step-by-step-bytes-table" id="toc-part-3-step-by-step-bytes-table" class="nav-link" data-scroll-target="#part-3-step-by-step-bytes-table">Part 3: Step by Step — Bytes → Table</a></li>
+  <li><a href="#part-4-tumbling-windows-watermark" id="toc-part-4-tumbling-windows-watermark" class="nav-link" data-scroll-target="#part-4-tumbling-windows-watermark">Part 4: Tumbling Windows + Watermark</a></li>
+  <li><a href="#part-5-writing-alerts-to-kafka" id="toc-part-5-writing-alerts-to-kafka" class="nav-link" data-scroll-target="#part-5-writing-alerts-to-kafka">Part 5: Writing Alerts to Kafka</a></li>
   <li><a href="#homework" id="toc-homework" class="nav-link" data-scroll-target="#homework">Homework</a></li>
   </ul>
 </nav>
@@ -265,7 +275,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Lab 4: ML Model Training and Serving with FastAPI</h1>
+<h1 class="title">Lab 4: Spark Structured Streaming + Kafka</h1>
 </div>
 
 
@@ -282,149 +292,451 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="goal" class="level2">
-<h2 class="anchored" data-anchor-id="goal">Goal</h2>
-<ul>
-<li>Train a fraud detection model offline on historical data,</li>
-<li>Serve the model via FastAPI,</li>
-<li>Connect the API to a Kafka consumer for real-time scoring.</li>
-</ul>
-<p><strong>Business case (continued):</strong> Your rule-based system works, but you want to improve accuracy with a machine learning model.</p>
+<section id="bridge-from-lab-3" class="level2">
+<h2 class="anchored" data-anchor-id="bridge-from-lab-3">Bridge from Lab 3</h2>
+<p>In Lab 3 you streamed from <code>rate</code> (built-in generator) and from a JSON file.<br>
+Today the same approach — but the source is <strong>Kafka</strong>. The change is literally one line:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lab 3 — rate:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> spark.readStream.<span class="bu">format</span>(<span class="st">"rate"</span>).option(<span class="st">"rowsPerSecond"</span>, <span class="dv">1</span>).load()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Lab 3 — file:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> spark.readStream.schema(tx_schema).json(<span class="st">"data/stream"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Lab 4 — Kafka:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> spark.readStream.<span class="bu">format</span>(<span class="st">"kafka"</span>).option(<span class="st">"subscribe"</span>, <span class="st">"transactions"</span>).load()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Difference: Kafka returns data as <strong>raw bytes</strong> — they must be decoded.<br>
+Windows and watermarks from Lab 3 work <strong>without any changes</strong>.</p>
 <hr>
 </section>
-<section id="part-1-train-the-model" class="level2">
-<h2 class="anchored" data-anchor-id="part-1-train-the-model">Part 1: Train the Model</h2>
-<section id="task-1.1-generate-training-data" class="level3">
-<h3 class="anchored" data-anchor-id="task-1.1-generate-training-data">Task 1.1 – Generate training data</h3>
-<p>Create a dataset that mimics our Kafka transactions – with known fraud labels.</p>
-<div id="cell-2" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> classification_report</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pickle</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>n_normal <span class="op">=</span> <span class="dv">2000</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>n_fraud <span class="op">=</span> <span class="dv">100</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>normal <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'amount'</span>: np.random.lognormal(<span class="dv">5</span>, <span class="dv">1</span>, n_normal).clip(<span class="dv">5</span>, <span class="dv">5000</span>),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'hour'</span>: np.random.normal(<span class="dv">14</span>, <span class="dv">4</span>, n_normal).clip(<span class="dv">0</span>, <span class="dv">23</span>).astype(<span class="bu">int</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'is_electronics'</span>: np.random.binomial(<span class="dv">1</span>, <span class="fl">0.3</span>, n_normal),</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tx_per_day'</span>: np.random.poisson(<span class="dv">3</span>, n_normal),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">'fraud'</span>: <span class="dv">0</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>fraud <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'amount'</span>: np.random.uniform(<span class="dv">2000</span>, <span class="dv">9000</span>, n_fraud),</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'hour'</span>: np.random.choice([<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">22</span>,<span class="dv">23</span>], n_fraud),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">'is_electronics'</span>: np.random.binomial(<span class="dv">1</span>, <span class="fl">0.7</span>, n_fraud),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">'tx_per_day'</span>: np.random.poisson(<span class="dv">8</span>, n_fraud),</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">'fraud'</span>: <span class="dv">1</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.concat([normal, fraud], ignore_index<span class="op">=</span><span class="va">True</span>).sample(frac<span class="op">=</span><span class="dv">1</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Dataset: </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">}</span><span class="ss"> rows, fraud rate: </span><span class="sc">{</span>df[<span class="st">'fraud'</span>]<span class="sc">.</span>mean()<span class="sc">:.1%}</span><span class="ss">"</span>)</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section id="task-1.2-train-and-evaluate-a-model" class="level3">
-<h3 class="anchored" data-anchor-id="task-1.2-train-and-evaluate-a-model">Task 1.2 – Train and evaluate a model</h3>
-<div id="cell-4" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>features <span class="op">=</span> [<span class="st">'amount'</span>, <span class="st">'hour'</span>, <span class="st">'is_electronics'</span>, <span class="st">'tx_per_day'</span>]</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df[features]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df[<span class="st">'fraud'</span>]</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Split into train/test (80/20, stratify=y)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Train RandomForestClassifier(n_estimators=100)</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Print classification_report on test set</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Save model to 'fraud_model.pkl' with pickle</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<section id="plan" class="level2">
+<h2 class="anchored" data-anchor-id="plan">Plan</h2>
+<ol start="0" type="1">
+<li>Start the producer</li>
+<li>Connect Spark to Kafka (spark-submit vs notebook)</li>
+<li>Inspect what <strong>really</strong> comes from Kafka — raw schema</li>
+<li>Step by step: bytes → string → JSON → table</li>
+<li>Tumbling windows + watermark</li>
+<li>Write alerts to the <code>alerts</code> topic</li>
+</ol>
 <hr>
 </section>
+<section id="part-0-setup" class="level2">
+<h2 class="anchored" data-anchor-id="part-0-setup">Part 0: Setup</h2>
+<p>In a JupyterLab terminal:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kafka/bin/kafka-topics.sh</span> <span class="at">--create</span> <span class="at">--topic</span> transactions <span class="dt">\\</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">--bootstrap-server</span> broker:9092 <span class="at">--if-not-exists</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">kafka/bin/kafka-topics.sh</span> <span class="at">--create</span> <span class="at">--topic</span> alerts <span class="dt">\\</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">--bootstrap-server</span> broker:9092 <span class="at">--if-not-exists</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Start the producer from Lab 1</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> producer.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Leave the producer running throughout the lab.</p>
+<hr>
 </section>
-<section id="part-2-serve-the-model-with-fastapi" class="level2">
-<h2 class="anchored" data-anchor-id="part-2-serve-the-model-with-fastapi">Part 2: Serve the Model with FastAPI</h2>
-<section id="task-2.1-create-the-api" class="level3">
-<h3 class="anchored" data-anchor-id="task-2.1-create-the-api">Task 2.1 – Create the API</h3>
-<p>Write a FastAPI app that loads the model and exposes a <code>POST /score</code> endpoint.</p>
-<div id="cell-6" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span><span class="bu">file</span> fraud_api.py</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastapi <span class="im">import</span> FastAPI</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pickle</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastAPI(title<span class="op">=</span><span class="st">"Fraud Detection API"</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> pickle.load(<span class="bu">open</span>(<span class="st">'fraud_model.pkl'</span>, <span class="st">'rb'</span>))</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Transaction(BaseModel):</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    amount: <span class="bu">float</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    hour: <span class="bu">int</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    is_electronics: <span class="bu">int</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    tx_per_day: <span class="bu">int</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># POST /score endpoint:</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># - Accept Transaction object</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># - Extract features as numpy array</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># - model.predict() and model.predict_proba()</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># - Return: {"is_fraud": bool, "fraud_probability": float, "features": dict}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="part-1-connecting-spark-to-kafka" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-connecting-spark-to-kafka">Part 1: Connecting Spark to Kafka</h2>
+<section id="why-do-we-need-an-extra-package" class="level3">
+<h3 class="anchored" data-anchor-id="why-do-we-need-an-extra-package">Why do we need an extra package?</h3>
+<p>Spark has no built-in Kafka support — a <strong>connector</strong> must be added as an external Maven dependency.<br>
+The package name differs depending on Spark and Scala versions:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Environment</th>
+<th>Package</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Spark <strong>4.0</strong> (Scala 2.13)</td>
+<td><code>org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.0-preview2</code></td>
+</tr>
+<tr class="even">
+<td>Spark <strong>3.5</strong> (Scala 2.12)</td>
+<td><code>org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>It can be passed in two ways:</p>
+</section>
+<section id="option-a-spark-submit-a-.py-script-outside-the-notebook" class="level3">
+<h3 class="anchored" data-anchor-id="option-a-spark-submit-a-.py-script-outside-the-notebook">Option A — <code>spark-submit</code> (a .py script outside the notebook)</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Spark 4.0</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">spark-submit</span> <span class="dt">\\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">--packages</span> org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.0-preview2 <span class="dt">\\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">my_script.py</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Spark 3.5</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">spark-submit</span> <span class="dt">\\</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">--packages</span> org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 <span class="dt">\\</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">my_script.py</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Spark downloads the package from Maven Central (once, then cached locally).<br>
+The first run produces many log lines — that is normal.</p>
+</section>
+<section id="option-b-from-the-notebook-via-os.environ-used-today" class="level3">
+<h3 class="anchored" data-anchor-id="option-b-from-the-notebook-via-os.environ-used-today">Option B — from the notebook via <code>os.environ</code> (used today)</h3>
+<p>Set the environment variable <strong>before</strong> the first PySpark import.<br>
+The code below auto-detects the version and selects the correct package.</p>
+<div id="detect-version" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyspark</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Auto-detect Spark version → correct connector</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>spark_version <span class="op">=</span> pyspark.__version__</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Detected PySpark version: </span><span class="sc">{</span>spark_version<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> spark_version.startswith(<span class="st">"4"</span>):</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    KAFKA_PACKAGE <span class="op">=</span> <span class="st">"org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.0-preview2"</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Spark 3.x</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    KAFKA_PACKAGE <span class="op">=</span> <span class="st">"org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0"</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Using connector:         </span><span class="sc">{</span>KAFKA_PACKAGE<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Must be set BEFORE SparkSession.builder</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">'PYSPARK_SUBMIT_ARGS'</span>] <span class="op">=</span> <span class="ss">f'--packages </span><span class="sc">{</span>KAFKA_PACKAGE<span class="sc">}</span><span class="ss"> pyspark-shell'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Run the API in a <strong>JupyterLab terminal</strong>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uvicorn</span> fraud_api:app <span class="at">--host</span> 0.0.0.0 <span class="at">--port</span> 8001</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="task-2.2-test-the-api" class="level3">
-<h3 class="anchored" data-anchor-id="task-2.2-test-the-api">Task 2.2 – Test the API</h3>
-<div id="cell-8" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<div id="spark-session" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Test with a normal transaction</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>normal_tx <span class="op">=</span> {<span class="st">"amount"</span>: <span class="dv">150</span>, <span class="st">"hour"</span>: <span class="dv">14</span>, <span class="st">"is_electronics"</span>: <span class="dv">0</span>, <span class="st">"tx_per_day"</span>: <span class="dv">3</span>}</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.post(<span class="st">"http://localhost:8001/score"</span>, json<span class="op">=</span>normal_tx)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Normal:"</span>, response.json())</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Test with a suspicious transaction</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> (</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    SparkSession.builder</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"Lab4-Kafka"</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    .config(<span class="st">"spark.jars.packages"</span>, KAFKA_PACKAGE)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>spark.sparkContext.setLogLevel(<span class="st">"WARN"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Spark </span><span class="sc">{</span>spark<span class="sc">.</span>version<span class="sc">}</span><span class="ss"> — ready"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
 </section>
-<section id="part-3-connect-api-to-kafka" class="level2">
-<h2 class="anchored" data-anchor-id="part-3-connect-api-to-kafka">Part 3: Connect API to Kafka</h2>
-<section id="task-3.1-scoring-consumer-with-api-calls" class="level3">
-<h3 class="anchored" data-anchor-id="task-3.1-scoring-consumer-with-api-calls">Task 3.1 – Scoring consumer with API calls</h3>
-<p>Write a Kafka consumer that sends each transaction to your FastAPI for scoring.</p>
-<div id="cell-10" class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span><span class="bu">file</span> ml_consumer.py</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> kafka <span class="im">import</span> KafkaConsumer, KafkaProducer</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json, requests</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>consumer <span class="op">=</span> KafkaConsumer(</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'transactions'</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">'broker:9092'</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    auto_offset_reset<span class="op">=</span><span class="st">'earliest'</span>,</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    group_id<span class="op">=</span><span class="st">'ml-scoring'</span>,</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    value_deserializer<span class="op">=</span><span class="kw">lambda</span> x: json.loads(x.decode(<span class="st">'utf-8'</span>))</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>alert_producer <span class="op">=</span> KafkaProducer(</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    bootstrap_servers<span class="op">=</span><span class="st">'broker:9092'</span>,</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    value_serializer<span class="op">=</span><span class="kw">lambda</span> v: json.dumps(v).encode(<span class="st">'utf-8'</span>)</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>API_URL <span class="op">=</span> <span class="st">"http://localhost:8001/score"</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co"># For each transaction:</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Extract features (amount, hour from timestamp, is_electronics, tx_per_day=estimate)</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Call API: requests.post(API_URL, json=features)</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. If is_fraud: send alert to 'alerts' topic</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Print summary every 10 messages</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="part-2-what-really-comes-from-kafka" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-what-really-comes-from-kafka">Part 2: What Really Comes from Kafka?</h2>
+<p>Let’s read the stream and inspect its <strong>raw schema</strong> — before processing anything.</p>
+<div id="kafka-raw" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>kafka_raw <span class="op">=</span> (</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    spark.readStream</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"kafka"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"kafka.bootstrap.servers"</span>, <span class="st">"broker:9092"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"subscribe"</span>, <span class="st">"transactions"</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"startingOffsets"</span>, <span class="st">"earliest"</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    .load()</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>kafka_raw.printSchema()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="printschema-output-what-does-each-column-mean" class="level3">
+<h3 class="anchored" data-anchor-id="printschema-output-what-does-each-column-mean"><code>printSchema()</code> output — what does each column mean?</h3>
+<pre><code>root
+ |-- key:           binary    ← message key (optional, null in our case)
+ |-- value:         binary    ← MESSAGE CONTENT — our JSON lives here (as bytes)
+ |-- topic:         string    ← topic name ("transactions")
+ |-- partition:     integer   ← partition number (0, 1 or 2 — we have 3 partitions)
+ |-- offset:        long      ← position within the partition (0, 1, 2, … monotonically increasing)
+ |-- timestamp:     timestamp ← when Kafka received the message
+ |-- timestampType: integer   ← 0 = CreateTime, 1 = LogAppendTime</code></pre>
+<p><strong>Key observation:</strong> the <code>value</code> column is <code>binary</code> — Kafka stores bytes and knows nothing about the format.<br>
+All other columns are <strong>Kafka metadata</strong>, not business data.</p>
+<p>Let’s see what a <strong>raw</strong> message looks like before any parsing:</p>
+<div id="peek-raw" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> col</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>batch_counter <span class="op">=</span> {<span class="st">"n"</span>: <span class="dv">0</span>}</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> peek_raw(df, batch_id):</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    batch_counter[<span class="st">"n"</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"--- Batch </span><span class="sc">{</span>batch_id<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>df<span class="sc">.</span>count()<span class="sc">}</span><span class="ss"> messages ---"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    df.select(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"topic"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"partition"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"offset"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"timestamp"</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        col(<span class="st">"key"</span>).cast(<span class="st">"string"</span>).alias(<span class="st">"key"</span>),</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        col(<span class="st">"value"</span>).cast(<span class="st">"string"</span>).alias(<span class="st">"value"</span>),   <span class="co"># bytes → UTF-8 text</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    ).show(<span class="dv">5</span>, truncate<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> batch_counter[<span class="st">"n"</span>] <span class="op">&gt;=</span> <span class="dv">2</span>:</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="st">"stop"</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> (</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    kafka_raw.writeStream</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    .foreachBatch(peek_raw)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"checkpointLocation"</span>, <span class="st">"/tmp/chk_lab4_peek"</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    q.awaitTermination()</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span>:</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    q.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-3-step-by-step-bytes-table" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-step-by-step-bytes-table">Part 3: Step by Step — Bytes → Table</h2>
+<p>There are three decoding stages:</p>
+<pre><code>value (binary)
+  → cast("string")       → "{\"tx_id\": \"TX1234\", \"amount\": 312.32, ...}"
+  → from_json(col, schema) → struct&lt;tx_id: string, amount: double, ...&gt;
+  → select("tx.*")        → tx_id | user_id | amount | store | ...</code></pre>
+<section id="step-1-value-as-string" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-value-as-string">Step 1 — value as string</h3>
+<p>Verify that the bytes decode correctly to JSON text:</p>
+<div id="step1" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: binary → string (raw JSON as text)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>step1 <span class="op">=</span> kafka_raw.select(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"offset"</span>),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"partition"</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    col(<span class="st">"value"</span>).cast(<span class="st">"string"</span>).alias(<span class="st">"raw_json"</span>),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>batch_counter[<span class="st">"n"</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show_step1(df, batch_id):</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    batch_counter[<span class="st">"n"</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"--- Batch </span><span class="sc">{</span>batch_id<span class="sc">}</span><span class="ss"> ---"</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    df.show(<span class="dv">3</span>, truncate<span class="op">=</span><span class="dv">120</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> batch_counter[<span class="st">"n"</span>] <span class="op">&gt;=</span> <span class="dv">2</span>:</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="st">"stop"</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> step1.writeStream.foreachBatch(show_step1) <span class="op">\</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>         .option(<span class="st">"checkpointLocation"</span>, <span class="st">"/tmp/chk_lab4_step1"</span>).start()</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    q.awaitTermination()</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span>:</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    q.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-2-from_json-string-struct" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-from_json-string-struct">Step 2 — <code>from_json()</code>: string → struct</h3>
+<p><code>from_json()</code> parses JSON text into a <code>struct</code> column — using the schema we provide.<br>
+The schema <strong>must</strong> match the producer’s fields — unknown fields are ignored, missing ones become <code>null</code>.</p>
+<div id="step2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.types <span class="im">import</span> StructType, StructField, StringType, DoubleType</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> from_json</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>tx_schema <span class="op">=</span> StructType([</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"tx_id"</span>,     StringType()),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"user_id"</span>,   StringType()),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"amount"</span>,    DoubleType()),</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"store"</span>,     StringType()),</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"category"</span>,  StringType()),</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    StructField(<span class="st">"timestamp"</span>, StringType()),</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: string → struct (single 'tx' column containing all fields)</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>step2 <span class="op">=</span> kafka_raw.select(</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    from_json(col(<span class="st">"value"</span>).cast(<span class="st">"string"</span>), tx_schema).alias(<span class="st">"tx"</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>batch_counter[<span class="st">"n"</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show_step2(df, batch_id):</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    batch_counter[<span class="st">"n"</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"--- Batch </span><span class="sc">{</span>batch_id<span class="sc">}</span><span class="ss"> — schema after from_json ---"</span>)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    df.printSchema()</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    df.show(<span class="dv">3</span>, truncate<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> batch_counter[<span class="st">"n"</span>] <span class="op">&gt;=</span> <span class="dv">1</span>:</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="st">"stop"</span>)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> step2.writeStream.foreachBatch(show_step2) <span class="op">\</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>         .option(<span class="st">"checkpointLocation"</span>, <span class="st">"/tmp/chk_lab4_step2"</span>).start()</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    q.awaitTermination()</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span>:</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    q.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-3-selecttx.-struct-flat-columns" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-selecttx.-struct-flat-columns">Step 3 — <code>select("tx.*")</code>: struct → flat columns</h3>
+<p><code>select("tx.*")</code> unpacks the struct — each field becomes its own column.<br>
+We also convert <code>timestamp</code> from string to <code>TimestampType</code> (required for windows).</p>
+<div id="step3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> to_timestamp</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: struct → flat columns + timestamp conversion</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> (</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    kafka_raw</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    .select(from_json(col(<span class="st">"value"</span>).cast(<span class="st">"string"</span>), tx_schema).alias(<span class="st">"tx"</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    .select(<span class="st">"tx.*"</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    .withColumn(<span class="st">"timestamp"</span>, to_timestamp(<span class="st">"timestamp"</span>, <span class="st">"yyyy-MM-dd HH:mm:ss"</span>))</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Final schema:"</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>df.printSchema()</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>batch_counter[<span class="st">"n"</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show_parsed(df, batch_id):</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    batch_counter[<span class="st">"n"</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"--- Batch </span><span class="sc">{</span>batch_id<span class="sc">}</span><span class="ss"> ---"</span>)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    df.show(<span class="dv">5</span>, truncate<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> batch_counter[<span class="st">"n"</span>] <span class="op">&gt;=</span> <span class="dv">2</span>:</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="st">"stop"</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> df.writeStream.foreachBatch(show_parsed) <span class="op">\</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>      .option(<span class="st">"checkpointLocation"</span>, <span class="st">"/tmp/chk_lab4_parsed"</span>).start()</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    q.awaitTermination()</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span>:</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    q.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-4-tumbling-windows-watermark" class="level2">
+<h2 class="anchored" data-anchor-id="part-4-tumbling-windows-watermark">Part 4: Tumbling Windows + Watermark</h2>
+<p>From this point the code is <strong>identical</strong> to Lab 2 (batch) and Lab 3 (rate source).<br>
+The source changed — the window logic did not.</p>
+<section id="watermark-handling-late-arriving-events" class="level3">
+<h3 class="anchored" data-anchor-id="watermark-handling-late-arriving-events">Watermark — handling late-arriving events</h3>
+<p><strong>Watermark</strong> tells Spark: <em>“wait at most X time for late data, then close the window”</em>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Mode</th>
+<th>When it emits</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>append</code></td>
+<td>only when the window is closed</td>
+<td>production, writing to Kafka/DB</td>
+</tr>
+<tr class="even">
+<td><code>complete</code></td>
+<td>after every micro-batch — the full table</td>
+<td>debugging</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="task-4.1-1-minute-tumbling-windows-per-store" class="level3">
+<h3 class="anchored" data-anchor-id="task-4.1-1-minute-tumbling-windows-per-store">Task 4.1 — 1-minute tumbling windows per store</h3>
+<div id="tumbling" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> window, count, <span class="bu">sum</span> <span class="im">as</span> _sum, <span class="bu">round</span> <span class="im">as</span> _round</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>windowed <span class="op">=</span> (</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    df</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    .withWatermark(<span class="st">"timestamp"</span>, <span class="st">"30 seconds"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    .groupBy(window(<span class="st">"timestamp"</span>, <span class="st">"1 minute"</span>), <span class="st">"store"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    .agg(</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        count(<span class="st">"tx_id"</span>).alias(<span class="st">"tx_count"</span>),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        _round(_sum(<span class="st">"amount"</span>), <span class="dv">2</span>).alias(<span class="st">"total_amount"</span>),</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>batch_counter[<span class="st">"n"</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show_window(df, batch_id):</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    batch_counter[<span class="st">"n"</span>] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">=== Batch </span><span class="sc">{</span>batch_id<span class="sc">}</span><span class="ss"> ==="</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>        df.select(</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>            col(<span class="st">"window.start"</span>).alias(<span class="st">"from"</span>),</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>            col(<span class="st">"window.end"</span>).alias(<span class="st">"to"</span>),</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>            <span class="st">"store"</span>, <span class="st">"tx_count"</span>, <span class="st">"total_amount"</span>,</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        .orderBy(<span class="st">"from"</span>, <span class="st">"store"</span>)</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        .show(truncate<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> batch_counter[<span class="st">"n"</span>] <span class="op">&gt;=</span> <span class="dv">5</span>:</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="st">"stop"</span>)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> (</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    windowed.writeStream</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    .outputMode(<span class="st">"append"</span>)</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    .foreachBatch(show_window)</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"checkpointLocation"</span>, <span class="st">"/tmp/chk_lab4_windows"</span>)</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>    q.awaitTermination()</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span>:</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    q.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="task-4.2-windows-per-category-complete-mode" class="level3">
+<h3 class="anchored" data-anchor-id="task-4.2-windows-per-category-complete-mode">Task 4.2 — Windows per category, <code>complete</code> mode</h3>
+<p>Group by category instead of store and use <code>outputMode("complete")</code>.<br>
+Observe the difference: results appear after <strong>every</strong> micro-batch, not only when a window closes.</p>
+<div id="task42-code" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># windowed_cat = df.withWatermark(...).groupBy(window(...), "category").agg(...)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># outputMode("complete")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="part-5-writing-alerts-to-kafka" class="level2">
+<h2 class="anchored" data-anchor-id="part-5-writing-alerts-to-kafka">Part 5: Writing Alerts to Kafka</h2>
+<p>Transactions above 3000 are sent to the <code>alerts</code> topic.<br>
+Kafka expects the <code>value</code> column as string/bytes — we use <code>to_json()</code> to convert the struct back to JSON.</p>
+<div id="alerts" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql.functions <span class="im">import</span> to_json, struct, lit</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>alerts <span class="op">=</span> (</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    df</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(col(<span class="st">"amount"</span>) <span class="op">&gt;</span> <span class="dv">3000</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    .select(</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        to_json(</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>            struct(</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">"tx_id"</span>, <span class="st">"user_id"</span>, <span class="st">"amount"</span>, <span class="st">"store"</span>, <span class="st">"category"</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                col(<span class="st">"timestamp"</span>).cast(<span class="st">"string"</span>),</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>                lit(<span class="st">"HIGH"</span>).alias(<span class="st">"alert_level"</span>),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        ).alias(<span class="st">"value"</span>)    <span class="co"># Kafka requires a 'value' column</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>alert_query <span class="op">=</span> (</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    alerts.writeStream</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">format</span>(<span class="st">"kafka"</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"kafka.bootstrap.servers"</span>, <span class="st">"broker:9092"</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"topic"</span>, <span class="st">"alerts"</span>)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    .option(<span class="st">"checkpointLocation"</span>, <span class="st">"/tmp/chk_lab4_alerts"</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    .outputMode(<span class="st">"append"</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    .start()</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Alert stream started. Stop manually: alert_query.stop()"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="task-5.1-verify-the-alerts-topic-in-a-terminal" class="level3">
+<h3 class="anchored" data-anchor-id="task-5.1-verify-the-alerts-topic-in-a-terminal">Task 5.1 — Verify the <code>alerts</code> topic in a terminal</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">kafka/bin/kafka-console-consumer.sh</span> <span class="dt">\\</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">--bootstrap-server</span> broker:9092 <span class="dt">\\</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">--topic</span> alerts <span class="dt">\\</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">--from-beginning</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You should see JSON records with the field <code>"alert_level": "HIGH"</code>.</p>
+</section>
+<section id="task-5.2-review-questions" class="level3">
+<h3 class="anchored" data-anchor-id="task-5.2-review-questions">Task 5.2 — Review questions</h3>
+<div id="review" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Why do the first results in 'append' mode appear with a delay?</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    ANSWER:</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. What happens if you set the watermark to "0 seconds"?</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    ANSWER:</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. What is the difference between window() in Lab 2 (batch) and here (streaming)?</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    ANSWER:</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Why do we use to_json() when writing to Kafka instead of just select("value")?</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co">#    ANSWER:</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cleanup" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>alert_query.stop()</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>spark.stop()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -432,12 +744,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="homework" class="level2">
 <h2 class="anchored" data-anchor-id="homework">Homework</h2>
 <ol type="1">
-<li>Add a <code>/health</code> endpoint to the API that returns model metadata (accuracy, training date).</li>
-<li>Create a Dockerfile for the API and add it to docker-compose.</li>
-<li>Compare rule-based (Lab 3) vs ML-based detection: which catches more frauds?</li>
-<li>Push to Git.</li>
+<li>Build a <strong>sliding</strong> window (2 minutes / 1-minute step) on the Kafka stream per store.</li>
+<li>Add a field <code>ratio = amount / 400.0</code> (approximate average from Lab 2) to the alerts.</li>
+<li>What happens to the results when you stop the producer and wait 2 minutes? Why?</li>
 </ol>
-<p><strong>Next lab:</strong> Online/incremental learning – a model that updates itself with new data.</p>
+<p><strong>Next lab:</strong> Decision rules and scoring on a stream.</p>
 
 
 </section>
