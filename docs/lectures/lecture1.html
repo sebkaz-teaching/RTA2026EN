@@ -253,6 +253,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Lab 3: Spark Structured Streaming — Windows on a Live Stream</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../labs/en_lab4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab 4: Spark Structured Streaming + Kafka</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -422,7 +428,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="flat-files-the-starting-point" class="level3" data-number="2.1">
 <h3 data-number="2.1" class="anchored" data-anchor-id="flat-files-the-starting-point"><span class="header-section-number">2.1</span> Flat files — the starting point</h3>
 <p>Before databases existed, information was stored in text files — CSV, TSV, fixed-width column files. Each program read the file from beginning to end, processed the data, and wrote the result to a new file.</p>
-<div id="317004ca" class="cell" data-execution_count="1">
+<div id="8fd9db7d" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -466,7 +472,7 @@ Warsaw  88847.85  2468.00     36</code></pre>
 <p><strong>CRUD</strong> operations, <strong>ACID</strong> guarantees, short transactions. Used in ERP, CRM, banking, and e-commerce systems.</p>
 </div>
 </div>
-<div id="e53696e6" class="cell" data-execution_count="2">
+<div id="ad4b1d7a" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
@@ -508,7 +514,7 @@ Warsaw  88847.85  2468.00     36</code></pre>
 <p>Multi-dimensional aggregations (time, location, product), historical data, reports and dashboards.</p>
 </div>
 </div>
-<div id="facd1277" class="cell" data-execution_count="3">
+<div id="b6142a17" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
@@ -625,7 +631,7 @@ Pomerania       685.6   654.7   646.8   774.6</code></pre>
 <p>Batch processing is just a <strong>simplification</strong> — we collect a stream of events into a file and analyze it with a delay.</p>
 </div>
 </div>
-<div id="cee9507b" class="cell" data-execution_count="4">
+<div id="12717f03" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
@@ -650,11 +656,11 @@ Pomerania       685.6   654.7   646.8   774.6</code></pre>
 <span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Running total: </span><span class="sc">{</span>total<span class="sc">:.2f}</span><span class="ss"> PLN"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[01:44:47] TX0001:  1001.75 PLN (Krakow)
-[01:44:48] TX0002:    77.42 PLN (Warsaw)
-[01:44:48] TX0003:   731.16 PLN (Gdansk)
-[01:44:48] TX0004:   562.40 PLN (Krakow)
-[01:44:49] TX0005:    36.06 PLN (Warsaw)
+<pre><code>[10:01:02] TX0001:  1001.75 PLN (Krakow)
+[10:01:02] TX0002:    77.42 PLN (Warsaw)
+[10:01:03] TX0003:   731.16 PLN (Gdansk)
+[10:01:03] TX0004:   562.40 PLN (Krakow)
+[10:01:03] TX0005:    36.06 PLN (Warsaw)
 
 Running total: 2408.79 PLN</code></pre>
 </div>
@@ -787,7 +793,7 @@ Figure&nbsp;1: Comparison of processing modes: latency vs cost
 </div>
 <div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
 <p>JSON, XML. Flexible schema, dominant in APIs and NoSQL systems.</p>
-<div id="a8cbd63d" class="cell" data-execution_count="6">
+<div id="d7f63d7a" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>

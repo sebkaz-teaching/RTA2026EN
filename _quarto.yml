@@ -23,7 +23,7 @@ website:
         - href: labs/en_lab1.ipynb
         - href: labs/en_lab2.ipynb
         - href: labs/en_lab3.ipynb
-      #   - href: labs/en_lab4.ipynb
+        - href: labs/en_lab4.ipynb
       #   - href: labs/en_lab5.ipynb
       #   - href: labs/en_lab6.ipynb
       #   - href: labs/en_lab7.ipynb
