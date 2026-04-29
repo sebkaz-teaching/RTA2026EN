@@ -124,7 +124,7 @@
     "href": "lectures/lecture2.html#batch-vs-stream-two-approaches-to-the-same-data",
     "title": "Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures",
     "section": "1 Batch vs Stream — two approaches to the same data",
-    "text": "1 Batch vs Stream — two approaches to the same data\nIn the previous lecture we established that data always originates as a stream of events. Batch processing is just a simplification — we collect the stream into a file and analyze it with a delay.\nLet’s compare both approaches on the same business problem: monitoring transactions in an online store.\n\n Batch approach Stream approach\n\n\n\n\nShow code\nimport pandas as pd\nimport numpy as np\nfrom datetime import datetime, timedelta\n\nnp.random.seed(42)\n\n# Data collected throughout the day — analyzed the next morning\ntransactions = pd.DataFrame({\n    'time': [datetime(2026, 3, 12, h, m)\n             for h in range(9, 18)\n             for m in np.random.choice(range(60), 20)],\n    'amount': np.random.uniform(20, 3000, 180).round(2),\n    'customer_id': np.random.randint(1000, 9999, 180)\n})\n\n# Daily report — we see it THE NEXT DAY\nreport = transactions.groupby(transactions['time'].dt.hour).agg(\n    count=('amount', 'count'),\n    total=('amount', 'sum'),\n    average=('amount', 'mean')\n).round(2)\n\nprint(\"Daily report (generated the next morning):\")\nprint(report.head())\n\n\nDaily report (generated the next morning):\n      count     total  average\ntime                          \n9        20  30174.87  1508.74\n10       20  23969.05  1198.45\n11       20  27346.70  1367.34\n12       20  33457.91  1672.90\n13       20  36552.13  1827.61\n\n\n\n\n\n\nShow code\nimport time\n\n# Simulation: each transaction analyzed the moment it appears\nwindow_5min = []\nalert_threshold = 5000  # alert if window sum &gt; 5000 PLN\n\nfor i in range(10):\n    tx = {\n        'time': datetime.now().strftime('%H:%M:%S'),\n        'amount': round(np.random.uniform(20, 3000), 2),\n        'customer': np.random.randint(1000, 9999)\n    }\n    window_5min.append(tx['amount'])\n    window_sum = sum(window_5min)\n\n    status = \"\"\n    if window_sum &gt; alert_threshold:\n        status = \" &lt;&lt; ALERT: high activity!\"\n        window_5min = []  # reset window\n\n    print(f\"[{tx['time']}] Customer {tx['customer']}: {tx['amount']:&gt;8.2f} PLN | Window sum: {window_sum:&gt;9.2f}{status}\")\n    time.sleep(0.2)\n\n\n[22:36:14] Customer 2191:  1289.75 PLN | Window sum:   1289.75\n[22:36:14] Customer 7938:   236.83 PLN | Window sum:   1526.58\n[22:36:14] Customer 2540:  2124.60 PLN | Window sum:   3651.18\n[22:36:14] Customer 6541:  1549.71 PLN | Window sum:   5200.89 &lt;&lt; ALERT: high activity!\n[22:36:15] Customer 2365:  2960.19 PLN | Window sum:   2960.19\n[22:36:15] Customer 9702:  2442.14 PLN | Window sum:   5402.33 &lt;&lt; ALERT: high activity!\n[22:36:15] Customer 2324:  2724.93 PLN | Window sum:   2724.93\n[22:36:15] Customer 4141:  2265.07 PLN | Window sum:   4990.00\n[22:36:15] Customer 2810:  2130.38 PLN | Window sum:   7120.38 &lt;&lt; ALERT: high activity!\n[22:36:16] Customer 6301:  2335.90 PLN | Window sum:   2335.90\n\n\n\n\n\n\n\n\n\n\n\nImportantThe fundamental difference\n\n\n\nIn batch mode we learn about a problem the next day. In stream mode — immediately.",
+    "text": "1 Batch vs Stream — two approaches to the same data\nIn the previous lecture we established that data always originates as a stream of events. Batch processing is just a simplification — we collect the stream into a file and analyze it with a delay.\nLet’s compare both approaches on the same business problem: monitoring transactions in an online store.\n\n Batch approach Stream approach\n\n\n\n\nShow code\nimport pandas as pd\nimport numpy as np\nfrom datetime import datetime, timedelta\n\nnp.random.seed(42)\n\n# Data collected throughout the day — analyzed the next morning\ntransactions = pd.DataFrame({\n    'time': [datetime(2026, 3, 12, h, m)\n             for h in range(9, 18)\n             for m in np.random.choice(range(60), 20)],\n    'amount': np.random.uniform(20, 3000, 180).round(2),\n    'customer_id': np.random.randint(1000, 9999, 180)\n})\n\n# Daily report — we see it THE NEXT DAY\nreport = transactions.groupby(transactions['time'].dt.hour).agg(\n    count=('amount', 'count'),\n    total=('amount', 'sum'),\n    average=('amount', 'mean')\n).round(2)\n\nprint(\"Daily report (generated the next morning):\")\nprint(report.head())\n\n\nDaily report (generated the next morning):\n      count     total  average\ntime                          \n9        20  30174.87  1508.74\n10       20  23969.05  1198.45\n11       20  27346.70  1367.34\n12       20  33457.91  1672.90\n13       20  36552.13  1827.61\n\n\n\n\n\n\nShow code\nimport time\n\n# Simulation: each transaction analyzed the moment it appears\nwindow_5min = []\nalert_threshold = 5000  # alert if window sum &gt; 5000 PLN\n\nfor i in range(10):\n    tx = {\n        'time': datetime.now().strftime('%H:%M:%S'),\n        'amount': round(np.random.uniform(20, 3000), 2),\n        'customer': np.random.randint(1000, 9999)\n    }\n    window_5min.append(tx['amount'])\n    window_sum = sum(window_5min)\n\n    status = \"\"\n    if window_sum &gt; alert_threshold:\n        status = \" &lt;&lt; ALERT: high activity!\"\n        window_5min = []  # reset window\n\n    print(f\"[{tx['time']}] Customer {tx['customer']}: {tx['amount']:&gt;8.2f} PLN | Window sum: {window_sum:&gt;9.2f}{status}\")\n    time.sleep(0.2)\n\n\n[22:47:16] Customer 2191:  1289.75 PLN | Window sum:   1289.75\n[22:47:16] Customer 7938:   236.83 PLN | Window sum:   1526.58\n[22:47:17] Customer 2540:  2124.60 PLN | Window sum:   3651.18\n[22:47:17] Customer 6541:  1549.71 PLN | Window sum:   5200.89 &lt;&lt; ALERT: high activity!\n[22:47:17] Customer 2365:  2960.19 PLN | Window sum:   2960.19\n[22:47:17] Customer 9702:  2442.14 PLN | Window sum:   5402.33 &lt;&lt; ALERT: high activity!\n[22:47:17] Customer 2324:  2724.93 PLN | Window sum:   2724.93\n[22:47:18] Customer 4141:  2265.07 PLN | Window sum:   4990.00\n[22:47:18] Customer 2810:  2130.38 PLN | Window sum:   7120.38 &lt;&lt; ALERT: high activity!\n[22:47:18] Customer 6301:  2335.90 PLN | Window sum:   2335.90\n\n\n\n\n\n\n\n\n\n\n\nImportantThe fundamental difference\n\n\n\nIn batch mode we learn about a problem the next day. In stream mode — immediately.",
     "crumbs": [
       "Home",
       "Lectures",
@@ -160,7 +160,7 @@
     "href": "lectures/lecture2.html#time-in-stream-processing",
     "title": "Lecture 2 — Batch vs Stream. Lambda and Kappa Architectures",
     "section": "4 Time in stream processing",
-    "text": "4 Time in stream processing\nIn batch processing, time is not a problem — we analyze historical data whenever we want. In stream processing, time becomes a key dimension of analysis.\n\n4.1 Two kinds of time\n\n\n\n\n\n\n\n\nNote Event time\n\n\n\nThe moment the event actually occurred.\nE.g., a customer clicked “Buy” at 14:23:45.\n\n\n\n\n\n\n\n\n\nWarning Processing time\n\n\n\nThe moment the system received and processed the event.\nE.g., the Kafka system received the event at 14:23:47.\n\n\n\n\nIn an ideal world both times would be identical. In practice there is always a delay (latency) — caused by network, buffering, device failure.\n\n\nShow code\n# Simulation: events arrive with random delay\nimport random\n\nevents = []\nfor i in range(8):\n    event_time = datetime(2026, 3, 12, 14, 23, i * 2)  # every 2 seconds\n    delay = random.uniform(0.1, 5.0)  # delay 0.1–5s\n    processing_time = event_time + timedelta(seconds=delay)\n    events.append({\n        'event_time': event_time.strftime('%H:%M:%S'),\n        'processing_time': processing_time.strftime('%H:%M:%S.') + f'{int(delay*100):02d}',\n        'delay': f'{delay:.1f}s'\n    })\n\ndf = pd.DataFrame(events)\nprint(df.to_string(index=False))\n\n\nevent_time processing_time delay\n  14:23:00    14:23:04.448  4.5s\n  14:23:02    14:23:03.127  1.3s\n  14:23:04    14:23:05.190  1.9s\n  14:23:06     14:23:06.89  0.9s\n  14:23:08     14:23:08.53  0.5s\n  14:23:10    14:23:11.195  2.0s\n  14:23:12     14:23:12.66  0.7s\n  14:23:14    14:23:17.330  3.3s\n\n\n\n\nShow code\nimport matplotlib.pyplot as plt\nimport matplotlib.patches as mpatches\n\nnp.random.seed(42)\nn = 20\nevt = np.sort(np.random.uniform(0, 60, n))\ndelays = np.random.exponential(3, n)\nproc = evt + delays\nwatermark = 5\n\nfig, ax = plt.subplots(figsize=(9, 6))\nax.plot([0, 70], [0, 70], 'k--', alpha=0.3, label='Ideal (delay=0)')\nax.plot([0, 70], [watermark, 70+watermark], 'b--', alpha=0.3, label=f'Watermark ({watermark}s)')\n\nfor i in range(n):\n    in_wm = proc[i] &lt;= evt[i] + watermark + 1\n    color = '#4CAF50' if in_wm else '#F44336'\n    ax.scatter(evt[i], proc[i], c=color, s=50, zorder=5, edgecolors='white')\n    ax.plot([evt[i], evt[i]], [evt[i], proc[i]], color=color, alpha=0.2, linewidth=1)\n\ngp = mpatches.Patch(color='#4CAF50', label='Within watermark window')\nrp = mpatches.Patch(color='#F44336', label='Too late (discarded)')\nax.legend(handles=[gp, rp, ax.lines[0], ax.lines[1]], loc='upper left')\nax.set_xlabel('Event time (seconds)')\nax.set_ylabel('Processing time (seconds)')\nax.set_title('Delays and watermarking')\nax.set_xlim(-2, 70)\nax.set_ylim(-2, 75)\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nFigure 1: Event time vs processing time — delays in streaming systems\n\n\n\n\n\n\n\n\n\n\n\nTip Analogy: GPS in a tunnel\n\n\n\n\n\nImagine tracking a car by GPS. The vehicle enters a tunnel — for 30 seconds there is no signal. After exiting, the device sends 30 readings at once. The system needs to know that these events belong to the past, not the present.\n\n\n\nLate events can be handled in two ways:\n\nIgnoring — discard events that arrived too late (risk of data loss).\nWatermarking — define a “watermark” — the maximum allowed delay. Events within the watermark window are included; the rest are discarded.",
+    "text": "4 Time in stream processing\nIn batch processing, time is not a problem — we analyze historical data whenever we want. In stream processing, time becomes a key dimension of analysis.\n\n4.1 Two kinds of time\n\n\n\n\n\n\n\n\nNote Event time\n\n\n\nThe moment the event actually occurred.\nE.g., a customer clicked “Buy” at 14:23:45.\n\n\n\n\n\n\n\n\n\nWarning Processing time\n\n\n\nThe moment the system received and processed the event.\nE.g., the Kafka system received the event at 14:23:47.\n\n\n\n\nIn an ideal world both times would be identical. In practice there is always a delay (latency) — caused by network, buffering, device failure.\n\n\nShow code\n# Simulation: events arrive with random delay\nimport random\n\nevents = []\nfor i in range(8):\n    event_time = datetime(2026, 3, 12, 14, 23, i * 2)  # every 2 seconds\n    delay = random.uniform(0.1, 5.0)  # delay 0.1–5s\n    processing_time = event_time + timedelta(seconds=delay)\n    events.append({\n        'event_time': event_time.strftime('%H:%M:%S'),\n        'processing_time': processing_time.strftime('%H:%M:%S.') + f'{int(delay*100):02d}',\n        'delay': f'{delay:.1f}s'\n    })\n\ndf = pd.DataFrame(events)\nprint(df.to_string(index=False))\n\n\nevent_time processing_time delay\n  14:23:00    14:23:02.218  2.2s\n  14:23:02    14:23:03.153  1.5s\n  14:23:04    14:23:07.332  3.3s\n  14:23:06    14:23:09.326  3.3s\n  14:23:08    14:23:09.172  1.7s\n  14:23:10    14:23:14.411  4.1s\n  14:23:12     14:23:12.52  0.5s\n  14:23:14    14:23:17.352  3.5s\n\n\n\n\nShow code\nimport matplotlib.pyplot as plt\nimport matplotlib.patches as mpatches\n\nnp.random.seed(42)\nn = 20\nevt = np.sort(np.random.uniform(0, 60, n))\ndelays = np.random.exponential(3, n)\nproc = evt + delays\nwatermark = 5\n\nfig, ax = plt.subplots(figsize=(9, 6))\nax.plot([0, 70], [0, 70], 'k--', alpha=0.3, label='Ideal (delay=0)')\nax.plot([0, 70], [watermark, 70+watermark], 'b--', alpha=0.3, label=f'Watermark ({watermark}s)')\n\nfor i in range(n):\n    in_wm = proc[i] &lt;= evt[i] + watermark + 1\n    color = '#4CAF50' if in_wm else '#F44336'\n    ax.scatter(evt[i], proc[i], c=color, s=50, zorder=5, edgecolors='white')\n    ax.plot([evt[i], evt[i]], [evt[i], proc[i]], color=color, alpha=0.2, linewidth=1)\n\ngp = mpatches.Patch(color='#4CAF50', label='Within watermark window')\nrp = mpatches.Patch(color='#F44336', label='Too late (discarded)')\nax.legend(handles=[gp, rp, ax.lines[0], ax.lines[1]], loc='upper left')\nax.set_xlabel('Event time (seconds)')\nax.set_ylabel('Processing time (seconds)')\nax.set_title('Delays and watermarking')\nax.set_xlim(-2, 70)\nax.set_ylim(-2, 75)\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nFigure 1: Event time vs processing time — delays in streaming systems\n\n\n\n\n\n\n\n\n\n\n\nTip Analogy: GPS in a tunnel\n\n\n\n\n\nImagine tracking a car by GPS. The vehicle enters a tunnel — for 30 seconds there is no signal. After exiting, the device sends 30 readings at once. The system needs to know that these events belong to the past, not the present.\n\n\n\nLate events can be handled in two ways:\n\nIgnoring — discard events that arrived too late (risk of data loss).\nWatermarking — define a “watermark” — the maximum allowed delay. Events within the watermark window are included; the rest are discarded.",
     "crumbs": [
       "Home",
       "Lectures",
@@ -232,7 +232,7 @@
     "href": "lectures/lecture1.html#data-is-always-generated-as-a-stream",
     "title": "Lecture 1 — From Flat Files to Data Lake",
     "section": "3 Data is always generated as a stream",
-    "text": "3 Data is always generated as a stream\nAll of the models above assume data is at rest — sitting in a file, database, or warehouse. But in reality, data is always generated as a stream of events — every transaction, every click, every sensor reading is an event that occurs at a specific moment in time.\n\n\n\n\n\n\nWarningShift in perspective\n\n\n\nBatch processing is just a simplification — we collect a stream of events into a file and analyze it with a delay.\n\n\n\n\nShow code\nimport time\nfrom datetime import datetime\n\ndef generate_transactions(n=5):\n    stores = ['Warsaw', 'Krakow', 'Gdansk']\n    for i in range(n):\n        yield {\n            'id': f'TX{i+1:04d}',\n            'time': datetime.now().strftime('%H:%M:%S'),\n            'amount': round(np.random.uniform(10, 2000), 2),\n            'store': np.random.choice(stores)\n        }\n        time.sleep(0.3)\n\ntotal = 0\nfor tx in generate_transactions():\n    total += tx['amount']\n    alert = \" &lt;&lt; LARGE TRANSACTION\" if tx['amount'] &gt; 1500 else \"\"\n    print(f\"[{tx['time']}] {tx['id']}: {tx['amount']:&gt;8.2f} PLN ({tx['store']}){alert}\")\nprint(f\"\\nRunning total: {total:.2f} PLN\")\n\n\n[22:36:06] TX0001:  1001.75 PLN (Krakow)\n[22:36:07] TX0002:    77.42 PLN (Warsaw)\n[22:36:07] TX0003:   731.16 PLN (Gdansk)\n[22:36:07] TX0004:   562.40 PLN (Krakow)\n[22:36:08] TX0005:    36.06 PLN (Warsaw)\n\nRunning total: 2408.79 PLN\n\n\nSystems that handle data streams include: transactional systems, data warehouses, IoT systems, web analytics platforms, advertising platforms, social media, logging systems.\n\nA company is an organization that generates and responds to a continuous stream of events.",
+    "text": "3 Data is always generated as a stream\nAll of the models above assume data is at rest — sitting in a file, database, or warehouse. But in reality, data is always generated as a stream of events — every transaction, every click, every sensor reading is an event that occurs at a specific moment in time.\n\n\n\n\n\n\nWarningShift in perspective\n\n\n\nBatch processing is just a simplification — we collect a stream of events into a file and analyze it with a delay.\n\n\n\n\nShow code\nimport time\nfrom datetime import datetime\n\ndef generate_transactions(n=5):\n    stores = ['Warsaw', 'Krakow', 'Gdansk']\n    for i in range(n):\n        yield {\n            'id': f'TX{i+1:04d}',\n            'time': datetime.now().strftime('%H:%M:%S'),\n            'amount': round(np.random.uniform(10, 2000), 2),\n            'store': np.random.choice(stores)\n        }\n        time.sleep(0.3)\n\ntotal = 0\nfor tx in generate_transactions():\n    total += tx['amount']\n    alert = \" &lt;&lt; LARGE TRANSACTION\" if tx['amount'] &gt; 1500 else \"\"\n    print(f\"[{tx['time']}] {tx['id']}: {tx['amount']:&gt;8.2f} PLN ({tx['store']}){alert}\")\nprint(f\"\\nRunning total: {total:.2f} PLN\")\n\n\n[22:47:09] TX0001:  1001.75 PLN (Krakow)\n[22:47:09] TX0002:    77.42 PLN (Warsaw)\n[22:47:10] TX0003:   731.16 PLN (Gdansk)\n[22:47:10] TX0004:   562.40 PLN (Krakow)\n[22:47:10] TX0005:    36.06 PLN (Warsaw)\n\nRunning total: 2408.79 PLN\n\n\nSystems that handle data streams include: transactional systems, data warehouses, IoT systems, web analytics platforms, advertising platforms, social media, logging systems.\n\nA company is an organization that generates and responds to a continuous stream of events.",
     "crumbs": [
       "Home",
       "Lectures",
@@ -588,121 +588,121 @@
   {
     "objectID": "labs/en_lab5.html",
     "href": "labs/en_lab5.html",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "",
     "text": "Think of a restaurant. You (the customer) don’t walk into the kitchen and cook yourself — you order through a waiter. The waiter takes your request, passes it to the kitchen, and comes back with a response.\nAn API (Application Programming Interface) works the same way: - You send a request — e.g. “score this transaction” - The API processes it (runs the model, checks rules) - It returns a response — e.g. {\"fraud\": true, \"score\": 0.92}\nThis lets an ML model run as a separate service that can be called by a Kafka consumer, a mobile app, a dashboard — anything.",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#what-is-an-api",
     "href": "labs/en_lab5.html#what-is-an-api",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "",
     "text": "Think of a restaurant. You (the customer) don’t walk into the kitchen and cook yourself — you order through a waiter. The waiter takes your request, passes it to the kitchen, and comes back with a response.\nAn API (Application Programming Interface) works the same way: - You send a request — e.g. “score this transaction” - The API processes it (runs the model, checks rules) - It returns a response — e.g. {\"fraud\": true, \"score\": 0.92}\nThis lets an ML model run as a separate service that can be called by a Kafka consumer, a mobile app, a dashboard — anything.",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#what-is-rest-and-http",
     "href": "labs/en_lab5.html#what-is-rest-and-http",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "What is REST and HTTP?",
     "text": "What is REST and HTTP?\nHTTP is the communication protocol — the same one your browser uses. Each request has: - a method: GET (fetch data) or POST (send data for processing) - a URL: e.g. http://localhost:5000/score - optionally a body: JSON data\nREST is a design style for APIs — each resource has its own URL, HTTP methods have defined meanings.",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#where-does-this-fit-in-our-project",
     "href": "labs/en_lab5.html#where-does-this-fit-in-our-project",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "Where does this fit in our project?",
     "text": "Where does this fit in our project?\nLab 1: Kafka producer → Python consumer\nLab 3: consumer → Spark Streaming → alerts\nLab 4: Flask API  ← (here — building the scoring service)\nLab 6: Kafka consumer → calls Flask API → alerts",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#plan",
     "href": "labs/en_lab5.html#plan",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "Plan",
     "text": "Plan\n\nFirst API — Hello World\nURL parameters and path variables\nPOST endpoint — accepting JSON\nTransaction scoring — business rules through the API",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#part-1-first-api",
     "href": "labs/en_lab5.html#part-1-first-api",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "Part 1: First API",
     "text": "Part 1: First API\nFlask is a minimal web framework for Python — a few lines of code and you have a running server.\nWe use %%file to save the code to a file, then start the server in the background so the notebook keeps working.\n\n%%file app.py\nfrom flask import Flask\n\napp = Flask(__name__)\n\n@app.route(\"/\")                      # URL: http://localhost:5000/\ndef home():\n    return \"Welcome to the transaction monitoring system!\"\n\nif __name__ == \"__main__\":\n    app.run(host=\"0.0.0.0\", port=5000)\n\nWriting app.py\n\n\n\nimport subprocess, time, requests\n\nserver = subprocess.Popen([\"python\", \"app.py\"])\ntime.sleep(2)   # give the server a moment to start\n\nresponse = requests.get(\"http://localhost:5000/\")\nprint(f\"Status: {response.status_code}\")\nprint(f\"Body:   {response.text}\")\n\nStatus: 200\nBody:   Welcome to the transaction monitoring system!\n\n\nStatus 200 means success. Other codes you will encounter:\n\n\n\nCode\nMeaning\n\n\n\n\n200\nOK — request handled successfully\n\n\n400\nBad Request — invalid input data\n\n\n404\nNot Found — this URL does not exist\n\n\n500\nInternal Server Error — bug in server code",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#part-2-url-parameters-and-path-variables",
     "href": "labs/en_lab5.html#part-2-url-parameters-and-path-variables",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "Part 2: URL Parameters and Path Variables",
     "text": "Part 2: URL Parameters and Path Variables\nAn API can receive data in two ways: - query parameters: ?name=Anna — appended to the URL after ? - path variables: /transaction/TX001 — embedded in the URL\n\nTask 2.1 — Endpoint with query parameter\n\nserver.kill()\n\n\n%%file app.py\nfrom flask import Flask, request, jsonify\n\napp = Flask(__name__)\n\n@app.route(\"/\")\ndef home():\n    return \"Welcome to the transaction monitoring system!\"\n\n@app.route(\"/hello\")                  # GET /hello?name=Anna\ndef hello():\n    name = request.args.get(\"name\", \"stranger\")   # read query parameter\n    return f\"Hello, {name}!\"\n\n@app.route(\"/transaction/&lt;tx_id&gt;\")    # GET /transaction/TX0042\ndef get_transaction(tx_id):\n    return jsonify({\"tx_id\": tx_id, \"status\": \"found\"})\n\nif __name__ == \"__main__\":\n    app.run(host=\"0.0.0.0\", port=5000)\n\nOverwriting app.py\n\n\n\nserver = subprocess.Popen([\"python\", \"app.py\"])\ntime.sleep(2)\n\n# Query parameter\nr1 = requests.get(\"http://localhost:5000/hello\")\nr2 = requests.get(\"http://localhost:5000/hello?name=Anna\")\nprint(r1.text)   # Hello, stranger!\nprint(r2.text)   # Hello, Anna!\n\n# Path variable\nr3 = requests.get(\"http://localhost:5000/transaction/TX0042\")\nprint(r3.json())\n\nHello, stranger!\nHello, Anna!\n{'status': 'found', 'tx_id': 'TX0042'}\n\n\n\n\nTask 2.2 — Add a /status endpoint\nAdd GET /status that returns JSON: {\"service\": \"monitoring\", \"version\": \"1.0\", \"status\": \"ok\"}.\n\nserver.kill()\n\n# YOUR CODE — add the endpoint to app.py and test it\n# %%file app.py ...",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#part-3-post-endpoint-accepting-json",
     "href": "labs/en_lab5.html#part-3-post-endpoint-accepting-json",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "Part 3: POST Endpoint — Accepting JSON",
     "text": "Part 3: POST Endpoint — Accepting JSON\nSo far we used GET — requests without data. Scoring a transaction requires sending data to the server — that’s what POST with a JSON body is for.\nAnalogy: GET is “what’s the price?”, POST is “buy this for me, here are my card details”.\n\n%%file app.py\nfrom flask import Flask, request, jsonify\n\napp = Flask(__name__)\n\n@app.route(\"/echo\", methods=[\"POST\"])  # accept POST only\ndef echo():\n    data = request.get_json()           # read JSON body\n    return jsonify({\n        \"received\": data,\n        \"field_count\": len(data),\n    })\n\nif __name__ == \"__main__\":\n    app.run(host=\"0.0.0.0\", port=5000)\n\nOverwriting app.py\n\n\n\nserver = subprocess.Popen([\"python\", \"app.py\"])\ntime.sleep(2)\n\ntransaction = {\n    \"tx_id\": \"TX0042\",\n    \"amount\": 4500.0,\n    \"store\": \"Krakow\",\n    \"category\": \"electronics\",\n}\n\nr = requests.post(\"http://localhost:5000/echo\", json=transaction)\nprint(r.json())\n\n{'field_count': 4, 'received': {'amount': 4500.0, 'category': 'electronics', 'store': 'Krakow', 'tx_id': 'TX0042'}}\n\n\n\nTask 3.1 — Test a wrong method\nTry calling /echo with GET instead of POST. What does the server return? What status code?\n\nr_bad = requests.get(\"http://localhost:5000/echo\")\nprint(f\"Status: {r_bad.status_code}\")\n\n# Answer in a comment: what does this status code mean?\n# ANSWER:\n\nStatus: 405",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#part-4-transaction-scoring-via-api",
     "href": "labs/en_lab5.html#part-4-transaction-scoring-via-api",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "Part 4: Transaction Scoring via API",
     "text": "Part 4: Transaction Scoring via API\nNow we connect Flask to business logic. The /score endpoint accepts a transaction and returns a risk assessment.\nWe use rules for now — the ML model comes in Lab 5.\n\nTask 4.1 — Scoring function\n\nserver.kill()\n\ndef score_transaction(tx: dict) -&gt; dict:\n    \"\"\"\n    Assess transaction risk using business rules.\n    Returns dict with: score (0-8), risk_level, triggered_rules.\n    \"\"\"\n    score = 0\n    rules = []\n\n    if tx.get(\"amount\", 0) &gt; 3000:\n        score += 3; rules.append(\"R1: amount &gt; 3000\")\n\n    if tx.get(\"category\") == \"electronics\" and tx.get(\"amount\", 0) &gt; 1500:\n        score += 2; rules.append(\"R2: electronics &gt; 1500\")\n\n    # YOUR CODE — add rule R3: hour &lt; 6 (use 'hour' field if present in tx)\n\n    if score &gt;= 5:\n        risk_level = \"CRITICAL\"\n    elif score &gt;= 3:\n        risk_level = \"HIGH\"\n    elif score &gt;= 1:\n        risk_level = \"MEDIUM\"\n    else:\n        risk_level = \"LOW\"\n\n    return {\"score\": score, \"risk_level\": risk_level, \"triggered_rules\": rules}\n\n# Quick test without a server\ntest_tx = {\"tx_id\": \"TX001\", \"amount\": 4500.0, \"category\": \"electronics\", \"hour\": 3}\nprint(score_transaction(test_tx))\n\n{'score': 5, 'risk_level': 'CRITICAL', 'triggered_rules': ['R1: amount &gt; 3000', 'R2: electronics &gt; 1500']}\n\n\n\n\nTask 4.2 — /score endpoint\n\n%%file app.py\nfrom flask import Flask, request, jsonify\n\napp = Flask(__name__)\n\ndef score_transaction(tx):\n    score = 0\n    rules = []\n    if tx.get(\"amount\", 0) &gt; 3000:\n        score += 3; rules.append(\"R1: amount &gt; 3000\")\n    if tx.get(\"category\") == \"electronics\" and tx.get(\"amount\", 0) &gt; 1500:\n        score += 2; rules.append(\"R2: electronics &gt; 1500\")\n    if tx.get(\"hour\", 12) &lt; 6:\n        score += 2; rules.append(\"R3: night hour\")\n    risk_level = \"CRITICAL\" if score &gt;= 5 else \"HIGH\" if score &gt;= 3 else \"MEDIUM\" if score &gt;= 1 else \"LOW\"\n    return {\"score\": score, \"risk_level\": risk_level, \"triggered_rules\": rules}\n\n@app.route(\"/score\", methods=[\"POST\"])\ndef score():\n    tx = request.get_json()\n    if not tx or \"amount\" not in tx:\n        return jsonify({\"error\": \"Missing required field 'amount'\"}), 400\n    result = score_transaction(tx)\n    result[\"tx_id\"] = tx.get(\"tx_id\", \"unknown\")\n    return jsonify(result)\n\n@app.route(\"/health\")\ndef health():\n    return jsonify({\"status\": \"ok\", \"version\": \"1.0-rules\"})\n\nif __name__ == \"__main__\":\n    app.run(host=\"0.0.0.0\", port=5000)\n\nOverwriting app.py\n\n\n\nserver = subprocess.Popen([\"python\", \"app.py\"])\ntime.sleep(2)\n\ncases = [\n    {\"tx_id\": \"TX001\", \"amount\": 50.0,   \"category\": \"food\",        \"hour\": 14},\n    {\"tx_id\": \"TX002\", \"amount\": 1800.0,  \"category\": \"electronics\", \"hour\": 10},\n    {\"tx_id\": \"TX003\", \"amount\": 4500.0,  \"category\": \"electronics\", \"hour\": 3},\n]\n\nfor tx in cases:\n    r = requests.post(\"http://localhost:5000/score\", json=tx)\n    res = r.json()\n    print(f\"{tx['tx_id']}  {tx['amount']:&gt;7.0f} PLN  → {res['risk_level']:8s} (score={res['score']})  {res['triggered_rules']}\")\n\nTX001       50 PLN  → LOW      (score=0)  []\nTX002     1800 PLN  → MEDIUM   (score=2)  ['R2: electronics &gt; 1500']\nTX003     4500 PLN  → CRITICAL (score=7)  ['R1: amount &gt; 3000', 'R2: electronics &gt; 1500', 'R3: night hour']\n\n\n\n\nTask 4.3 — Test error handling\nSend a request without the amount field. Check the status code and response body.\n\n# YOUR CODE\n# r = requests.post(\"http://localhost:5000/score\", json={\"tx_id\": \"TX000\"})\n# print(r.status_code, r.json())\n\n\n\nTask 4.4 — Review questions\n\n# 1. What is the difference between GET and POST?\n#    ANSWER:\n\n# 2. Why use jsonify() instead of return {\"key\": \"value\"}?\n#    Hint: try both and compare the response headers.\n#    ANSWER:\n\n# 3. What happens if two people call /score at the same time?\n#    ANSWER:\n\n\nserver.kill()\nprint(\"Server stopped.\")",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
     "objectID": "labs/en_lab5.html#homework",
     "href": "labs/en_lab5.html#homework",
-    "title": "Lab 4: Flask — Serving a Scoring Model via REST API",
+    "title": "Lab 5: Flask — Serving a Scoring Model via REST API",
     "section": "Homework",
     "text": "Homework\n\nAdd endpoint GET /stats that returns: how many requests the server handled, how many were HIGH/CRITICAL.\n(Hint: use a global dict as a counter — counters = {\"total\": 0, \"high\": 0})\nAdd validation: if amount is negative — return a 400 error.\nCall /score with 10 transactions in a loop and print a summary table.\n\nNext lab: Replace rules with a real ML model — train a RandomForest and load it into Flask.",
     "crumbs": [
       "Home",
       "Labs",
-      "Lab 4: Flask — Serving a Scoring Model via REST API"
+      "Lab 5: Flask — Serving a Scoring Model via REST API"
     ]
   },
   {
