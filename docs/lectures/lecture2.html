@@ -343,7 +343,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href=""><i class="fa-solid fa-database" aria-label="database"></i> Batch approach</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href=""><i class="fa-solid fa-bolt" aria-label="bolt"></i> Stream approach</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div id="99a78040" class="cell" data-execution_count="1">
+<div id="f737bbc1" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -384,7 +384,7 @@ time
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div id="097e96ed" class="cell" data-execution_count="2">
+<div id="5882adb2" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
@@ -411,16 +411,16 @@ time
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">0.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[10:01:10] Customer 2191:  1289.75 PLN | Window sum:   1289.75
-[10:01:10] Customer 7938:   236.83 PLN | Window sum:   1526.58
-[10:01:10] Customer 2540:  2124.60 PLN | Window sum:   3651.18
-[10:01:10] Customer 6541:  1549.71 PLN | Window sum:   5200.89 &lt;&lt; ALERT: high activity!
-[10:01:11] Customer 2365:  2960.19 PLN | Window sum:   2960.19
-[10:01:11] Customer 9702:  2442.14 PLN | Window sum:   5402.33 &lt;&lt; ALERT: high activity!
-[10:01:11] Customer 2324:  2724.93 PLN | Window sum:   2724.93
-[10:01:11] Customer 4141:  2265.07 PLN | Window sum:   4990.00
-[10:01:11] Customer 2810:  2130.38 PLN | Window sum:   7120.38 &lt;&lt; ALERT: high activity!
-[10:01:12] Customer 6301:  2335.90 PLN | Window sum:   2335.90</code></pre>
+<pre><code>[21:33:14] Customer 2191:  1289.75 PLN | Window sum:   1289.75
+[21:33:14] Customer 7938:   236.83 PLN | Window sum:   1526.58
+[21:33:14] Customer 2540:  2124.60 PLN | Window sum:   3651.18
+[21:33:15] Customer 6541:  1549.71 PLN | Window sum:   5200.89 &lt;&lt; ALERT: high activity!
+[21:33:15] Customer 2365:  2960.19 PLN | Window sum:   2960.19
+[21:33:15] Customer 9702:  2442.14 PLN | Window sum:   5402.33 &lt;&lt; ALERT: high activity!
+[21:33:15] Customer 2324:  2724.93 PLN | Window sum:   2724.93
+[21:33:15] Customer 4141:  2265.07 PLN | Window sum:   4990.00
+[21:33:16] Customer 2810:  2130.38 PLN | Window sum:   7120.38 &lt;&lt; ALERT: high activity!
+[21:33:16] Customer 6301:  2335.90 PLN | Window sum:   2335.90</code></pre>
 </div>
 </div>
 </div>
@@ -662,7 +662,7 @@ time
 </div>
 </div>
 <p>In an ideal world both times would be identical. In practice there is always a <strong>delay</strong> (latency) — caused by network, buffering, device failure.</p>
-<div id="3c4ab189" class="cell" data-execution_count="3">
+<div id="a9b39115" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation: events arrive with random delay</span></span>
@@ -684,14 +684,14 @@ time
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>event_time processing_time delay
-  14:23:00    14:23:04.447  4.5s
-  14:23:02    14:23:06.468  4.7s
-  14:23:04    14:23:08.414  4.1s
-  14:23:06    14:23:09.387  3.9s
-  14:23:08    14:23:11.314  3.1s
-  14:23:10    14:23:13.311  3.1s
-  14:23:12    14:23:16.494  4.9s
-  14:23:14    14:23:15.146  1.5s</code></pre>
+  14:23:00     14:23:00.32  0.3s
+  14:23:02     14:23:02.71  0.7s
+  14:23:04    14:23:05.189  1.9s
+  14:23:06    14:23:08.266  2.7s
+  14:23:08    14:23:10.207  2.1s
+  14:23:10    14:23:14.482  4.8s
+  14:23:12    14:23:14.282  2.8s
+  14:23:14    14:23:17.369  3.7s</code></pre>
 </div>
 </div>
 <div id="cell-fig-event-vs-processing" class="cell" data-execution_count="4">
@@ -774,7 +774,7 @@ Figure&nbsp;1: Event time vs processing time — delays in streaming systems
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <p>Fixed length, no overlap. Each event belongs to <strong>exactly one</strong> window.</p>
 <p><em>Example:</em> sum of transactions every 5 minutes.</p>
-<div id="8ba2aa9e" class="cell" data-execution_count="5">
+<div id="d350aa8e" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulation of a 5-minute tumbling window</span></span>
@@ -927,7 +927,7 @@ Figure&nbsp;2: Time window types — visualization
 </div>
 </div>
 </div>
-<div id="1682e6b3" class="cell" data-execution_count="7">
+<div id="6ea01446" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Show code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparison: tumbling vs sliding window on the same data</span></span>

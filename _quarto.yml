@@ -51,8 +51,8 @@ filters:
 format:
   html:
     page-layout: article
-    theme: flatly        # Zmienione z minty na flatly, żeby pasowało do wykładu
-    highlight-style: github # Dodane, żeby kod wyglądał tak samo
+    theme: flatly        
+    highlight-style: github
     css: style.css
     toc: true
     toc-depth: 2
