@@ -318,8 +318,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="where-does-this-fit-in-our-project" class="level2">
 <h2 class="anchored" data-anchor-id="where-does-this-fit-in-our-project">Where does this fit in our project?</h2>
 <pre><code>Lab 1: Kafka producer → Python consumer
-Lab 3: consumer → Spark Streaming → alerts
-Lab 4: Flask API  ← (here — building the scoring service)
+Lab 2: Spark DataFrame
+Lab 3: Spark Streaming
+Lab 4: consumer → Spark Streaming → alerts
+Lab 5: Flask API  ← (here — building the scoring service)
 Lab 6: Kafka consumer → calls Flask API → alerts</code></pre>
 </section>
 <section id="plan" class="level2">
@@ -516,7 +518,7 @@ Hello, Anna!
 <section id="part-4-transaction-scoring-via-api" class="level2">
 <h2 class="anchored" data-anchor-id="part-4-transaction-scoring-via-api">Part 4: Transaction Scoring via API</h2>
 <p>Now we connect Flask to business logic. The <code>/score</code> endpoint accepts a transaction and returns a risk assessment.</p>
-<p>We use <strong>rules</strong> for now — the ML model comes in Lab 5.</p>
+<p>We use <strong>rules</strong> for now — the ML model comes in Lab 6.</p>
 <section id="task-4.1-scoring-function" class="level3">
 <h3 class="anchored" data-anchor-id="task-4.1-scoring-function">Task 4.1 — Scoring function</h3>
 <div id="scoring-fn" class="cell" data-execution_count="10">
